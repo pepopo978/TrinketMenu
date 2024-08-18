@@ -261,10 +261,10 @@ function TrinketMenu.Initialize()
 	TrinketMenu.CreateTimer("TooltipUpdate",TrinketMenu.TooltipUpdate,1,1)
 	TrinketMenu.CreateTimer("CooldownUpdate",TrinketMenu.CooldownUpdate,1,1)
 
-	--TrinketMenu.oldUseInventoryItem = UseInventoryItem
-	--UseInventoryItem = TrinketMenu.newUseInventoryItem
-	--TrinketMenu.oldUseAction = UseAction
-	--UseAction = TrinketMenu.newUseAction
+	TrinketMenu.oldUseInventoryItem = UseInventoryItem
+	UseInventoryItem = TrinketMenu.newUseInventoryItem
+	TrinketMenu.oldUseAction = UseAction
+	UseAction = TrinketMenu.newUseAction
 
 	TrinketMenu.InitOptions()
 
@@ -750,6 +750,7 @@ function TrinketMenu.ReflectTrinketUse(slot)
 	getglobal("TrinketMenu_Trinket"..(slot-13)):SetChecked(1)
 	TrinketMenu.StartTimer("UpdateWornTrinkets")
 	local _,_,id,trinket = string.find(GetInventoryItemLink("player",slot) or "","item:(%d+).+%[(.+)%]")
+	print("used "..tostring(trinket))
 	if trinket then
 		TrinketMenuPerOptions.ItemsUsed[trinket] = 0 -- 0 is an indeterminate state, cooldown will figure if it's worth watching
 		TrinketMenu.AddWatchItem(trinket)
@@ -989,6 +990,7 @@ function TrinketMenu.CooldownUpdate()
 	local inv,bag,slot,start,duration,name,remain
 	local watch = TrinketMenu.WatchItem
 	for i in TrinketMenuPerOptions.ItemsUsed do
+		print(i)
 		start,name = nil
 		if not watch[i] then TrinketMenu.AddWatchItem(i) end -- if not on watch table, add it
 		inv,bag,slot = watch[i].inv,watch[i].bag,watch[i].slot
@@ -1009,6 +1011,7 @@ function TrinketMenu.CooldownUpdate()
 		else
 			TrinketMenuPerOptions.ItemsUsed[i] = nil
 		end
+		print(tostring(start).." "..tostring(duration) .. " " .. tostring(name))
 		if start and TrinketMenuPerOptions.ItemsUsed[i]<3 then
 			TrinketMenuPerOptions.ItemsUsed[i] = TrinketMenuPerOptions.ItemsUsed[i] + 1 -- count for 3 seconds before seeing if this is a real cooldown
 		elseif start then
