@@ -48,7 +48,7 @@ end
 TrinketMenu_Version = 3.41
 BINDING_HEADER_TRINKETMENU = "TrinketMenu"
 
-TrinketMenu.MaxTrinkets = 30 -- add more to TrinketMenu_MenuFrame if this changes
+TrinketMenu.MaxTrinkets = 60 -- add more to TrinketMenu_MenuFrame if this changes
 TrinketMenu.BaggedTrinkets = {} -- indexed by number, 1-30 of trinkets in the menu
 TrinketMenu.NumberOfTrinkets = 0 -- number of trinkets in the menu
 TrinketMenu.CombatQueue = {} -- [0] or [1] = name of trinket queued for slot 0 or 1

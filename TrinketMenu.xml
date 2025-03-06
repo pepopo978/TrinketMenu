@@ -326,6 +326,36 @@
 			<CheckButton name="TrinketMenu_Menu28" inherits="TrinketMenuMenuTrinketTemplate" id="28"/>
 			<CheckButton name="TrinketMenu_Menu29" inherits="TrinketMenuMenuTrinketTemplate" id="29"/>
 			<CheckButton name="TrinketMenu_Menu30" inherits="TrinketMenuMenuTrinketTemplate" id="30"/>
+			<CheckButton name="TrinketMenu_Menu31" inherits="TrinketMenuMenuTrinketTemplate" id="31"/>
+			<CheckButton name="TrinketMenu_Menu32" inherits="TrinketMenuMenuTrinketTemplate" id="32"/>
+			<CheckButton name="TrinketMenu_Menu33" inherits="TrinketMenuMenuTrinketTemplate" id="33"/>
+			<CheckButton name="TrinketMenu_Menu34" inherits="TrinketMenuMenuTrinketTemplate" id="34"/>
+			<CheckButton name="TrinketMenu_Menu35" inherits="TrinketMenuMenuTrinketTemplate" id="35"/>
+			<CheckButton name="TrinketMenu_Menu36" inherits="TrinketMenuMenuTrinketTemplate" id="36"/>
+			<CheckButton name="TrinketMenu_Menu37" inherits="TrinketMenuMenuTrinketTemplate" id="37"/>
+			<CheckButton name="TrinketMenu_Menu38" inherits="TrinketMenuMenuTrinketTemplate" id="38"/>
+			<CheckButton name="TrinketMenu_Menu39" inherits="TrinketMenuMenuTrinketTemplate" id="39"/>
+			<CheckButton name="TrinketMenu_Menu40" inherits="TrinketMenuMenuTrinketTemplate" id="40"/>
+			<CheckButton name="TrinketMenu_Menu41" inherits="TrinketMenuMenuTrinketTemplate" id="41"/>
+			<CheckButton name="TrinketMenu_Menu42" inherits="TrinketMenuMenuTrinketTemplate" id="42"/>
+			<CheckButton name="TrinketMenu_Menu43" inherits="TrinketMenuMenuTrinketTemplate" id="43"/>
+			<CheckButton name="TrinketMenu_Menu44" inherits="TrinketMenuMenuTrinketTemplate" id="44"/>
+			<CheckButton name="TrinketMenu_Menu45" inherits="TrinketMenuMenuTrinketTemplate" id="45"/>
+			<CheckButton name="TrinketMenu_Menu46" inherits="TrinketMenuMenuTrinketTemplate" id="46"/>
+			<CheckButton name="TrinketMenu_Menu47" inherits="TrinketMenuMenuTrinketTemplate" id="47"/>
+			<CheckButton name="TrinketMenu_Menu48" inherits="TrinketMenuMenuTrinketTemplate" id="48"/>
+			<CheckButton name="TrinketMenu_Menu49" inherits="TrinketMenuMenuTrinketTemplate" id="49"/>
+			<CheckButton name="TrinketMenu_Menu50" inherits="TrinketMenuMenuTrinketTemplate" id="50"/>
+			<CheckButton name="TrinketMenu_Menu51" inherits="TrinketMenuMenuTrinketTemplate" id="51"/>
+			<CheckButton name="TrinketMenu_Menu52" inherits="TrinketMenuMenuTrinketTemplate" id="52"/>
+			<CheckButton name="TrinketMenu_Menu53" inherits="TrinketMenuMenuTrinketTemplate" id="53"/>
+			<CheckButton name="TrinketMenu_Menu54" inherits="TrinketMenuMenuTrinketTemplate" id="54"/>
+			<CheckButton name="TrinketMenu_Menu55" inherits="TrinketMenuMenuTrinketTemplate" id="55"/>
+			<CheckButton name="TrinketMenu_Menu56" inherits="TrinketMenuMenuTrinketTemplate" id="56"/>
+			<CheckButton name="TrinketMenu_Menu57" inherits="TrinketMenuMenuTrinketTemplate" id="57"/>
+			<CheckButton name="TrinketMenu_Menu58" inherits="TrinketMenuMenuTrinketTemplate" id="58"/>
+			<CheckButton name="TrinketMenu_Menu59" inherits="TrinketMenuMenuTrinketTemplate" id="59"/>
+			<CheckButton name="TrinketMenu_Menu60" inherits="TrinketMenuMenuTrinketTemplate" id="60"/>
 
 			<Frame parent="TrinketMenu_Menu1" inherits="TrinketMenuTimeTemplate"/>
 			<Frame parent="TrinketMenu_Menu2" inherits="TrinketMenuTimeTemplate"/>
@@ -357,6 +387,36 @@
 			<Frame parent="TrinketMenu_Menu28" inherits="TrinketMenuTimeTemplate"/>
 			<Frame parent="TrinketMenu_Menu29" inherits="TrinketMenuTimeTemplate"/>
 			<Frame parent="TrinketMenu_Menu30" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu31" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu32" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu33" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu34" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu35" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu36" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu37" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu38" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu39" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu40" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu41" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu42" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu43" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu44" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu45" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu46" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu47" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu48" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu49" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu50" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu51" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu52" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu53" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu54" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu55" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu56" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu57" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu58" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu59" inherits="TrinketMenuTimeTemplate"/>
+			<Frame parent="TrinketMenu_Menu60" inherits="TrinketMenuTimeTemplate"/>
 
 		</Frames>
 
