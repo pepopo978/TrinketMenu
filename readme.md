@@ -6,7 +6,7 @@
 - `/trinket opt`: summon options window
 - `/trinket lock|unlock`: toggle window lock
 - `/trinket scale main|menu <number>`: set an exact scale
-- `/trinket activate [index]`: activate a raid profile (last used, or by number)
+- `/trinket activate <profilename>`: activate a raid profile (last used, or by name)
 - `/trinket deactivate`: deactivate current raid profile
 - `/trinket edit`: edit active raid profile
 - `/trinket profiles raid`: list all raid profiles
@@ -36,7 +36,7 @@ TrinketMenu 4.0 introduces a powerful pack-based Raid profile system that automa
 - **Create Raid Profiles**: Set up profiles for specific raids (Naxxramas, Karazhan, etc.)
 - **Pack-Based Swapping**: Configure which trinkets to equip after specific boss packs die
 - **Automatic Detection**: The addon will suggest profiles when you enter a raid zone
-- **Quick Activation**: Right-click the profile text above the trinket frame to open profiles, or use `/trinket activate <index>`
+- **Quick Activation**: Right-click the profile text above the trinket frame to open profiles, or use `/trinket activate <profilename>`
 
 ### Menu Sorting Options
 Sort your trinket menu by:
@@ -172,7 +172,7 @@ We can't swap trinkets during combat or when we're dead. If you attempt to swap 
 - /trinket opt : summons options window
 - /trinket lock|unlock : toggles window lock
 - /trinket scale main|menu n : scales windows to exact scale
-- /trinket activate [index] : activate raid profile (last used, or by number)
+- /trinket activate <profilename> : activate raid profile (last used, or by name)
 - /trinket deactivate : deactivate current raid profile
 - /trinket edit : edit active raid profile
 - /trinket profiles raid : list all raid profiles
@@ -322,7 +322,7 @@ A: That sounds like the windows are locked. Enter: /trinket unlock
 
 ## Changes
 
-4.0, 12/23/25, major update: pack-based profile system with automatic boss detection, menu sorting (bag/alphabetical/ilvl), hide trinkets from menu, zone change detection and profile suggestions, right-click profile text to open profiles tab, `/trinket activate [index]` command, profile zone warnings option, menu show hidden on shift option
+4.0, 12/23/25, major update: pack-based profile system with automatic boss detection, menu sorting (bag/alphabetical/ilvl), hide trinkets from menu, zone change detection and profile suggestions, right-click profile text to open profiles tab, `/trinket activate <profilename>` command, profile zone warnings option, menu show hidden on shift option
 3.41, 8/24/06, added: /trinket load, changed: tabs removed and window shortened if TrinketMenuQueue not installed, bug fixed: /trinket reset (savedvars load defaults if nil), checked for Queue before setting HideOnLoad
 3.4, 8/22/06, added: trinket profiles, delete trinket button
 3.3, 8/5/06, added: 1.12 "Floating Combat Text" support, changed: trinkets coming off cooldown clear combat queue, toggle key binding obeys 'Disable Toggle' option

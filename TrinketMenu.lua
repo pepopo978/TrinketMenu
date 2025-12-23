@@ -563,7 +563,7 @@ function TrinketMenu.CheckZoneProfile()
 	for i, profile in ipairs(TrinketMenuQueue.PackProfiles) do
 		if profile and profile.raid and profile.raid == currentZone then
 			-- Found a matching profile that's not currently active
-			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Your current profile does not match this raid.  Found profile '" .. profile.name .. "' for " .. currentZone .. ". Type |cffff8800/trinket activate " .. i .. "|r to activate it.")
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Your current profile does not match this raid.  Found profile '" .. profile.name .. "' for " .. currentZone .. ". Type |cffff8800/trinket activate " .. profile.name .. "|r to activate it.")
 			return
 		end
 	end
@@ -827,16 +827,31 @@ function TrinketMenu.SlashHandler(msg)
 		TrinketMenuPerOptions.MainScale = TrinketMenu_MainFrame:GetScale()
 		TrinketMenuPerOptions.MenuScale = TrinketMenu_MenuFrame:GetScale()
 	elseif string.find(msg,"^activate") then
-		local _,_,index = string.find(msg,"activate%s+(%d+)")
-		if index then
-			index = tonumber(index)
-			if TrinketMenuQueue and TrinketMenuQueue.PackProfiles and TrinketMenuQueue.PackProfiles[index] then
-				local prof = TrinketMenuQueue.PackProfiles[index]
-				TrinketMenuQueue.PackProfileActive = index
-				TrinketMenu.ApplyPackProfileActivation(prof)
-				DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Activated profile '" .. prof.name .. "'")
+		local _,_,name = string.find(msg,"^activate%s+(.+)")
+		if name and name ~= "" then
+			name = string.gsub(name, "^%s*(.-)%s*$", "%1")
+			if name == "" then
+				TrinketMenu.ReactivateLastPackProfile()
+				return
+			end
+			local target = string.lower(name)
+			local foundIndex = nil
+			local foundProfile = nil
+			if TrinketMenuQueue and TrinketMenuQueue.PackProfiles then
+				for i, prof in ipairs(TrinketMenuQueue.PackProfiles) do
+					if prof and prof.name and string.lower(prof.name) == target then
+						foundIndex = i
+						foundProfile = prof
+						break
+					end
+				end
+			end
+			if foundIndex and foundProfile then
+				TrinketMenuQueue.PackProfileActive = foundIndex
+				TrinketMenu.ApplyPackProfileActivation(foundProfile)
+				DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Activated profile '" .. foundProfile.name .. "'")
 			else
-				DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r Profile #" .. index .. " not found")
+				DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r Profile '" .. name .. "' not found")
 			end
 		else
 			TrinketMenu.ReactivateLastPackProfile()
@@ -875,7 +890,7 @@ function TrinketMenu.SlashHandler(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket opt : summon options window")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket lock|unlock : toggles window lock")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket scale main|menu (number) : sets an exact scale")
-		DEFAULT_CHAT_FRAME:AddMessage("/trinket activate [index] : activate raid profile (last or by number)")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket activate <profilename> : activate raid profile (last used or by name)")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket deactivate : deactivate current raid profile")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket edit : edit active raid profile")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket profiles raid : list all raid profiles")
