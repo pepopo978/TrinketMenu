@@ -37,6 +37,103 @@ TrinketMenu.bossList[L["Tower of Karazhan"]] = {
   },
 }
 
+TrinketMenu.bossList[L["Ahn'Qiraj"]] = {
+  ["boss_skeram"] = {
+    "0xF130003B9F01580B", -- The Prophet Skeram
+  },
+  ["boss_bug_trio"] = {
+    "0xF130003C97015632", -- Lord Kri
+    "0xF130003CB7015631", -- Princess Yauj
+    "0xF130003CB8015633", -- Vem
+  },
+  ["boss_sartura"] = {
+    "0xF130003C9C015660", -- Battleguard Sartura
+  },
+  ["boss_fankriss"] = {
+    "0xF130003C96015767", -- Fankriss the Unyielding
+  },
+  ["boss_huhuran"] = {
+    "0xF130003C950157CE", -- Princess Huhuran
+  },
+  ["boss_viscidus"] = {
+    "0xF130003BC3015782", -- Viscidus
+  },
+  ["boss_twin_emperors"] = {
+    "0xF130003BAC01580D", -- Emperor Vek'lor
+    "0xF130003BAB01580C", -- Emperor Vek'nilash
+  },
+  ["boss_cthun"] = {
+    "0xF130003D6F015607", -- C'Thun
+  },
+}
+
+TrinketMenu.bossList[L["Molten Core"]] = {
+  ["boss_lucifron"] = {
+    "0xF130002F5600DD1D", -- Lucifron
+  },
+  ["boss_magmadar"] = {
+    "0xF130002ECE00DD6B", -- Magmadar
+  },
+  ["boss_gehennas"] = {
+    "0xF130002FE300DDA1", -- Gehennas
+  },
+  ["boss_garr"] = {
+    "0xF130002F1900DD21", -- Garr
+  },
+  ["boss_baron_geddon"] = {
+    "0xF130002F1800DD4F", -- Baron Geddon
+  },
+  ["boss_shazzrah"] = {
+    "0xF130002FE800DD20", -- Shazzrah
+  },
+  ["boss_golemagg"] = {
+    "0xF130002ED400DD6C", -- Golemagg the Incinerator
+  },
+  ["boss_majordomo"] = {
+    "0xF130002EF2278E45", -- Majordomo Executus
+  },
+  ["boss_ragnaros"] = {
+    "0xF130002CEE278E7F", -- Ragnaros
+  },
+  ["boss_incindis"] = {
+    "0xF13000CBB1278AF3", -- Incindis
+  },
+  ["boss_twin_golems"] = {
+    "0xF13000FDFC278C2C", -- Basalthar
+    "0xF13000FDFD278C2D", -- Smoldaris
+  },
+  ["boss_thaurissan"] = {
+    "0xF13000E12A278C49", -- Sorcerer-Thane Thaurissan
+  },
+}
+
+TrinketMenu.bossList[L["Blackwing Lair"]] = {
+  ["boss_razorgore"] = {
+    "0xF1300030930149A4", -- Razorgore the Untamed
+  },
+  ["boss_vaelastrasz"] = {
+    "0xF1300032DC014A20", -- Vaelastrasz the Corrupt
+  },
+  ["boss_lashlayer"] = {
+    "0xF130002EF10149A3", -- Broodlord Lashlayer
+  },
+  ["boss_firemaw"] = {
+    "0xF130002ECF014A5C", -- Firemaw
+  },
+  ["boss_ebonroc"] = {
+    "0xF130003909014F14", -- Ebonroc
+  },
+  ["boss_flamegor"] = {
+    "0xF130002ECD014F17", -- Flamegor
+  },
+  ["boss_chromaggus"] = {
+    "0xF1300036C4014F18", -- Chromaggus
+  },
+  ["boss_nefarian"] = {
+    "0xF130002D3F278DFC", -- Nefarian
+  },
+}
+
 TrinketMenu.bossList[L["Naxxramas"]] = {
   ["boss_anub"] = {
     "0xF130003E5401591A", -- anub

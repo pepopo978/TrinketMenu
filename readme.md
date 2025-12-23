@@ -6,8 +6,7 @@
 - `/trinket opt`: summon options window
 - `/trinket lock|unlock`: toggle window lock
 - `/trinket scale main|menu <number>`: set an exact scale
-- `/trinket load top|bottom <profilename>`: load a profile to the top or bottom trinket
-- `/trinket activate`: reactivate last profile
+- `/trinket activate [index]`: activate a profile (last used, or by number)
 - `/trinket deactivate`: deactivate current profile
 - `/trinket edit`: edit active profile
 - `/trinket help`: list all commands
@@ -23,6 +22,42 @@
 # TrinketMenu 4.0
 
 This is a mod to make swapping trinkets easier. It will display your two equipped trinkets in a bar. Mouseover on either trinket will display a menu of up to 30 trinkets in your bags to swap.
+
+## New in 4.0
+
+### Pack Profile System
+TrinketMenu 4.0 introduces a powerful pack-based profile system that automatically swaps trinkets based on which mobs die in raids:
+
+- **Create Raid Profiles**: Set up profiles for specific raids (Naxxramas, Karazhan, etc.)
+- **Pack-Based Swapping**: Configure which trinkets to equip after specific boss packs die
+- **Automatic Detection**: The addon will suggest profiles when you enter a raid zone
+- **Quick Activation**: Right-click the profile text above the trinket frame to open profiles, or use `/trinket activate <index>`
+
+### Menu Sorting Options
+Sort your trinket menu by:
+- **Bag Position**: Default behavior, trinkets sorted by bag location
+- **Alphabetical**: Sort trinkets A-Z by name
+- **Item Level**: Sort by item level (highest first)
+
+### Hide Trinkets from Menu
+- Mark specific trinkets as "Hide in Menu" to declutter your menu
+- Hidden trinkets can still be used in auto queue and pack profiles
+- Hold Shift to temporarily show hidden trinkets (configurable)
+
+### New Options
+- **Hide Profile Text**: Hide the current profile name displayed above the trinket frame
+- **Profile Zone Warnings**: Toggle automatic profile suggestions when entering raid zones
+- **Menu Show Hidden On Shift**: Show trinkets marked "Hide in Menu" when Shift is held
+
+### Zone Change Detection
+- Automatically detects when you enter a raid zone
+- Suggests matching profiles if one is available
+- Won't spam if you already have a profile active for that zone
+
+### Quality of Life
+- Right-click the profile text to quickly access the Profiles tab
+- Click again to close it (toggle behavior)
+- Profile activation messages show which packs have trinket swaps configured
 
 ## New in 3.41
 - /trinket reset will work properly again
@@ -132,8 +167,7 @@ We can't swap trinkets during combat or when we're dead. If you attempt to swap 
 - /trinket opt : summons options window
 - /trinket lock|unlock : toggles window lock
 - /trinket scale main|menu n : scales windows to exact scale
-- /trinket load top|bottom profilename : loads a profile to top or bottom trinket
-- /trinket activate : reactivate last profile
+- /trinket activate [index] : activate profile (last used, or by number)
 - /trinket deactivate : deactivate current profile
 - /trinket edit : edit active profile
 - /trinket help : lists the above commands
@@ -280,7 +314,7 @@ A: That sounds like the windows are locked. Enter: /trinket unlock
 
 ## Changes
 
-4.0, 12/23/05, added new Profile system, new slash commands, new keybinds
+4.0, 12/23/25, major update: pack-based profile system with automatic boss detection, menu sorting (bag/alphabetical/ilvl), hide trinkets from menu, zone change detection and profile suggestions, right-click profile text to open profiles tab, `/trinket activate [index]` command, profile zone warnings option, menu show hidden on shift option
 3.41, 8/24/06, added: /trinket load, changed: tabs removed and window shortened if TrinketMenuQueue not installed, bug fixed: /trinket reset (savedvars load defaults if nil), checked for Queue before setting HideOnLoad
 3.4, 8/22/06, added: trinket profiles, delete trinket button
 3.3, 8/5/06, added: 1.12 "Floating Combat Text" support, changed: trinkets coming off cooldown clear combat queue, toggle key binding obeys 'Disable Toggle' option
