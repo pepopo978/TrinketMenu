@@ -15,7 +15,7 @@ local function HasMinimumNampowerVersion(major, minor, patch)
 end
 
 if not HasMinimumNampowerVersion(2, 20, 0) then
-	DEFAULT_CHAT_FRAME:AddMessage("Nampower v2.20.0 or greater is required for AutoTrinket")
+	DEFAULT_CHAT_FRAME:AddMessage("Nampower v2.20.0 or greater is required for TrinketMenu V4")
 	return
 end
 

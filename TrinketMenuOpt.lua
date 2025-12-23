@@ -502,7 +502,7 @@ end
 
 function TrinketMenu.BuildProfilePackList(raid)
 	if not defaultNpcsToMark and not TrinketMenu.AutomarkerWarned then
-		DEFAULT_CHAT_FRAME:AddMessage("Automarker is required for TrinketMenu V2")
+		DEFAULT_CHAT_FRAME:AddMessage("Automarker is required for TrinketMenu V2 Profiles")
 		TrinketMenu.AutomarkerWarned = true
 	end
 	local packs = TrinketMenu.packDescriptions and raid and TrinketMenu.packDescriptions[raid]
