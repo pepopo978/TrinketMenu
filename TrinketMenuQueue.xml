@@ -167,7 +167,7 @@
 			<Anchor point="TOPRIGHT" relativeTo="TrinketMenu_Tab2" relativePoint="TOPLEFT"/>
 		</Anchors>
 	</Button>
-	<Button name="TrinketMenu_Tab4" inherits="TrinketMenu_TabTemplate" parent="TrinketMenu_OptFrame" text="Profiles" id="4">
+	<Button name="TrinketMenu_Tab4" inherits="TrinketMenu_TabTemplate" parent="TrinketMenu_OptFrame" text="Raids" id="4">
 		<Anchors>
 			<Anchor point="TOPRIGHT" relativeTo="TrinketMenu_Tab3" relativePoint="TOPLEFT"/>
 		</Anchors>

@@ -8,13 +8,13 @@
 	<Binding name="Use Bottom Trinket" description="Use Bottom Trinket">
 		UseTrinket(14)
 	</Binding>
-	<Binding name="Deactivate Current Profile" description="Deactivate Current Profile">
-		TrinketMenu.ClearActivePackProfile()
+	<Binding name="Toggle Current/Last Raid Profile" description="Toggle Current/Last Raid Profile">
+		TrinketMenu.ToggleActivePackProfile()
 	</Binding>
-	<Binding name="Reactivate Last Profile" description="Reactivate Last Profile">
-		TrinketMenu.ReactivateLastPackProfile()
+	<Binding name="Toggle Autoswap on TOP trinket" description="Toggle Autoswap on TOP trinket">
+		TrinketMenu.ToggleAutoSwapQueue(0)
 	</Binding>
-	<Binding name="Edit Active Profile" description="Edit Active Profile">
-		TrinketMenu.EditActivePackProfile()
+	<Binding name="Toggle Autoswap on BOTTOM trinket" description="Toggle Autoswap on BOTTOM trinket">
+		TrinketMenu.ToggleAutoSwapQueue(1)
 	</Binding>
 </Bindings>

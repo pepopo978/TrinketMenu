@@ -690,6 +690,23 @@ function TrinketMenu.EnableAutoSwapQueue(which)
 	end
 end
 
+function TrinketMenu.ToggleAutoSwapQueue(which)
+	if TrinketMenu.QueueInit then
+		TrinketMenu.QueueInit()
+	end
+	if not TrinketMenuQueue then
+		return
+	end
+	if TrinketMenuQueue.Enabled[which] then
+		TrinketMenu.CombatQueue[which] = nil
+		TrinketMenuQueue.Enabled[which] = nil
+	else
+		TrinketMenuQueue.Enabled[which] = 1
+	end
+	TrinketMenu.ReflectQueueEnabled()
+	TrinketMenu.UpdateCombatQueue()
+end
+
 function TrinketMenu.AutoSwapQueueOff(which)
 	if TrinketMenu.AutoSwapQueuePending and TrinketMenu.AutoSwapQueuePending[which] then
 		TrinketMenu.AutoSwapQueuePending[which] = nil
@@ -766,6 +783,8 @@ function TrinketMenu.SlashHandler(msg)
 		end
 		if type(which)=="number" then
 			TrinketMenu.SetQueue(which,"SORT",profile)
+			local slot = which == 0 and "top" or "bottom"
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Loaded autoswap profile '" .. profile .. "' for " .. slot .. " trinket")
 			return
 		end
 	end
@@ -826,6 +845,29 @@ function TrinketMenu.SlashHandler(msg)
 		TrinketMenu.ClearActivePackProfile()
 	elseif msg=="edit" then
 		TrinketMenu.EditActivePackProfile()
+	elseif msg=="profiles raid" then
+		if TrinketMenuQueue and TrinketMenuQueue.PackProfiles then
+			DEFAULT_CHAT_FRAME:AddMessage("|cFFFFFF00TrinketMenu Raid Profiles:")
+			for i, prof in ipairs(TrinketMenuQueue.PackProfiles) do
+				if prof and prof.name then
+					local activeMarker = (TrinketMenuQueue.PackProfileActive == i) and " |cff00ff00(Active)|r" or ""
+					DEFAULT_CHAT_FRAME:AddMessage(i .. ". " .. prof.name .. activeMarker)
+				end
+			end
+		else
+			DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r No raid profiles found")
+		end
+	elseif msg=="profiles autoswap" then
+		if TrinketMenuQueue and TrinketMenuQueue.Profiles then
+			DEFAULT_CHAT_FRAME:AddMessage("|cFFFFFF00TrinketMenu Autoswap Profiles:")
+			for i, prof in ipairs(TrinketMenuQueue.Profiles) do
+				if prof and prof[1] then
+					DEFAULT_CHAT_FRAME:AddMessage(i .. ". " .. prof[1])
+				end
+			end
+		else
+			DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r No autoswap profiles found")
+		end
 	else
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFFFFF00TrinketMenu useage:")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket or /trinketmenu : toggle the window")
@@ -833,9 +875,12 @@ function TrinketMenu.SlashHandler(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket opt : summon options window")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket lock|unlock : toggles window lock")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket scale main|menu (number) : sets an exact scale")
-		DEFAULT_CHAT_FRAME:AddMessage("/trinket activate [index] : activate profile (last or by number)")
-		DEFAULT_CHAT_FRAME:AddMessage("/trinket deactivate : deactivate current profile")
-		DEFAULT_CHAT_FRAME:AddMessage("/trinket edit : edit active profile")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket activate [index] : activate raid profile (last or by number)")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket deactivate : deactivate current raid profile")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket edit : edit active raid profile")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket profiles raid : list all raid profiles")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket profiles autoswap : list all autoswap profiles")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket load top|bottom profilename : load autoswap profile")
 	end
 end
 

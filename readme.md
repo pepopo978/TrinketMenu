@@ -6,18 +6,21 @@
 - `/trinket opt`: summon options window
 - `/trinket lock|unlock`: toggle window lock
 - `/trinket scale main|menu <number>`: set an exact scale
-- `/trinket activate [index]`: activate a profile (last used, or by number)
-- `/trinket deactivate`: deactivate current profile
-- `/trinket edit`: edit active profile
+- `/trinket activate [index]`: activate a raid profile (last used, or by number)
+- `/trinket deactivate`: deactivate current raid profile
+- `/trinket edit`: edit active raid profile
+- `/trinket profiles raid`: list all raid profiles
+- `/trinket profiles autoswap`: list all autoswap profiles
+- `/trinket load top|bottom profilename`: load autoswap profile
 - `/trinket help`: list all commands
 
 ### Key Bindings
 - Toggle TrinketMenu
 - Use Top Trinket
 - Use Bottom Trinket
-- Deactivate Current Profile
-- Reactivate Last Profile
-- Edit Active Profile
+- Toggle Current/Last Raid Profile
+- Toggle Autoswap on TOP trinket
+- Toggle Autoswap on BOTTOM trinket
 
 # TrinketMenu 4.0
 
@@ -28,7 +31,7 @@ This is a mod to make swapping trinkets easier. It will display your two equippe
 ## New in 4.0
 
 ### Pack Profile System
-TrinketMenu 4.0 introduces a powerful pack-based profile system that automatically swaps trinkets based on which mobs die in raids:
+TrinketMenu 4.0 introduces a powerful pack-based Raid profile system that automatically swaps trinkets based on which mobs die in raids:
 
 - **Create Raid Profiles**: Set up profiles for specific raids (Naxxramas, Karazhan, etc.)
 - **Pack-Based Swapping**: Configure which trinkets to equip after specific boss packs die
@@ -43,23 +46,23 @@ Sort your trinket menu by:
 
 ### Hide Trinkets from Menu
 - Mark specific trinkets as "Hide in Menu" to declutter your menu
-- Hidden trinkets can still be used in auto queue and pack profiles
+- Hidden trinkets can still be used in auto queue and Raid profiles
 - Hold Shift to temporarily show hidden trinkets (configurable)
 
 ### New Options
-- **Hide Profile Text**: Hide the current profile name displayed above the trinket frame
-- **Profile Zone Warnings**: Toggle automatic profile suggestions when entering raid zones
+- **Hide Profile Text**: Hide the current Raid profile name displayed above the trinket frame
+- **Profile Zone Warnings**: Toggle automatic Raid profile suggestions when entering raid zones
 - **Menu Show Hidden On Shift**: Show trinkets marked "Hide in Menu" when Shift is held
 
 ### Zone Change Detection
 - Automatically detects when you enter a raid zone
-- Suggests matching profiles if one is available
-- Won't spam if you already have a profile active for that zone
+- Suggests matching Raid profiles if one is available
+- Won't spam if you already have a Raid profile active for that zone
 
 ### Quality of Life
-- Right-click the profile text to quickly access the Profiles tab
+- Right-click the Raid profile text to quickly access the Raids tab
 - Click again to close it (toggle behavior)
-- Profile activation messages show which packs have trinket swaps configured
+- Raid profile activation messages show which packs have trinket swaps configured
 
 ## New in 3.41
 - /trinket reset will work properly again
@@ -169,9 +172,12 @@ We can't swap trinkets during combat or when we're dead. If you attempt to swap 
 - /trinket opt : summons options window
 - /trinket lock|unlock : toggles window lock
 - /trinket scale main|menu n : scales windows to exact scale
-- /trinket activate [index] : activate profile (last used, or by number)
-- /trinket deactivate : deactivate current profile
-- /trinket edit : edit active profile
+- /trinket activate [index] : activate raid profile (last used, or by number)
+- /trinket deactivate : deactivate current raid profile
+- /trinket edit : edit active raid profile
+- /trinket profiles raid : list all raid profiles
+- /trinket profiles autoswap : list all autoswap profiles
+- /trinket load top|bottom profilename : load autoswap profile
 - /trinket help : lists the above commands
 
 ## TrinketMenu.SetQueue (Advanced Users)

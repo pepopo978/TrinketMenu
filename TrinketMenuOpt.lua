@@ -304,7 +304,7 @@ function TrinketMenu.Tab_OnClick(override)
 		if TrinketMenu_ProfilesTabFrame then
 			TrinketMenu_ProfilesTabFrame:Show()
 			if TrinketMenu_ProfilesTabHelp then
-				TrinketMenu_ProfilesTabHelp:SetText("Create raid pack profiles with pack and trinket selections.")
+				TrinketMenu_ProfilesTabHelp:SetText("Create raid profiles with pack and trinket selections.")
 				TrinketMenu_ProfilesTabHelp:Show()
 			end
 			if TrinketMenu_ProfileCreateButton then

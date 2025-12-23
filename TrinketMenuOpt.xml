@@ -632,7 +632,7 @@
 					</Layer>
 				</Layers>
 				<Frames>
-					<Button name="TrinketMenu_ProfileCreateButton" inherits="UIPanelButtonGrayTemplate" parent="TrinketMenu_ProfilesTabFrame" text="Create Profile">
+					<Button name="TrinketMenu_ProfileCreateButton" inherits="UIPanelButtonGrayTemplate" parent="TrinketMenu_ProfilesTabFrame" text="Create Raid Profile">
 						<Size>
 							<AbsDimension x="120" y="24"/>
 						</Size>
@@ -866,7 +866,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<FontString name="TrinketMenu_ProfileCreateTitle" inherits="GameFontHighlightSmall" text="Create Profile">
+				<FontString name="TrinketMenu_ProfileCreateTitle" inherits="GameFontHighlightSmall" text="Create Raid Profile">
 					<Anchors>
 						<Anchor point="TOP">
 							<Offset>
@@ -1192,7 +1192,7 @@
 								</Anchor>
 							</Anchors>
 						</Texture>
-						<FontString name="TrinketMenu_PackTrinket1Text" inherits="GameFontHighlight" text="Trinket1: None">
+						<FontString name="TrinketMenu_PackTrinket1Text" inherits="GameFontHighlight" text="Trinket1 (TOP): None">
 							<Anchors>
 								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTrinket1Icon" relativePoint="RIGHT">
 									<Offset>
@@ -1213,7 +1213,7 @@
 								</Anchor>
 							</Anchors>
 						</Texture>
-						<FontString name="TrinketMenu_PackTrinket2Text" inherits="GameFontHighlight" text="Trinket2: None">
+						<FontString name="TrinketMenu_PackTrinket2Text" inherits="GameFontHighlight" text="Trinket2 (BOTTOM): None">
 							<Anchors>
 								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTrinket2Icon" relativePoint="RIGHT">
 									<Offset>
