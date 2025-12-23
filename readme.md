@@ -21,6 +21,8 @@
 
 # TrinketMenu 4.0
 
+Requires Automarker https://github.com/MarcelineVQ/AutoMarker and Nampower >= 2.20.0 https://gitea.com/avitasia/nampower
+
 This is a mod to make swapping trinkets easier. It will display your two equipped trinkets in a bar. Mouseover on either trinket will display a menu of up to 30 trinkets in your bags to swap.
 
 ## New in 4.0
