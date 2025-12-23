@@ -171,6 +171,23 @@
 		</Layers>
 
 		<Frames>
+			<Frame name="TrinketMenu_ProfileTextButton" enableMouse="true">
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP">
+						<Offset>
+							<AbsDimension x="0" y="2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Size>
+					<AbsDimension x="100" y="14"/>
+				</Size>
+				<Scripts>
+					<OnMouseUp>
+						TrinketMenu.ProfileText_OnClick()
+					</OnMouseUp>
+				</Scripts>
+			</Frame>
 			<CheckButton name="TrinketMenu_Trinket0" inherits="TrinketMenuMainTrinketTemplate" id="13">
 				<Anchors>
 					<Anchor point="TOPLEFT">

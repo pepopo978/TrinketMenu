@@ -433,11 +433,30 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
+					<CheckButton name="TrinketMenu_OptNotify" inherits="TrinketMenu_CheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="-70" y="-8"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</CheckButton>
+					<CheckButton name="TrinketMenu_OptNotifyThirty" inherits="TrinketMenu_CheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptNotify" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</CheckButton>
+					<CheckButton name="TrinketMenu_OptNotifyChatAlso" inherits="TrinketMenu_CheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptNotifyThirty" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</CheckButton>
 					<CheckButton name="TrinketMenu_OptKeepDocked" inherits="TrinketMenu_CheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOP">
 								<Offset>
-									<AbsDimension x="0" y="-8"/>
+									<AbsDimension x="50" y="-8"/>
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -452,24 +471,14 @@
 							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptKeepOpen" relativePoint="BOTTOMLEFT"/>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="TrinketMenu_OptNotify" inherits="TrinketMenu_CheckButtonTemplate">
+					<CheckButton name="TrinketMenu_OptMenuShowHiddenOnShift" inherits="TrinketMenu_CheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptMenuOnShift" relativePoint="BOTTOMLEFT"/>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="TrinketMenu_OptNotifyThirty" inherits="TrinketMenu_CheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptNotify" relativePoint="BOTTOMLEFT"/>
-						</Anchors>
-					</CheckButton>
-					<CheckButton name="TrinketMenu_OptNotifyChatAlso" inherits="TrinketMenu_CheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptNotifyThirty" relativePoint="BOTTOMLEFT"/>
-						</Anchors>
-					</CheckButton>
 					<CheckButton name="TrinketMenu_OptSetColumns" inherits="TrinketMenu_CheckButtonTemplate">
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptNotifyChatAlso" relativePoint="BOTTOMLEFT"/>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptMenuShowHiddenOnShift" relativePoint="BOTTOMLEFT"/>
 						</Anchors>
 					</CheckButton>
 
@@ -523,13 +532,49 @@
 						</ThumbTexture>
 					</Slider>
 
-					<CheckButton name="TrinketMenu_OptStopOnSwap" inherits="TrinketMenu_CheckButtonTemplate">
+					<Frame name="TrinketMenu_MenuSortingDropDown" inherits="UIDropDownMenuTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptSetColumns" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-24"/>
+									<AbsDimension x="0" y="-44"/>
 								</Offset>
 							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="TrinketMenu_MenuSortingLabel" inherits="GameFontHighlightSmall" text="Menu Sorting">
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+											<Offset>
+												<AbsDimension x="16" y="2"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								TrinketMenu.MenuSortingDropDown_OnLoad()
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<CheckButton name="TrinketMenu_OptStopOnSwap" inherits="TrinketMenu_CheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptNotifyChatAlso" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</CheckButton>
+
+					<CheckButton name="TrinketMenu_OptHideProfileText" inherits="TrinketMenu_CheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptStopOnSwap" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</CheckButton>
+
+					<CheckButton name="TrinketMenu_OptProfileZoneWarnings" inherits="TrinketMenu_CheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptHideProfileText" relativePoint="BOTTOMLEFT"/>
 						</Anchors>
 					</CheckButton>
 

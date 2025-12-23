@@ -18,6 +18,8 @@ function TrinketMenu.QueueInit()
 	TrinketMenu_SortPriorityText:SetTextColor(.95,.95,.95)
 	TrinketMenu_SortKeepEquippedText:SetText("Pause Queue")
 	TrinketMenu_SortKeepEquippedText:SetTextColor(.95,.95,.95)
+	TrinketMenu_SortHideInMenuText:SetText("Hide in Menu")
+	TrinketMenu_SortHideInMenuText:SetTextColor(.95,.95,.95)
 	TrinketMenu_SortListFrame:SetBackdropBorderColor(.3,.3,.3,1)
 	TrinketMenu.ReflectQueueEnabled()
 	TrinketMenu.UpdateCombatQueue()
@@ -34,9 +36,7 @@ function TrinketMenu.QueueInit()
 		TrinketMenuQueue.PackProfileLast = nil
 	end
 	TrinketMenu.ValidateProfile()
-	if TrinketMenu.UpdateActiveProfileText then
-		TrinketMenu.UpdateActiveProfileText()
-	end
+	TrinketMenu.UpdateActiveProfileText()
 end
 
 function TrinketMenu.NormalizeQueueIds()
@@ -291,17 +291,20 @@ function TrinketMenu.SortValidate()
 		TrinketMenu_SortDelay:Show()
 		TrinketMenu_SortPriority:Show()
 		TrinketMenu_SortKeepEquipped:Show()
+		TrinketMenu_SortHideInMenu:Show()
 		TrinketMenu_Delete:Enable()
 	else
 		TrinketMenu_SortDelay:Hide()
 		TrinketMenu_SortPriority:Hide()
 		TrinketMenu_SortKeepEquipped:Hide()
+		TrinketMenu_SortHideInMenu:Hide()
 		TrinketMenu_Delete:Disable()
 	end
 	local stats = TrinketMenuQueue.Stats[list[TrinketMenu.SortSelected]]
 	TrinketMenu_SortDelay:SetText(stats and (stats.delay or "0") or "0")
 	TrinketMenu_SortPriority:SetChecked(stats and stats.priority)
 	TrinketMenu_SortKeepEquipped:SetChecked(stats and stats.keep)
+	TrinketMenu_SortHideInMenu:SetChecked(stats and stats.hide)
 			
 	if not IsShiftKeyDown() and selected>0 then -- keep selected visible on list, moving thumb as needed, unless shift is down
 		local parent = TrinketMenu_SortScrollScrollBar
@@ -368,6 +371,16 @@ function TrinketMenu.SortKeepEquipped_OnClick()
 	local id = TrinketMenuQueue.Sort[TrinketMenu.CurrentlySorting][TrinketMenu.SortSelected]
 	TrinketMenuQueue.Stats[id] = TrinketMenuQueue.Stats[id] or {}
 	TrinketMenuQueue.Stats[id].keep = check
+end
+
+function TrinketMenu.SortHideInMenu_OnClick()
+	local check = this:GetChecked()
+	local id = TrinketMenuQueue.Sort[TrinketMenu.CurrentlySorting][TrinketMenu.SortSelected]
+	TrinketMenuQueue.Stats[id] = TrinketMenuQueue.Stats[id] or {}
+	TrinketMenuQueue.Stats[id].hide = check
+	if TrinketMenu_MenuFrame:IsVisible() then
+		TrinketMenu.BuildMenu()
+	end
 end
 
 function TrinketMenu.TabCheck_OnClick()
@@ -469,7 +482,7 @@ function TrinketMenu.ProcessAutoQueue(which)
 								break
 							end
 						else
-							print("TrinketMenu: Item "..name.." not found in bag "..tostring(bag).." slot "..tostring(slot)..". Removing from watch list.")
+							print("|cff00ff00TrinketMenu:|r Item "..name.." not found in bag "..tostring(bag).." slot "..tostring(slot)..". Removing from watch list.")
 						end
 					end
 				end

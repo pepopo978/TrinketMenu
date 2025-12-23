@@ -24,7 +24,10 @@ function TrinketMenu.LoadDefaults()
 		SetColumns = "OFF",			-- whether number of columns in menu is chosen automatically
 		Columns = 4,				-- if SetColumns "ON", number of columns before menu wraps
 		ShowHotKeys = "OFF",		-- whether hotkeys show on trinkets
-		StopOnSwap = "OFF"			-- whether to stop auto queue on all manual swaps
+		StopOnSwap = "OFF",			-- whether to stop auto queue on all manual swaps
+		MenuSorting = "Bag Position",	-- how to sort trinkets in menu
+		MenuShowHiddenOnShift = "ON",	-- whether to show hidden trinkets when shift is held
+		ProfileZoneWarnings = "ON"		-- whether to show profile zone change warnings
 	}
 
 	TrinketMenuPerOptions = TrinketMenuPerOptions or {
@@ -185,23 +188,56 @@ function TrinketMenu.BuildMenu()
 
 	local idx,i,j,k,texture = 1
 	local trinkets = TrinketMenu.GetTrinketList()
+	local baggedTrinkets = {}
 
-	-- go through bags and gather trinkets into .BaggedTrinkets
+	-- go through bags and gather trinkets into temporary table
 	for _, trinket in ipairs(trinkets) do
 		if trinket.bagIndex ~= nil then
-			if not TrinketMenu.BaggedTrinkets[idx] then
-				TrinketMenu.BaggedTrinkets[idx] = {}
+			-- Check if trinket is hidden
+			local stats = TrinketMenuQueue and TrinketMenuQueue.Stats and TrinketMenuQueue.Stats[trinket.itemId]
+			local isHidden = stats and stats.hide
+			local showHidden = IsShiftKeyDown() and TrinketMenuOptions.MenuShowHiddenOnShift == "ON"
+
+			if not isHidden or showHidden then
+				local entry = {}
+				entry.bag = trinket.bagIndex
+				entry.slot = trinket.slotIndex
+				entry.name = trinket.trinketName or "Unknown"
+				entry.itemId = trinket.itemId
+				entry.icon = trinket.icon
+				entry.itemLevel = trinket.itemLevel or 0
+				table.insert(baggedTrinkets, entry)
 			end
-			local entry = TrinketMenu.BaggedTrinkets[idx]
-			entry.bag = trinket.bagIndex
-			entry.slot = trinket.slotIndex
-			entry.name = trinket.trinketName or "Unknown"
-			entry.itemId = trinket.itemId
-			entry.icon = trinket.icon
-			idx = idx + 1
 		end
 	end
-	TrinketMenu.NumberOfTrinkets = math.min(idx-1,TrinketMenu.MaxTrinkets)
+
+	-- Sort trinkets based on MenuSorting option
+	if TrinketMenuOptions.MenuSorting == "Alphabetical" then
+		table.sort(baggedTrinkets, function(a, b)
+			return a.name < b.name
+		end)
+	elseif TrinketMenuOptions.MenuSorting == "Item Level" then
+		table.sort(baggedTrinkets, function(a, b)
+			if a.itemLevel == b.itemLevel then
+				return a.name < b.name
+			end
+			return a.itemLevel > b.itemLevel
+		end)
+	end
+	-- If "Bag Position", no sorting needed - already in bag order
+
+	-- Copy sorted trinkets into .BaggedTrinkets
+	for i, entry in ipairs(baggedTrinkets) do
+		if not TrinketMenu.BaggedTrinkets[i] then
+			TrinketMenu.BaggedTrinkets[i] = {}
+		end
+		TrinketMenu.BaggedTrinkets[i].bag = entry.bag
+		TrinketMenu.BaggedTrinkets[i].slot = entry.slot
+		TrinketMenu.BaggedTrinkets[i].name = entry.name
+		TrinketMenu.BaggedTrinkets[i].itemId = entry.itemId
+		TrinketMenu.BaggedTrinkets[i].icon = entry.icon
+	end
+	TrinketMenu.NumberOfTrinkets = math.min(table.getn(baggedTrinkets),TrinketMenu.MaxTrinkets)
 
 	if TrinketMenu.NumberOfTrinkets<1 then
 		-- user has no bagged trinkets :(
@@ -292,6 +328,10 @@ function TrinketMenu.Initialize()
 	TrinketMenuPerOptions.ItemsUsed = TrinketMenuPerOptions.ItemsUsed or {} -- 3.0
 	options.StopOnSwap = options.StopOnSwap or "OFF" -- 3.2
 	options.HideOnLoad = options.HideOnLoad or "OFF" -- 3.4
+	options.HideProfileText = options.HideProfileText or "OFF" -- 4.0
+	options.MenuSorting = options.MenuSorting or "Bag Position" -- 4.0
+	options.MenuShowHiddenOnShift = options.MenuShowHiddenOnShift or "ON" -- 4.0
+	options.ProfileZoneWarnings = options.ProfileZoneWarnings or "ON" -- 4.0
 
 	if TrinketMenuPerOptions.XPos and TrinketMenuPerOptions.YPos then
 		TrinketMenu_MainFrame:SetPoint("TOPLEFT","UIParent","BOTTOMLEFT",TrinketMenuPerOptions.XPos,TrinketMenuPerOptions.YPos)
@@ -433,14 +473,7 @@ function TrinketMenu.OnEvent()
 		if TrinketMenuQueue and TrinketMenuQueue.PackProfileActive and TrinketMenuQueue.PackProfiles then
 			local profile = TrinketMenuQueue.PackProfiles[TrinketMenuQueue.PackProfileActive]
 			if profile then
-				if TrinketMenu.ApplyPackProfileActivation then
-					TrinketMenu.ApplyPackProfileActivation(profile)
-				else
-					TrinketMenu.BuildPackProfileGuidTrinkets(profile)
-					if TrinketMenu.UpdateActiveProfileText then
-						TrinketMenu.UpdateActiveProfileText()
-					end
-				end
+				TrinketMenu.ApplyPackProfileActivation(profile)
 			end
 		end
 		this:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -451,11 +484,21 @@ function TrinketMenu.OnEvent()
 		this:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
 		this:RegisterEvent("SPELL_CAST_EVENT")
 		this:RegisterEvent("UNIT_DIED")
+		this:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	elseif event=="ZONE_CHANGED_NEW_AREA" then
+		TrinketMenu.CheckZoneProfile()
 	end
 end
 
 function TrinketMenu.UpdateActiveProfileText()
 	if not TrinketMenu_ProfileText then
+		return
+	end
+	if TrinketMenuOptions.HideProfileText == "ON" then
+		TrinketMenu_ProfileText:Hide()
+		if TrinketMenu_ProfileTextButton then
+			TrinketMenu_ProfileTextButton:Hide()
+		end
 		return
 	end
 	local text = "No Profile"
@@ -467,12 +510,67 @@ function TrinketMenu.UpdateActiveProfileText()
 	end
 	TrinketMenu_ProfileText:SetText(text)
 	TrinketMenu_ProfileText:Show()
+	if TrinketMenu_ProfileTextButton then
+		TrinketMenu_ProfileTextButton:Show()
+	end
+end
+
+function TrinketMenu.ProfileText_OnClick()
+	if arg1 == "RightButton" then
+		if TrinketMenu_OptFrame:IsVisible() and TrinketMenu_ProfilesTabFrame and TrinketMenu_ProfilesTabFrame:IsVisible() then
+			TrinketMenu_OptFrame:Hide()
+		else
+			if not TrinketMenu_OptFrame:IsVisible() then
+				TrinketMenu_OptFrame:Show()
+			end
+			TrinketMenu.Tab_OnClick(4)
+		end
+	end
+end
+
+function TrinketMenu.CheckZoneProfile()
+	if not TrinketMenuQueue or not TrinketMenuQueue.PackProfiles then
+		return
+	end
+
+	local currentZone = GetRealZoneText()
+	if not currentZone or currentZone == "" then
+		return
+	end
+
+	if currentZone == "Outland" or currentZone =="The Rock of Desolation" then
+		currentZone = "Tower of Karazhan"
+	end
+
+	-- Check if we already have an active profile
+	local currentActiveProfile = TrinketMenuQueue.PackProfileActive
+
+	-- First check if the current active profile matches the zone
+	if currentActiveProfile and TrinketMenuQueue.PackProfiles[currentActiveProfile] then
+		local activeProfile = TrinketMenuQueue.PackProfiles[currentActiveProfile]
+		if activeProfile.raid == currentZone then
+			-- Current active profile matches zone, no need to suggest anything
+			return
+		end
+	end
+
+	-- Check if warnings are enabled
+	if TrinketMenuOptions.ProfileZoneWarnings ~= "ON" then
+		return
+	end
+
+	-- Look for a profile matching the current zone
+	for i, profile in ipairs(TrinketMenuQueue.PackProfiles) do
+		if profile and profile.raid and profile.raid == currentZone then
+			-- Found a matching profile that's not currently active
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Your current profile does not match this raid.  Found profile '" .. profile.name .. "' for " .. currentZone .. ". Type |cffff8800/trinket activate " .. i .. "|r to activate it.")
+			return
+		end
+	end
 end
 
 function TrinketMenu.UpdatePackProfileUI()
-	if TrinketMenu.PackProfileScrollFrameUpdate then
-		TrinketMenu.PackProfileScrollFrameUpdate()
-	end
+	TrinketMenu.PackProfileScrollFrameUpdate()
 	if TrinketMenu.PackProfileValidateButtons then
 		TrinketMenu.PackProfileValidateButtons()
 	end
@@ -490,14 +588,7 @@ function TrinketMenu.SetActivePackProfile(idx)
 		TrinketMenuQueue.PackProfileLast = TrinketMenuQueue.PackProfileActive
 	end
 	TrinketMenuQueue.PackProfileActive = idx
-	if TrinketMenu.ApplyPackProfileActivation then
-		TrinketMenu.ApplyPackProfileActivation(profile)
-	else
-		TrinketMenu.BuildPackProfileGuidTrinkets(profile)
-		if TrinketMenu.UpdateActiveProfileText then
-			TrinketMenu.UpdateActiveProfileText()
-		end
-	end
+	TrinketMenu.ApplyPackProfileActivation(profile)
 	TrinketMenu.UpdatePackProfileUI()
 end
 
@@ -508,9 +599,7 @@ function TrinketMenu.ClearActivePackProfile()
 	TrinketMenuQueue.PackProfileLast = TrinketMenuQueue.PackProfileActive
 	TrinketMenuQueue.PackProfileActive = nil
 	TrinketMenu.PackProfileGuidTrinkets = {}
-	if TrinketMenu.UpdateActiveProfileText then
-		TrinketMenu.UpdateActiveProfileText()
-	end
+	TrinketMenu.UpdateActiveProfileText()
 	TrinketMenu.UpdatePackProfileUI()
 end
 
@@ -718,11 +807,21 @@ function TrinketMenu.SlashHandler(msg)
 		TrinketMenu.FrameToScale = nil
 		TrinketMenuPerOptions.MainScale = TrinketMenu_MainFrame:GetScale()
 		TrinketMenuPerOptions.MenuScale = TrinketMenu_MenuFrame:GetScale()
-	elseif string.find(msg,"load") then
-		DEFAULT_CHAT_FRAME:AddMessage("|cFFFFFF00TrinketMenu load:")
-		DEFAULT_CHAT_FRAME:AddMessage("/trinket load (top|bottom) profilename\nie: /trinket load bottom PvP")
-	elseif msg=="activate" then
-		TrinketMenu.ReactivateLastPackProfile()
+	elseif string.find(msg,"^activate") then
+		local _,_,index = string.find(msg,"activate%s+(%d+)")
+		if index then
+			index = tonumber(index)
+			if TrinketMenuQueue and TrinketMenuQueue.PackProfiles and TrinketMenuQueue.PackProfiles[index] then
+				local prof = TrinketMenuQueue.PackProfiles[index]
+				TrinketMenuQueue.PackProfileActive = index
+				TrinketMenu.ApplyPackProfileActivation(prof)
+				DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Activated profile '" .. prof.name .. "'")
+			else
+				DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r Profile #" .. index .. " not found")
+			end
+		else
+			TrinketMenu.ReactivateLastPackProfile()
+		end
 	elseif msg=="deactivate" then
 		TrinketMenu.ClearActivePackProfile()
 	elseif msg=="edit" then
@@ -734,8 +833,7 @@ function TrinketMenu.SlashHandler(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket opt : summon options window")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket lock|unlock : toggles window lock")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket scale main|menu (number) : sets an exact scale")
-		DEFAULT_CHAT_FRAME:AddMessage("/trinket load top|bottom profilename : loads a profile to top or bottom trinket")
-		DEFAULT_CHAT_FRAME:AddMessage("/trinket activate : reactivate last profile")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket activate [index] : activate profile (last or by number)")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket deactivate : deactivate current profile")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket edit : edit active profile")
 	end
@@ -1208,9 +1306,9 @@ function TrinketMenu.EquipTrinketByName(nameOrId, slot)
 				TrinketMenu.StartTimer("UpdateWornTrinkets") -- in case it's not equipped (stunned, etc)
 			end
 		elseif slotIndex and slotIndex >= 0 then
-			print("TrinketMenu: Trinket " .. nameOrId .. " is already equipped")
+			print("|cff00ff00TrinketMenu:|r Trinket " .. nameOrId .. " is already equipped")
 		else
-			print("TrinketMenu: Unable to find trinket " .. nameOrId .. " in your bags")
+			print("|cff00ff00TrinketMenu:|r Unable to find trinket " .. nameOrId .. " in your bags")
 		end
 	end
 	TrinketMenu.UpdateCombatQueue()

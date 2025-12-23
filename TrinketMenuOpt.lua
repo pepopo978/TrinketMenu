@@ -7,6 +7,7 @@ TrinketMenu.CheckOptInfo = {
 {"TooltipFollow","OFF","At Mouse","Display all tooltips near the mouse.","ShowTooltips"},
 {"KeepOpen","OFF","Keep Menu Open","Keep menu open at all times."},
 {"KeepDocked","ON","Keep Menu Docked","Keep menu docked at all times."},
+{"MenuShowHiddenOnShift","ON","Menu Show Hidden On Shift","Show trinkets marked 'Hide in Menu' when Shift is held."},
 {"Notify","OFF","Notify When Ready","Sends an overhead notification when a trinket's cooldown is complete."},
 {"DisableToggle","OFF","Disable Toggle","Disables the minimap button's ability to toggle the trinket frame.","ShowIcon"},
 {"NotifyChatAlso","OFF","Notify Chat Also","Sends notifications through chat also."},
@@ -19,7 +20,9 @@ TrinketMenu.CheckOptInfo = {
 {"LargeCooldown","ON","Large Numbers","Display the cooldown time in a larger font.","CooldownCount"},
 {"ShowHotKeys","ON","Show Key Bindings","Display the key bindings over the equipped trinkets."},
 {"StopOnSwap","OFF","Stop Queue On Swap","Swapping a passive trinket stops an auto queue.  Check this to also stop the auto queue when a clickable trinket is manually swapped in via TrinketMenu.  This will have the most use to those with frequent trinkets marked Priority."},
-{"HideOnLoad","OFF","Close On Profile Load","Check this to dismiss this window when you load a profile."}
+{"HideOnLoad","OFF","Close On Profile Load","Check this to dismiss this window when you load a profile."},
+{"HideProfileText","OFF","Hide Profile Text","Hide the current profile name displayed above the trinket frame."},
+{"ProfileZoneWarnings","ON","Profile Zone Warnings","Show chat message when entering a zone with a matching profile."}
 }
 
 -- table.insert(TrinketMenu.CheckOptInfo,)
@@ -31,6 +34,7 @@ TrinketMenu.TooltipInfo = {
 {"TrinketMenu_SortPriority","High Priority","When checked, this trinket will be swapped in as soon as possible, whether the equipped trinket is on cooldown or not.\n\nWhen unchecked, this trinket will not equip over one already worn that's not on cooldown."},
 {"TrinketMenu_SortDelay","Swap Delay","This is the time (in seconds) before a trinket will be swapped out.  ie, for Earthstrike you want 20 seconds to get the full 20 second effect of the buff."},
 {"TrinketMenu_SortKeepEquipped","Pause Queue","Check this to suspend the auto queue while this trinket is equipped. ie, for Carrot on a Stick if you have a mod to auto-equip it to a slot with Auto Queue active."},
+{"TrinketMenu_SortHideInMenu","Hide in Menu","Check this to hide this trinket from the menu. The trinket can still be equipped via auto queue, but won't appear in the menu window."},
 {"TrinketMenu_Profiles","Profiles","Here you can load or save auto queue profiles."},
 {"TrinketMenu_Delete","Delete","Remove this trinket from the list.  Trinkets further down the list don't affect performance at all.  This option is merely to keep the list managable. Note: Trinkets in your bags will return to end of the list."},
 {"TrinketMenu_ProfilesDelete","Delete Profile","Remove this profile."},
@@ -196,6 +200,8 @@ function TrinketMenu.CheckButton_OnClick()
 		TrinketMenu.ReflectKeyBindings()
 	elseif this==TrinketMenu_OptShowIcon then
 		TrinketMenu.MoveMinimapButton()
+	elseif this==TrinketMenu_OptHideProfileText then
+		TrinketMenu.UpdateActiveProfileText()
 	end
 end
 
@@ -429,6 +435,35 @@ function TrinketMenu.ProfileRaidDropDown_OnLoad()
 end
 
 UIDropDownMenu_CreateInfo = UIDropDownMenu_CreateInfo or loadstring("local t = {} return function() for k in pairs(t) do t[k] = nil end return t end")()
+
+-- Menu Sorting Dropdown
+function TrinketMenu.MenuSortingDropDown_OnLoad()
+	UIDropDownMenu_SetWidth(100, TrinketMenu_MenuSortingDropDown)
+	UIDropDownMenu_Initialize(TrinketMenu_MenuSortingDropDown, TrinketMenu.MenuSortingDropDown_Initialize)
+	local currentSorting = (TrinketMenuOptions and TrinketMenuOptions.MenuSorting) or "Bag Position"
+	UIDropDownMenu_SetSelectedValue(TrinketMenu_MenuSortingDropDown, currentSorting)
+	UIDropDownMenu_SetText(currentSorting, TrinketMenu_MenuSortingDropDown)
+end
+
+function TrinketMenu.MenuSortingDropDown_Initialize()
+	local sortOptions = {"Bag Position", "Alphabetical", "Item Level"}
+	for _, option in ipairs(sortOptions) do
+		local info = UIDropDownMenu_CreateInfo()
+		info.text = option
+		info.value = option
+		info.func = TrinketMenu.MenuSortingDropDown_OnClick
+		UIDropDownMenu_AddButton(info)
+	end
+end
+
+function TrinketMenu.MenuSortingDropDown_OnClick()
+	TrinketMenuOptions.MenuSorting = this.value
+	UIDropDownMenu_SetSelectedValue(TrinketMenu_MenuSortingDropDown, this.value)
+	UIDropDownMenu_SetText(this.value, TrinketMenu_MenuSortingDropDown)
+	if TrinketMenu_MenuFrame:IsVisible() then
+		TrinketMenu.BuildMenu()
+	end
+end
 
 function TrinketMenu.ProfileRaidDropDown_Initialize()
 	local list = TrinketMenu.ProfileRaidList or {}
@@ -777,9 +812,7 @@ function TrinketMenu.PackProfileDelete_OnClick()
 	end
 	table.remove(TrinketMenuQueue.PackProfiles, idx)
 	TrinketMenu.AdjustPackProfileIndexesAfterDelete(idx)
-	if TrinketMenu.UpdateActiveProfileText then
-		TrinketMenu.UpdateActiveProfileText()
-	end
+	TrinketMenu.UpdateActiveProfileText()
 	TrinketMenu.PackProfileSelected = nil
 	TrinketMenu.PackProfileScrollFrameUpdate()
 end
@@ -789,7 +822,7 @@ function TrinketMenu.BuildPackProfileGuidTrinkets(profile)
 	if not profile or not profile.packTrinkets or not defaultNpcsToMark then
 		TrinketMenu.PackProfileGuidTrinkets = map
 		if profile then
-			print("TrinketMenu: Error activating profile " .. (profile.name or "Unknown"))
+			print("|cff00ff00TrinketMenu:|r Error activating profile " .. (profile.name or "Unknown"))
 		end
 		return
 	end
@@ -833,7 +866,7 @@ function TrinketMenu.BuildPackProfileGuidTrinkets(profile)
 			end
 		end
 	end
-	print("TrinketMenu: Activated profile " .. profile.name .. " with swaps on " .. tostring(numPacksFound) .. " packs.")
+	print("|cff00ff00TrinketMenu:|r Activated profile " .. profile.name .. " with swaps on " .. tostring(numPacksFound) .. " packs.")
 	TrinketMenu.PackProfileGuidTrinkets = map
 end
 
@@ -847,9 +880,7 @@ function TrinketMenu.PackProfileActivate_OnClick()
 	else
 		TrinketMenu.SetActivePackProfile(idx)
 	end
-	if TrinketMenu.UpdateActiveProfileText then
-		TrinketMenu.UpdateActiveProfileText()
-	end
+	TrinketMenu.UpdateActiveProfileText()
 	TrinketMenu.PackProfileScrollFrameUpdate()
 end
 
@@ -858,7 +889,5 @@ function TrinketMenu.ApplyPackProfileActivation(profile)
 		return
 	end
 	TrinketMenu.BuildPackProfileGuidTrinkets(profile)
-	if TrinketMenu.UpdateActiveProfileText then
-		TrinketMenu.UpdateActiveProfileText()
-	end
+	TrinketMenu.UpdateActiveProfileText()
 end

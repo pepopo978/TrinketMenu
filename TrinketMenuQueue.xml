@@ -445,6 +445,21 @@
 				</Scripts>
 			</CheckButton>
 
+			<CheckButton name="TrinketMenu_SortHideInMenu" inherits="TrinketMenu_CheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="TrinketMenu_SortKeepEquipped" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="55" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						TrinketMenu.SortHideInMenu_OnClick()
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
 			<Frame name="TrinketMenu_SortListFrame">
 				<Anchors>
 					<Anchor point="TOPLEFT">
