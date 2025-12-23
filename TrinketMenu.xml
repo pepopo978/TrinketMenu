@@ -98,7 +98,7 @@
 
 	<Frame name="TrinketMenu_MainFrame" toplevel="true" frameStrata="LOW" enableMouse="true" movable="true" parent="UIParent" hidden="true">
 		<Size>
-			<AbsDimension x="91" y="52" />
+			<AbsDimension x="91" y="64" />
 		</Size>
 		<Anchors>
 			<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="BOTTOMLEFT">
@@ -158,6 +158,15 @@
 					</Anchors>
 					<TexCoords left="0.875" right="1" top="0" bottom="1"/>
 				</Texture>
+				<FontString name="TrinketMenu_ProfileText" inherits="GameFontNormalSmall" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="BOTTOM" relativePoint="TOP">
+							<Offset>
+								<AbsDimension x="0" y="2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
 			</Layer>
 		</Layers>
 

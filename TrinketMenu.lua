@@ -1,6 +1,5 @@
 
---[[ TrinketMenu 3.41 ]]--
-TrinketMenu = {}
+--[[ TrinketMenu 4.0 ]]--
 
 function TrinketMenu.LoadDefaults()
 
@@ -45,7 +44,7 @@ end
 
 --[[ Misc Variables ]]--
 
-TrinketMenu_Version = 3.41
+TrinketMenu_Version = 4.0
 BINDING_HEADER_TRINKETMENU = "TrinketMenu"
 
 TrinketMenu.MaxTrinkets = 30 -- add more to TrinketMenu_MenuFrame if this changes
@@ -54,6 +53,64 @@ TrinketMenu.NumberOfTrinkets = 0 -- number of trinkets in the menu
 TrinketMenu.CombatQueue = {} -- [0] or [1] = name of trinket queued for slot 0 or 1
 TrinketMenu.Corners = { "TOPLEFT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT" }
 TrinketMenu.WatchItem = {} -- table of items being watched for cooldowns
+TrinketMenu.IconPath = "Interface\\Icons\\"
+
+--[[ Helpers for new API ]]--
+
+function TrinketMenu.UpdateTrinketList()
+	local trinkets = GetTrinkets()
+	local equipped = TrinketMenu.EquippedTrinkets or {}
+
+	if type(trinkets) ~= "table" then
+		TrinketMenu.TrinketListSize = 0
+		TrinketMenu.TrinketList = {}
+		TrinketMenu.EquippedTrinketListSize = 0
+		for i = 1, table.getn(equipped) do
+			equipped[i] = nil
+		end
+		TrinketMenu.EquippedTrinkets = equipped
+		return TrinketMenu.TrinketList
+	end
+
+	TrinketMenu.TrinketListSize = table.getn(trinkets)
+	TrinketMenu.TrinketList = trinkets
+	for _, trinket in ipairs(trinkets) do
+		trinket.icon = "Interface\\Icons\\" .. trinket.texture
+		if trinket.bagIndex == nil then
+			equipped[trinket.slotIndex] = trinket
+		end
+	end
+	TrinketMenu.EquippedTrinkets = equipped
+	return trinkets
+end
+
+function TrinketMenu.GetTrinketList()
+	return TrinketMenu.TrinketList or {}
+end
+
+function TrinketMenu.SlotIndexToInv(slotIndex)
+	if slotIndex == 1 or slotIndex == 13 then
+		return 13
+	elseif slotIndex == 2 or slotIndex == 14 then
+		return 14
+	end
+end
+
+function TrinketMenu.GetEquippedTrinket(slot)
+	if TrinketMenu.EquippedTrinkets and TrinketMenu.EquippedTrinkets[slot] then
+		return TrinketMenu.EquippedTrinkets[slot]
+	end
+	return nil
+end
+
+-- returns start, duration, enable
+function TrinketMenu.GetTrinketCooldownForSlot(bag, slot)
+	if bag then
+		return GetContainerItemCooldown(bag, slot)
+	else
+		return GetInventoryItemCooldown("player", slot)
+	end
+end
 
 --[[ Local functions ]]--
 
@@ -122,33 +179,26 @@ end
 
 -- scan inventory and build MenuFrame
 function TrinketMenu.BuildMenu()
-
 	if not IsShiftKeyDown() and TrinketMenuOptions.MenuOnShift=="ON" then
 		return
 	end
 
 	local idx,i,j,k,texture = 1
-	local itemLink,itemID,itemName,equipSlot,itemTexture
+	local trinkets = TrinketMenu.GetTrinketList()
 
 	-- go through bags and gather trinkets into .BaggedTrinkets
-	for i=0,4 do
-		for j=1,GetContainerNumSlots(i) do
-			itemLink = GetContainerItemLink(i,j)
-			
-			if itemLink then
-				_,_,itemID,itemName = string.find(GetContainerItemLink(i,j) or "","item:(%d+).+%[(.+)%]")
-				_,_,_,_,_,_,_,equipSlot,itemTexture = GetItemInfo(itemID or "")
-				if equipSlot=="INVTYPE_TRINKET" then
-					if not TrinketMenu.BaggedTrinkets[idx] then
-						TrinketMenu.BaggedTrinkets[idx] = {}
-					end
-					TrinketMenu.BaggedTrinkets[idx].bag = i
-					TrinketMenu.BaggedTrinkets[idx].slot = j
-					TrinketMenu.BaggedTrinkets[idx].name = itemName
-					TrinketMenu.BaggedTrinkets[idx].texture = itemTexture
-					idx = idx + 1
-				end
+	for _, trinket in ipairs(trinkets) do
+		if trinket.bagIndex ~= nil then
+			if not TrinketMenu.BaggedTrinkets[idx] then
+				TrinketMenu.BaggedTrinkets[idx] = {}
 			end
+			local entry = TrinketMenu.BaggedTrinkets[idx]
+			entry.bag = trinket.bagIndex
+			entry.slot = trinket.slotIndex
+			entry.name = trinket.trinketName or "Unknown"
+			entry.itemId = trinket.itemId
+			entry.icon = trinket.icon
+			idx = idx + 1
 		end
 	end
 	TrinketMenu.NumberOfTrinkets = math.min(idx-1,TrinketMenu.MaxTrinkets)
@@ -176,7 +226,7 @@ function TrinketMenu.BuildMenu()
 
 		for i=1,TrinketMenu.NumberOfTrinkets do
 			local item = getglobal("TrinketMenu_Menu"..i)
-			getglobal("TrinketMenu_Menu"..i.."Icon"):SetTexture(TrinketMenu.BaggedTrinkets[i].texture)
+			getglobal("TrinketMenu_Menu" .. i .. "Icon"):SetTexture(TrinketMenu.BaggedTrinkets[i].icon or "Interface\\Icons\\INV_Misc_QuestionMark")
 			item:SetPoint("TOPLEFT","TrinketMenu_MenuFrame",TrinketMenuPerOptions.MenuDock,xpos,ypos)
 
 			if TrinketMenuPerOptions.MenuOrient=="VERTICAL" then
@@ -260,17 +310,20 @@ function TrinketMenu.Initialize()
 	TrinketMenu.CreateTimer("Scaling",TrinketMenu.Scaling,.1,1)
 	TrinketMenu.CreateTimer("TooltipUpdate",TrinketMenu.TooltipUpdate,1,1)
 	TrinketMenu.CreateTimer("CooldownUpdate",TrinketMenu.CooldownUpdate,1,1)
+	TrinketMenu.CreateTimer("AutoSwapQueueOff0",TrinketMenu.AutoSwapQueueOff0,1)
+	TrinketMenu.CreateTimer("AutoSwapQueueOff1",TrinketMenu.AutoSwapQueueOff1,1)
 
-	TrinketMenu.oldUseInventoryItem = UseInventoryItem
-	UseInventoryItem = TrinketMenu.newUseInventoryItem
-	TrinketMenu.oldUseAction = UseAction
-	UseAction = TrinketMenu.newUseAction
+	TrinketMenu.CreateTimer("UpdateTrinketList", TrinketMenu.UpdateTrinketList, .2)
+	TrinketMenu.CreateTimer("DebouncedInventoryChanged", TrinketMenu.DebouncedInventoryChanged, .25)
+
+	TrinketMenu.AutoSwapQueuePending = TrinketMenu.AutoSwapQueuePending or {}
 
 	TrinketMenu.InitOptions()
 
 	TrinketMenu.UpdateWornTrinkets()
 	TrinketMenu.DockWindows()
 	TrinketMenu.OrientWindows()
+
 	TrinketMenu.StartTimer("CooldownUpdate")
 
 	if TrinketMenuPerOptions.Visible=="ON" and (GetInventoryItemLink("player",13) or GetInventoryItemLink("player",14)) then
@@ -281,40 +334,28 @@ end
 -- returns true if the player is really dead or ghost, not merely FD
 function TrinketMenu.IsPlayerReallyDead()
 	local dead = UnitIsDeadOrGhost("player")
-	for i=1,24 do
-		if UnitBuff("player",i)=="Interface\\Icons\\Ability_Rogue_FeignDeath" then
+	for i=1,32 do
+		if UnitBuff("player", i) == TrinketMenu.IconPath .. "Ability_Rogue_FeignDeath" then
 			dead = nil
 		end
 	end
 	return dead
 end
 
-function TrinketMenu.ItemInfo(slot)
-	local link,id,name,equipLoc,texture = GetInventoryItemLink("player",slot)
-	if link then
-		local _,_,id = string.find(link,"item:(%d+)")
-		name,_,_,_,_,_,_,equipLoc,texture = GetItemInfo(id)
-	else
-		_,texture = GetInventorySlotInfo("Trinket"..(slot-13).."Slot")
+function TrinketMenu.FindPlayerItemSlot(itemIdOrName, bagsOnly)
+	if not itemIdOrName or not FindPlayerItemSlot then
+		return
 	end
-	return texture,name,equipLoc
+	local bag, slot = FindPlayerItemSlot(itemIdOrName)
+	if bagsOnly and bag == nil then
+		return
+	end
+	return bag, slot
 end
 
 function TrinketMenu.FindItem(name,includeInventory)
-	if includeInventory then
-		for i=13,14 do
-			if string.find(GetInventoryItemLink("player",i) or "",name,1,1) then
-				return i
-			end
-		end
-	end
-	for i=0,4 do
-		for j=1,GetContainerNumSlots(i) do
-			if string.find(GetContainerItemLink(i,j) or "",name,1,1) then
-				return nil,i,j
-			end
-		end
-	end
+	local bag, slot = TrinketMenu.FindPlayerItemSlot(name, not includeInventory)
+	return bag, slot
 end
 
 --[[ Frame Scripts ]]--
@@ -329,14 +370,15 @@ function TrinketMenu.OnLoad()
 end
 
 function TrinketMenu.OnEvent()
-
 	if event=="BAG_UPDATE" then
 		if arg1>=0 and arg1<=4 then
 			TrinketMenu.BagsNeedUpdating[arg1] = 1
 		end
+		TrinketMenu.StartTimer("UpdateTrinketList")
 		TrinketMenu.StartTimer("UpdateBaggedTrinkets")
 	elseif event=="UNIT_INVENTORY_CHANGED" and arg1=="player" then
-		TrinketMenu.UpdateWornTrinkets()
+		TrinketMenu.StartTimer("UpdateTrinketList")
+		TrinketMenu.StartTimer("DebouncedInventoryChanged")
 	elseif event=="ACTIONBAR_UPDATE_COOLDOWN" then
 		TrinketMenu.UpdateWornCooldowns(1)
 	elseif (event=="PLAYER_REGEN_ENABLED" or event=="PLAYER_UNGHOST" or event=="PLAYER_ALIVE") and not TrinketMenu.IsPlayerReallyDead() then
@@ -348,35 +390,275 @@ function TrinketMenu.OnEvent()
 			TrinketMenu.CombatQueue[1] = nil
 			TrinketMenu.UpdateCombatQueue()
 		end
+		if event == "PLAYER_REGEN_ENABLED" then
+			TrinketMenu.AutoSwapQueueScheduleOff()
+		end
 	elseif event=="UPDATE_BINDINGS" then
 		TrinketMenu.ReflectKeyBindings()
+	elseif event == "SPELL_CAST_EVENT" then
+		local success, spellId, castType, targetGuid, itemId = arg1, arg2, arg3, arg4, arg5
+		if success == 1 and itemId and itemId > 0 then
+			-- Check cached equipped trinkets
+			local trinket13 = TrinketMenu.GetEquippedTrinket(13)
+			local trinket14 = TrinketMenu.GetEquippedTrinket(14)
+
+			if trinket13 and trinket13.itemId == itemId then
+				TrinketMenu.ReflectTrinketUse(13)
+			elseif trinket14 and trinket14.itemId == itemId then
+				TrinketMenu.ReflectTrinketUse(14)
+			end
+		end
+	elseif event == "UNIT_DIED" then
+		local guid = arg1
+		if guid and TrinketMenu.PackProfileGuidTrinkets and TrinketMenuQueue and TrinketMenuQueue.PackProfileActive then
+			local trinketData = TrinketMenu.PackProfileGuidTrinkets[guid]
+			if trinketData then
+				if trinketData.trinket1 == "autoswap" then
+					TrinketMenu.EnableAutoSwapQueue(0)
+				elseif trinketData.trinket1 then
+					TrinketMenu.EquipTrinketByName(trinketData.trinket1, 13)
+				end
+				if trinketData.trinket2 == "autoswap" then
+					TrinketMenu.EnableAutoSwapQueue(1)
+				elseif trinketData.trinket2 then
+					TrinketMenu.EquipTrinketByName(trinketData.trinket2, 14)
+				end
+			end
+		end
 	elseif event=="PLAYER_LOGIN" then
 		TrinketMenu.LoadDefaults()
+		TrinketMenu.UpdateTrinketList()
+
 		TrinketMenu.Initialize()
-	this:RegisterEvent("PLAYER_REGEN_ENABLED")
-	this:RegisterEvent("PLAYER_UNGHOST")
-	this:RegisterEvent("PLAYER_ALIVE")
-	this:RegisterEvent("UNIT_INVENTORY_CHANGED")
-	this:RegisterEvent("UPDATE_BINDINGS")
-	this:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
+		if TrinketMenuQueue and TrinketMenuQueue.PackProfileActive and TrinketMenuQueue.PackProfiles then
+			local profile = TrinketMenuQueue.PackProfiles[TrinketMenuQueue.PackProfileActive]
+			if profile then
+				if TrinketMenu.ApplyPackProfileActivation then
+					TrinketMenu.ApplyPackProfileActivation(profile)
+				else
+					TrinketMenu.BuildPackProfileGuidTrinkets(profile)
+					if TrinketMenu.UpdateActiveProfileText then
+						TrinketMenu.UpdateActiveProfileText()
+					end
+				end
+			end
+		end
+		this:RegisterEvent("PLAYER_REGEN_ENABLED")
+		this:RegisterEvent("PLAYER_UNGHOST")
+		this:RegisterEvent("PLAYER_ALIVE")
+		this:RegisterEvent("UNIT_INVENTORY_CHANGED")
+		this:RegisterEvent("UPDATE_BINDINGS")
+		this:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
+		this:RegisterEvent("SPELL_CAST_EVENT")
+		this:RegisterEvent("UNIT_DIED")
 	end
 end
 
+function TrinketMenu.UpdateActiveProfileText()
+	if not TrinketMenu_ProfileText then
+		return
+	end
+	local text = "No Profile"
+	if TrinketMenuQueue and TrinketMenuQueue.PackProfileActive and TrinketMenuQueue.PackProfiles then
+		local profile = TrinketMenuQueue.PackProfiles[TrinketMenuQueue.PackProfileActive]
+		if profile and profile.name then
+			text = profile.name
+		end
+	end
+	TrinketMenu_ProfileText:SetText(text)
+	TrinketMenu_ProfileText:Show()
+end
+
+function TrinketMenu.UpdatePackProfileUI()
+	if TrinketMenu.PackProfileScrollFrameUpdate then
+		TrinketMenu.PackProfileScrollFrameUpdate()
+	end
+	if TrinketMenu.PackProfileValidateButtons then
+		TrinketMenu.PackProfileValidateButtons()
+	end
+end
+
+function TrinketMenu.SetActivePackProfile(idx)
+	if not TrinketMenuQueue or not TrinketMenuQueue.PackProfiles then
+		return
+	end
+	local profile = TrinketMenuQueue.PackProfiles[idx]
+	if not profile then
+		return
+	end
+	if TrinketMenuQueue.PackProfileActive and TrinketMenuQueue.PackProfileActive ~= idx then
+		TrinketMenuQueue.PackProfileLast = TrinketMenuQueue.PackProfileActive
+	end
+	TrinketMenuQueue.PackProfileActive = idx
+	if TrinketMenu.ApplyPackProfileActivation then
+		TrinketMenu.ApplyPackProfileActivation(profile)
+	else
+		TrinketMenu.BuildPackProfileGuidTrinkets(profile)
+		if TrinketMenu.UpdateActiveProfileText then
+			TrinketMenu.UpdateActiveProfileText()
+		end
+	end
+	TrinketMenu.UpdatePackProfileUI()
+end
+
+function TrinketMenu.ClearActivePackProfile()
+	if not TrinketMenuQueue or not TrinketMenuQueue.PackProfileActive then
+		return
+	end
+	TrinketMenuQueue.PackProfileLast = TrinketMenuQueue.PackProfileActive
+	TrinketMenuQueue.PackProfileActive = nil
+	TrinketMenu.PackProfileGuidTrinkets = {}
+	if TrinketMenu.UpdateActiveProfileText then
+		TrinketMenu.UpdateActiveProfileText()
+	end
+	TrinketMenu.UpdatePackProfileUI()
+end
+
+function TrinketMenu.AdjustPackProfileIndexesAfterDelete(idx)
+	if not TrinketMenuQueue or not idx then
+		return
+	end
+	if TrinketMenuQueue.PackProfileActive == idx then
+		TrinketMenuQueue.PackProfileActive = nil
+		TrinketMenu.PackProfileGuidTrinkets = {}
+	elseif TrinketMenuQueue.PackProfileActive and TrinketMenuQueue.PackProfileActive > idx then
+		TrinketMenuQueue.PackProfileActive = TrinketMenuQueue.PackProfileActive - 1
+	end
+	if TrinketMenuQueue.PackProfileLast == idx then
+		TrinketMenuQueue.PackProfileLast = nil
+	elseif TrinketMenuQueue.PackProfileLast and TrinketMenuQueue.PackProfileLast > idx then
+		TrinketMenuQueue.PackProfileLast = TrinketMenuQueue.PackProfileLast - 1
+	end
+end
+
+function TrinketMenu.ToggleActivePackProfile()
+	if not TrinketMenuQueue then
+		return
+	end
+	if TrinketMenuQueue.PackProfileActive then
+		TrinketMenu.ClearActivePackProfile()
+		return
+	end
+	if TrinketMenuQueue.PackProfileLast then
+		TrinketMenu.SetActivePackProfile(TrinketMenuQueue.PackProfileLast)
+	end
+end
+
+function TrinketMenu.ReactivateLastPackProfile()
+	if not TrinketMenuQueue or not TrinketMenuQueue.PackProfileLast then
+		return
+	end
+	if TrinketMenuQueue.PackProfileActive == TrinketMenuQueue.PackProfileLast then
+		return
+	end
+	TrinketMenu.SetActivePackProfile(TrinketMenuQueue.PackProfileLast)
+end
+
+function TrinketMenu.ToggleLastPackProfile()
+	if not TrinketMenuQueue or not TrinketMenuQueue.PackProfileLast then
+		return
+	end
+	if TrinketMenuQueue.PackProfileActive == TrinketMenuQueue.PackProfileLast then
+		TrinketMenu.ClearActivePackProfile()
+	else
+		TrinketMenu.SetActivePackProfile(TrinketMenuQueue.PackProfileLast)
+	end
+end
+
+function TrinketMenu.EditActivePackProfile()
+	if not TrinketMenuQueue or not TrinketMenuQueue.PackProfiles then
+		return
+	end
+	local idx = TrinketMenuQueue.PackProfileActive
+	if not idx or not TrinketMenuQueue.PackProfiles[idx] then
+		return
+	end
+	if TrinketMenu_OptFrame then
+		TrinketMenu_OptFrame:Show()
+	end
+	if TrinketMenu.Tab_OnClick then
+		TrinketMenu.Tab_OnClick(4)
+	end
+	TrinketMenu.PackProfileSelected = idx
+	TrinketMenu.UpdatePackProfileUI()
+	TrinketMenu.ProfileEditIndex = idx
+	if TrinketMenu_ProfileCreateFrame then
+		TrinketMenu_ProfileCreateFrame:Show()
+	end
+end
+
+function TrinketMenu.EnableAutoSwapQueue(which)
+	if not TrinketMenuQueue then
+		return
+	end
+	TrinketMenuQueue.Enabled[which] = 1
+	TrinketMenu.AutoSwapQueuePending = TrinketMenu.AutoSwapQueuePending or {}
+	TrinketMenu.AutoSwapQueuePending[which] = true
+	TrinketMenu.ReflectQueueEnabled()
+	TrinketMenu.UpdateCombatQueue()
+	if not UnitAffectingCombat("player") then
+		TrinketMenu.StartTimer("AutoSwapQueueOff" .. which, 1)
+	end
+end
+
+function TrinketMenu.AutoSwapQueueOff(which)
+	if TrinketMenu.AutoSwapQueuePending and TrinketMenu.AutoSwapQueuePending[which] then
+		TrinketMenu.AutoSwapQueuePending[which] = nil
+		if TrinketMenuQueue then
+			TrinketMenuQueue.Enabled[which] = nil
+			TrinketMenu.ReflectQueueEnabled()
+			TrinketMenu.UpdateCombatQueue()
+		end
+	end
+end
+
+function TrinketMenu.AutoSwapQueueOff0()
+	TrinketMenu.AutoSwapQueueOff(0)
+end
+
+function TrinketMenu.AutoSwapQueueOff1()
+	TrinketMenu.AutoSwapQueueOff(1)
+end
+
+function TrinketMenu.AutoSwapQueueScheduleOff()
+	if UnitAffectingCombat("player") then
+		return
+	end
+	for which in pairs(TrinketMenu.AutoSwapQueuePending or {}) do
+		TrinketMenu.StartTimer("AutoSwapQueueOff" .. which, 1)
+	end
+end
+
+function TrinketMenu.DebouncedInventoryChanged()
+	TrinketMenu.UpdateWornTrinkets()
+end
+
 function TrinketMenu.UpdateWornTrinkets()
-	TrinketMenu_Trinket0Icon:SetTexture(TrinketMenu.ItemInfo(13))
-	TrinketMenu_Trinket1Icon:SetTexture(TrinketMenu.ItemInfo(14))
+	local trinket13 = TrinketMenu.GetEquippedTrinket(13)
+	local trinket14 = TrinketMenu.GetEquippedTrinket(14)
+
+	if trinket13 then
+		local texture13 = trinket13.icon or GetInventoryItemTexture("player", 13)
+		TrinketMenu_Trinket0Icon:SetTexture(texture13 or "Interface\\Icons\\INV_Misc_QuestionMark")
+		TrinketMenu.AddWatchItem(trinket13.trinketName, trinket13.slotIndex)
+	else
+		texture13 = nil
+	end
+
+	if trinket14 then
+		local texture14 = trinket14.icon or GetInventoryItemTexture("player", 14)
+		TrinketMenu_Trinket1Icon:SetTexture(texture14 or "Interface\\Icons\\INV_Misc_QuestionMark")
+		TrinketMenu.AddWatchItem(trinket14.trinketName, trinket14.slotIndex)
+	else
+		texture14 = nil
+	end
+
 	TrinketMenu_Trinket0Icon:SetDesaturated(0)
 	TrinketMenu_Trinket0:SetChecked(0)
 	TrinketMenu_Trinket1Icon:SetDesaturated(0)
 	TrinketMenu_Trinket1:SetChecked(0)
 	TrinketMenu.UpdateWornCooldowns()
-	local name
-	for i=13,14 do
-		_,_,name = string.find(GetInventoryItemLink("player",i) or "","%[(.+)%]")
-		if name then
-			TrinketMenu.AddWatchItem(name,i)
-		end
-	end
+
 	if TrinketMenu_MenuFrame:IsVisible() then
 		TrinketMenu.BuildMenu()
 	end
@@ -439,6 +721,12 @@ function TrinketMenu.SlashHandler(msg)
 	elseif string.find(msg,"load") then
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFFFFF00TrinketMenu load:")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket load (top|bottom) profilename\nie: /trinket load bottom PvP")
+	elseif msg=="activate" then
+		TrinketMenu.ReactivateLastPackProfile()
+	elseif msg=="deactivate" then
+		TrinketMenu.ClearActivePackProfile()
+	elseif msg=="edit" then
+		TrinketMenu.EditActivePackProfile()
 	else
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFFFFF00TrinketMenu useage:")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket or /trinketmenu : toggle the window")
@@ -447,6 +735,9 @@ function TrinketMenu.SlashHandler(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket lock|unlock : toggles window lock")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket scale main|menu (number) : sets an exact scale")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket load top|bottom profilename : loads a profile to top or bottom trinket")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket activate : reactivate last profile")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket deactivate : deactivate current profile")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket edit : edit active profile")
 	end
 end
 
@@ -566,7 +857,7 @@ function TrinketMenu.MainTrinket_OnClick()
 		TrinketMenu.UpdateCombatQueue()
 		-- toggle queue
 	else
-		UseInventoryItem(this:GetID())
+		UseTrinket(this:GetID())
 	end
 end
 
@@ -749,32 +1040,23 @@ end
 function TrinketMenu.ReflectTrinketUse(slot)
 	getglobal("TrinketMenu_Trinket"..(slot-13)):SetChecked(1)
 	TrinketMenu.StartTimer("UpdateWornTrinkets")
-	local _,_,id,trinket = string.find(GetInventoryItemLink("player",slot) or "","item:(%d+).+%[(.+)%]")
-	if trinket then
-		TrinketMenuPerOptions.ItemsUsed[trinket] = 0 -- 0 is an indeterminate state, cooldown will figure if it's worth watching
-		TrinketMenu.AddWatchItem(trinket)
+	local trinket = TrinketMenu.GetEquippedTrinket(slot)
+	if trinket and trinket.trinketName then
+		TrinketMenuPerOptions.ItemsUsed[trinket.trinketName] = 0 -- 0 is an indeterminate state, cooldown will figure if it's worth watching
+		TrinketMenu.AddWatchItem(trinket.trinketName, slot)
 	end
 end
 
-function TrinketMenu.newUseInventoryItem(slot)
-	if slot==13 or slot==14 and not MerchantFrame:IsVisible() then
-		TrinketMenu.ReflectTrinketUse(slot)
+function TrinketMenu.FindEquippedTrinketSlot(itemIdOrName)
+	if itemIdOrName == 1 or itemIdOrName == 13 then
+		return 13
+	elseif itemIdOrName == 2 or itemIdOrName == 14 then
+		return 14
 	end
-	TrinketMenu.oldUseInventoryItem(slot)
-end
-
-function TrinketMenu.newUseAction(slot,cursor,self)
-	if IsEquippedAction(slot) then
-		TrinketMenu_TooltipScan:SetAction(slot)
-		local _,trinket0 = TrinketMenu.ItemInfo(13)
-		local _,trinket1 = TrinketMenu.ItemInfo(14)
-		if GameTooltipTextLeft1:GetText()==trinket0 then
-			TrinketMenu.ReflectTrinketUse(13)
-		elseif GameTooltipTextLeft1:GetText()==trinket1 then
-			TrinketMenu.ReflectTrinketUse(14)
-		end
+	local bag, slot = TrinketMenu.FindPlayerItemSlot(itemIdOrName)
+	if bag == nil and (slot == 13 or slot == 14) then
+		return slot
 	end
-	TrinketMenu.oldUseAction(slot,cursor,self)
 end
 
 --[[ Tooltips ]]
@@ -902,31 +1184,33 @@ end
 
 --[[ Combat Queue ]]
 
-function TrinketMenu.EquipTrinketByName(name,slot)
-	if not name then return end
+function TrinketMenu.EquipTrinketByName(nameOrId, slot)
+	if not nameOrId then return end
 	if UnitAffectingCombat("player") or TrinketMenu.IsPlayerReallyDead() then
 		-- queue trinket
 		local queue = TrinketMenu.CombatQueue
 		local which = slot-13 -- 0 or 1
-		if queue[which]==name and not imperative then
-			queue[which] = nil
-		elseif queue[1-which]==name then
+		if queue[1-which]== nameOrId then
 			queue[1-which] = nil
-			queue[which] = name
+			queue[which] = nameOrId
 		else
-			queue[which] = name
+			queue[which] = nameOrId
 		end
 	elseif not CursorHasItem() and not SpellIsTargeting() then
-		local _,b,s = TrinketMenu.FindItem(name)
-		if b then
-			local _,_,isLocked = GetContainerItemInfo(b,s)
+		local bag, slotIndex = TrinketMenu.FindItem(nameOrId, 1)
+		if bag then
+			local _,_,isLocked = GetContainerItemInfo(bag,slotIndex)
 			if not isLocked and not IsInventoryItemLocked(slot) then
 				-- neither container item nor inventory item locked, perform swap
-				PickupContainerItem(b,s)
+				PickupContainerItem(bag,slotIndex)
 				PickupInventoryItem(slot)
 				getglobal("TrinketMenu_Trinket"..(slot-13).."Icon"):SetDesaturated(1)
 				TrinketMenu.StartTimer("UpdateWornTrinkets") -- in case it's not equipped (stunned, etc)
 			end
+		elseif slotIndex and slotIndex >= 0 then
+			print("TrinketMenu: Trinket " .. nameOrId .. " is already equipped")
+		else
+			print("TrinketMenu: Unable to find trinket " .. nameOrId .. " in your bags")
 		end
 	end
 	TrinketMenu.UpdateCombatQueue()
@@ -939,7 +1223,7 @@ function TrinketMenu.UpdateCombatQueue()
 		local icon = getglobal("TrinketMenu_Trinket"..which.."Queue")
 		icon:Hide()
 		if trinket then
-			_,bag,slot = TrinketMenu.FindItem(trinket)
+			bag,slot = TrinketMenu.FindItem(trinket)
 			if bag then
 				icon:SetTexture(GetContainerItemInfo(bag,slot))
 				icon:Show()
@@ -972,14 +1256,16 @@ end
 -- pass inv bag slot to override the search
 function TrinketMenu.AddWatchItem(name,inv,bag,slot)
 	TrinketMenu.WatchItem[name] = TrinketMenu.WatchItem[name] or {}
+
+	-- Only search if location not provided
 	if not inv and not bag then
-		inv = TrinketMenu.WatchItem[name].inv
-		bag = TrinketMenu.WatchItem[name].bag
-		slot = TrinketMenu.WatchItem[name].slot
-		if not string.find((inv and (GetInventoryItemLink("player",inv) or "")) or (bag and (GetContainerItemLink(bag,slot) or "")) or "",name) then
-			inv,bag,slot = TrinketMenu.FindItem(name,1)
+		bag, slot = TrinketMenu.FindItem(name, 1)
+		if not bag and slot then
+			inv = slot
+			slot = nil
 		end
 	end
+
 	TrinketMenu.WatchItem[name].inv = inv
 	TrinketMenu.WatchItem[name].bag = bag
 	TrinketMenu.WatchItem[name].slot = slot
@@ -999,7 +1285,13 @@ function TrinketMenu.CooldownUpdate()
 			_,_,name = string.find(GetContainerItemLink(bag,slot) or "","%[(.+)%]")
 		end
 		if name~=i then -- item has moved
-			inv,bag,slot = TrinketMenu.FindItem(i,1)
+			bag,slot = TrinketMenu.FindItem(i,1)
+			if not bag and slot then
+				inv = slot
+				slot = nil
+			else
+				inv = nil
+			end
 			watch[i].inv,watch[i].bag,watch[i].slot = inv,bag,slot
 		end
 		if inv then

@@ -148,7 +148,7 @@
 		</Scripts>
 	</Button>
 
-	<Button name="TrinketMenu_Tab2" inherits="TrinketMenu_TabTemplate" parent="TrinketMenu_OptFrame" text="Bottom      " id="2">
+	<Button name="TrinketMenu_Tab2" inherits="TrinketMenu_TabTemplate" parent="TrinketMenu_OptFrame" text="Bottom" id="2">
 		<Anchors>
 			<Anchor point="TOPRIGHT" relativeTo="TrinketMenu_Tab1" relativePoint="TOPLEFT"/>
 		</Anchors>
@@ -162,9 +162,14 @@
 			</Anchor>
 		</Anchors>
 	</CheckButton>
-	<Button name="TrinketMenu_Tab3" inherits="TrinketMenu_TabTemplate" parent="TrinketMenu_OptFrame" text="Top      " id="3">
+	<Button name="TrinketMenu_Tab3" inherits="TrinketMenu_TabTemplate" parent="TrinketMenu_OptFrame" text="Top" id="3">
 		<Anchors>
 			<Anchor point="TOPRIGHT" relativeTo="TrinketMenu_Tab2" relativePoint="TOPLEFT"/>
+		</Anchors>
+	</Button>
+	<Button name="TrinketMenu_Tab4" inherits="TrinketMenu_TabTemplate" parent="TrinketMenu_OptFrame" text="Profiles" id="4">
+		<Anchors>
+			<Anchor point="TOPRIGHT" relativeTo="TrinketMenu_Tab3" relativePoint="TOPLEFT"/>
 		</Anchors>
 	</Button>
 	<CheckButton name="TrinketMenu_Trinket0Check" inherits="TrinketMenu_TabCheckTemplate" parent="TrinketMenu_OptFrame" id="3">

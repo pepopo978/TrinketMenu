@@ -1,9 +1,12 @@
 ## Interface: 11200
-## Title: TrinketMenu - Fix
-## Author: Gello
-## Notes: AddOn to manage trinkets, fix by Ogrisch
+## Title: TrinketMenu 4.0
+## Author: Gello, Pepopo
+## Notes: Modified version of TrinketMenu with new features.  AddOn to manage trinkets, fix by Ogrisch
 ## SavedVariables: TrinketMenuOptions
 ## SavedVariablesPerCharacter: TrinketMenuPerOptions, TrinketMenuQueue
+TrinketMenuLoad.lua
+BossList.lua
+NPCDescriptions.lua
 TrinketMenu.lua
 TrinketMenu.xml
 TrinketMenuOpt.lua

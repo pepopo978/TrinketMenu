@@ -49,6 +49,146 @@
 		</Scripts>
 	</CheckButton>
 
+	<Button name="TrinketMenu_ProfilePackTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="420" y="18"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestLogTitleHighlight" hidden="true" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="420" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString name="$parentText" font="GameFontHighlightSmall" justifyH="LEFT">
+					<Size>
+						<AbsDimension x="400" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="6" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnClick>
+				TrinketMenu.ProfilePack_OnClick()
+			</OnClick>
+		</Scripts>
+	</Button>
+
+	<Button name="TrinketMenu_ProfileTrinketTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="180" y="18"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestLogTitleHighlight" hidden="true" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="180" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture name="$parentIcon">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="6" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<FontString name="$parentText" font="GameFontHighlightSmall" justifyH="LEFT">
+					<Size>
+						<AbsDimension x="140" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentIcon" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="6" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				this:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			</OnLoad>
+			<OnClick>
+				TrinketMenu.ProfileTrinket_OnClick()
+			</OnClick>
+		</Scripts>
+	</Button>
+
+	<Button name="TrinketMenu_PackProfileListTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="320" y="20"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parentActive" file="Interface\Buttons\UI-CheckBox-Check" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="4" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestLogTitleHighlight" hidden="true" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="320" y="20"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString name="$parentText" font="GameFontHighlightSmall" justifyH="LEFT">
+					<Size>
+						<AbsDimension x="290" y="20"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="22" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnClick>
+				TrinketMenu.PackProfileList_OnClick()
+			</OnClick>
+		</Scripts>
+	</Button>
+
 	<!-- Minimap button -->
 	<Button name="TrinketMenu_IconFrame" frameStrata="LOW" parent="Minimap" enableMouse="true" movable="true" toplevel="true" hidden="false">
 		<Size>
@@ -86,7 +226,7 @@
 	</Button>
 
 	<Frame name="TrinketMenu_OptFrame" parent="UIParent" movable="true" toplevel="true" clampedToScreen="true" hidden="true">
-		<Size x="300" y="326"/>
+		<Size x="400" y="326"/>
 		<Anchors>
 			<Anchor point="CENTER"/>
 		</Anchors>
@@ -395,6 +535,240 @@
 
 				</Frames>
 			</Frame>
+			<Frame name="TrinketMenu_ProfilesTabFrame" parent="TrinketMenu_OptFrame" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="8" y="-50"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-8" y="8"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="16" />
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\ChatFrame\ChatFrameBackground">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="4" y="-4"/>
+									</Offset>
+								</Anchor>
+								<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="-4" y="4"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Gradient orientation="VERTICAL">
+								<MinColor r=".15" g=".15" b=".15" a="1"/>
+								<MaxColor r=".33" g=".33" b=".33" a="1"/>
+							</Gradient>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString name="TrinketMenu_ProfilesTabHelp" inherits="GameFontHighlightSmall" text="Create raid profiles where you can select which trinkets to use after packs.">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="16" y="-16"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button name="TrinketMenu_ProfileCreateButton" inherits="UIPanelButtonGrayTemplate" parent="TrinketMenu_ProfilesTabFrame" text="Create Profile">
+						<Size>
+							<AbsDimension x="120" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilesTabHelp" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-4"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								TrinketMenu.ProfileCreateButton_OnClick()
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Frame name="TrinketMenu_PackProfileListFrame" parent="TrinketMenu_ProfilesTabFrame">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileCreateButton" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-12"/>
+								</Offset>
+							</Anchor>
+							<Anchor point="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="-12" y="44"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+							<EdgeSize>
+								<AbsValue val="16" />
+							</EdgeSize>
+						</Backdrop>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\ChatFrame\ChatFrameBackground">
+									<Anchors>
+										<Anchor point="TOPLEFT">
+											<Offset>
+												<AbsDimension x="4" y="-4"/>
+											</Offset>
+										</Anchor>
+										<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+											<Offset>
+												<AbsDimension x="-4" y="4"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Gradient orientation="VERTICAL">
+										<MinColor r=".075" g=".075" b=".075" a="1"/>
+										<MaxColor r=".165" g=".165" b=".165" a="1"/>
+									</Gradient>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<FontString name="TrinketMenu_PackProfileEmptyText" inherits="GameFontDisableSmall" text="No profiles yet.">
+									<Anchors>
+										<Anchor point="CENTER">
+											<Offset>
+												<AbsDimension x="0" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button name="TrinketMenu_PackProfile1" inherits="TrinketMenu_PackProfileListTemplate" id="1">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="6" y="-6"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="TrinketMenu_PackProfile2" inherits="TrinketMenu_PackProfileListTemplate" id="2">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackProfile1" relativePoint="BOTTOMLEFT"/>
+								</Anchors>
+							</Button>
+							<Button name="TrinketMenu_PackProfile3" inherits="TrinketMenu_PackProfileListTemplate" id="3">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackProfile2" relativePoint="BOTTOMLEFT"/>
+								</Anchors>
+							</Button>
+							<Button name="TrinketMenu_PackProfile4" inherits="TrinketMenu_PackProfileListTemplate" id="4">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackProfile3" relativePoint="BOTTOMLEFT"/>
+								</Anchors>
+							</Button>
+							<Button name="TrinketMenu_PackProfile5" inherits="TrinketMenu_PackProfileListTemplate" id="5">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackProfile4" relativePoint="BOTTOMLEFT"/>
+								</Anchors>
+							</Button>
+							<Button name="TrinketMenu_PackProfile6" inherits="TrinketMenu_PackProfileListTemplate" id="6">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackProfile5" relativePoint="BOTTOMLEFT"/>
+								</Anchors>
+							</Button>
+							<Button name="TrinketMenu_PackProfile7" inherits="TrinketMenu_PackProfileListTemplate" id="7">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackProfile6" relativePoint="BOTTOMLEFT"/>
+								</Anchors>
+							</Button>
+							<Button name="TrinketMenu_PackProfile8" inherits="TrinketMenu_PackProfileListTemplate" id="8">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackProfile7" relativePoint="BOTTOMLEFT"/>
+								</Anchors>
+							</Button>
+							<ScrollFrame name="TrinketMenu_PackProfileScroll" inherits="FauxScrollFrameTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackProfile1" relativePoint="TOPLEFT"/>
+									<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_PackProfile8" relativePoint="BOTTOMRIGHT"/>
+								</Anchors>
+								<Scripts>
+									<OnVerticalScroll>
+										FauxScrollFrame_OnVerticalScroll(20, TrinketMenu.PackProfileScrollFrameUpdate)
+									</OnVerticalScroll>
+									<OnShow>
+										TrinketMenu.PackProfileScrollFrameUpdate()
+									</OnShow>
+								</Scripts>
+							</ScrollFrame>
+						</Frames>
+					</Frame>
+					<Button name="TrinketMenu_PackProfileEdit" inherits="UIPanelButtonGrayTemplate" parent="TrinketMenu_ProfilesTabFrame" text="Edit">
+						<Size>
+							<AbsDimension x="70" y="22"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="-12" y="12"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								TrinketMenu.PackProfileEdit_OnClick()
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button name="TrinketMenu_PackProfileDelete" inherits="UIPanelButtonGrayTemplate" parent="TrinketMenu_ProfilesTabFrame" text="Delete">
+						<Size>
+							<AbsDimension x="70" y="22"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="12" y="12"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								TrinketMenu.PackProfileDelete_OnClick()
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button name="TrinketMenu_PackProfileActivate" inherits="UIPanelButtonGrayTemplate" parent="TrinketMenu_ProfilesTabFrame" text="Activate">
+						<Size>
+							<AbsDimension x="80" y="22"/>
+						</Size>
+						<Anchors>
+							<Anchor point="RIGHT" relativeTo="TrinketMenu_PackProfileEdit" relativePoint="LEFT">
+								<Offset>
+									<AbsDimension x="-6" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								TrinketMenu.PackProfileActivate_OnClick()
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+			</Frame>
 		</Frames>
 		<Scripts>
 			<OnMouseDown>
@@ -410,6 +784,593 @@
 			<OnShow>
 				TrinketMenu.OptFrame_OnShow()
 			</OnShow>
+		</Scripts>
+	</Frame>
+
+	<Frame name="TrinketMenu_ProfileCreateFrame" parent="UIParent" movable="true" toplevel="true" clampedToScreen="true" hidden="true">
+		<Size>
+			<AbsDimension x="750" y="480"/>
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+			<EdgeSize>
+				<AbsValue val="16" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\ChatFrame\ChatFrameBackground">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="4" y="-4"/>
+							</Offset>
+						</Anchor>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="-4" y="4"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<Gradient orientation="VERTICAL">
+						<MinColor r="0.1" g="0.1" b="0.1" a=".6"/>
+						<MaxColor r=".25" g=".25" b=".25" a="1"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString name="TrinketMenu_ProfileCreateTitle" inherits="GameFontHighlightSmall" text="Create Profile">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-10"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<Color r=".8" g=".8" b=".8"/>
+				</FontString>
+				<FontString name="TrinketMenu_ProfileNameLabel" inherits="GameFontHighlightSmall" text="Profile Name">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="16" y="-64"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="TrinketMenu_ProfileRaidLabel" inherits="GameFontHighlightSmall" text="Raid">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="16" y="-32"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="TrinketMenu_ProfilePacksLabel" inherits="GameFontDisableSmall" text="Pack Descriptions">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="16" y="-114"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="TrinketMenu_ProfileTrinketsLabel" inherits="GameFontDisableSmall" text="Trinkets">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="500" y="-114"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="TrinketMenu_ProfilePackHelp" inherits="GameFontHighlightSmall" text="Select a pack, then left-click a trinket for Trinket1 or right-click for Trinket2. When any mob in that pack dies, the requested trinket will get queued for when combat drops.">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePacksLabel" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="0" y="16"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="TrinketMenu_ProfileCreateClose" inherits="TrinketMenu_SmallButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-6" y="-6"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<NormalTexture file="Interface\AddOns\TrinketMenu\Buttons">
+					<TexCoords left=".375" right=".5" top=".25" bottom=".375"/>
+				</NormalTexture>
+				<PushedTexture file="Interface\AddOns\TrinketMenu\Buttons">
+					<TexCoords left=".5" right=".625" top=".25" bottom=".375"/>
+				</PushedTexture>
+				<DisabledTexture file="Interface\AddOns\TrinketMenu\Buttons">
+					<TexCoords left=".625" right=".75" top=".25" bottom=".375"/>
+				</DisabledTexture>
+				<Scripts>
+					<OnClick>
+						TrinketMenu.ProfileCreateClose_OnClick()
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<EditBox name="TrinketMenu_ProfileNameEdit" historyLines="0" enableMouse="true" autoFocus="false" letters="64">
+				<Size>
+					<AbsDimension x="220" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="120" y="-60"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentLeft" file="Interface\ClassTrainerFrame\UI-ClassTrainer-FilterBorder">
+							<Size>
+								<AbsDimension x="12" y="29"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="-11" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.09375" top="0" bottom="1.0"/>
+						</Texture>
+						<Texture name="$parentRight" file="Interface\ClassTrainerFrame\UI-ClassTrainer-FilterBorder">
+							<Size>
+								<AbsDimension x="12" y="29"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="4" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0.90625" right="1.0" top="0" bottom="1.0"/>
+						</Texture>
+						<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-FilterBorder">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parentLeft" relativePoint="TOPRIGHT"/>
+								<Anchor point="BOTTOMRIGHT" relativeTo="$parentRight" relativePoint="BOTTOMLEFT"/>
+							</Anchors>
+							<TexCoords left="0.09375" right="0.90625" top="0" bottom="1.0"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<FontString inherits="GameFontHighlight"/>
+				<Scripts>
+					<OnEscapePressed>
+						this:ClearFocus()
+					</OnEscapePressed>
+					<OnEnterPressed>
+						this:ClearFocus()
+					</OnEnterPressed>
+					<OnTextChanged>
+						TrinketMenu.ProfileNameEdit_OnTextChanged()
+					</OnTextChanged>
+				</Scripts>
+			</EditBox>
+
+			<Frame name="TrinketMenu_ProfileRaidDropDown" inherits="UIDropDownMenuTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="120" y="-28"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						TrinketMenu.ProfileRaidDropDown_OnLoad()
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="TrinketMenu_ProfilePackFrame">
+				<Size>
+					<AbsDimension x="480" y="230"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="16" y="-126"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="16" />
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\ChatFrame\ChatFrameBackground">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="4" y="-4"/>
+									</Offset>
+								</Anchor>
+								<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="-4" y="4"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Gradient orientation="VERTICAL">
+								<MinColor r=".075" g=".075" b=".075" a="1"/>
+								<MaxColor r=".165" g=".165" b=".165" a="1"/>
+							</Gradient>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button name="TrinketMenu_ProfilePack1" inherits="TrinketMenu_ProfilePackTemplate" id="1">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-6"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack2" inherits="TrinketMenu_ProfilePackTemplate" id="2">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack1" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack3" inherits="TrinketMenu_ProfilePackTemplate" id="3">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack2" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack4" inherits="TrinketMenu_ProfilePackTemplate" id="4">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack3" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack5" inherits="TrinketMenu_ProfilePackTemplate" id="5">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack4" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack6" inherits="TrinketMenu_ProfilePackTemplate" id="6">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack5" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack7" inherits="TrinketMenu_ProfilePackTemplate" id="7">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack6" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack8" inherits="TrinketMenu_ProfilePackTemplate" id="8">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack7" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack9" inherits="TrinketMenu_ProfilePackTemplate" id="9">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack8" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack10" inherits="TrinketMenu_ProfilePackTemplate" id="10">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack9" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack11" inherits="TrinketMenu_ProfilePackTemplate" id="11">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack10" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfilePack12" inherits="TrinketMenu_ProfilePackTemplate" id="12">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack11" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<ScrollFrame name="TrinketMenu_ProfilePackScroll" inherits="FauxScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack1" relativePoint="TOPLEFT"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_ProfilePack12" relativePoint="BOTTOMRIGHT"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\ChatFrame\ChatFrameBackground">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
+											<Offset>
+												<AbsDimension x="0" y="2"/>
+											</Offset>
+										</Anchor>
+										<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+											<Offset>
+												<AbsDimension x="25" y="-2"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Gradient>
+										<MinColor r="0" g="0" b="0" a="0"/>
+										<MaxColor r="0" g="0" b="0" a="1"/>
+									</Gradient>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnVerticalScroll>
+								FauxScrollFrame_OnVerticalScroll(18, TrinketMenu.ProfilePackScrollFrameUpdate)
+							</OnVerticalScroll>
+							<OnShow>
+								TrinketMenu.ProfilePackScrollFrameUpdate()
+							</OnShow>
+						</Scripts>
+					</ScrollFrame>
+				</Frames>
+			</Frame>
+			<Frame name="TrinketMenu_PackTrinketDisplay" parent="TrinketMenu_ProfileCreateFrame">
+				<Size>
+					<AbsDimension x="460" y="44"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePackFrame" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-8"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="TrinketMenu_PackTrinket1Icon" file="Interface\\Icons\\INV_Misc_QuestionMark">
+							<Size>
+								<AbsDimension x="40" y="40"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="6" y="-10"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+						<FontString name="TrinketMenu_PackTrinket1Text" inherits="GameFontHighlight" text="Trinket1: None">
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTrinket1Icon" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="6" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<Texture name="TrinketMenu_PackTrinket2Icon" file="Interface\\Icons\\INV_Misc_QuestionMark">
+							<Size>
+								<AbsDimension x="40" y="40"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTrinket1Text" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="24" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+						<FontString name="TrinketMenu_PackTrinket2Text" inherits="GameFontHighlight" text="Trinket2: None">
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTrinket2Icon" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="6" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Frame name="TrinketMenu_ProfileTrinketFrame">
+				<Size>
+					<AbsDimension x="220" y="230"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="500" y="-126"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="16" />
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\ChatFrame\ChatFrameBackground">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="4" y="-4"/>
+									</Offset>
+								</Anchor>
+								<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="-4" y="4"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Gradient orientation="VERTICAL">
+								<MinColor r=".075" g=".075" b=".075" a="1"/>
+								<MaxColor r=".165" g=".165" b=".165" a="1"/>
+							</Gradient>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button name="TrinketMenu_ProfileTrinket1" inherits="TrinketMenu_ProfileTrinketTemplate" id="1">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-6"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket2" inherits="TrinketMenu_ProfileTrinketTemplate" id="2">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket1" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket3" inherits="TrinketMenu_ProfileTrinketTemplate" id="3">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket2" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket4" inherits="TrinketMenu_ProfileTrinketTemplate" id="4">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket3" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket5" inherits="TrinketMenu_ProfileTrinketTemplate" id="5">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket4" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket6" inherits="TrinketMenu_ProfileTrinketTemplate" id="6">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket5" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket7" inherits="TrinketMenu_ProfileTrinketTemplate" id="7">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket6" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket8" inherits="TrinketMenu_ProfileTrinketTemplate" id="8">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket7" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket9" inherits="TrinketMenu_ProfileTrinketTemplate" id="9">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket8" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket10" inherits="TrinketMenu_ProfileTrinketTemplate" id="10">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket9" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket11" inherits="TrinketMenu_ProfileTrinketTemplate" id="11">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket10" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<Button name="TrinketMenu_ProfileTrinket12" inherits="TrinketMenu_ProfileTrinketTemplate" id="12">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket11" relativePoint="BOTTOMLEFT"/>
+						</Anchors>
+					</Button>
+					<ScrollFrame name="TrinketMenu_ProfileTrinketScroll" inherits="FauxScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket1" relativePoint="TOPLEFT"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_ProfileTrinket12" relativePoint="BOTTOMRIGHT"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\ChatFrame\ChatFrameBackground">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
+											<Offset>
+												<AbsDimension x="0" y="2"/>
+											</Offset>
+										</Anchor>
+										<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+											<Offset>
+												<AbsDimension x="25" y="-2"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Gradient>
+										<MinColor r="0" g="0" b="0" a="0"/>
+										<MaxColor r="0" g="0" b="0" a="1"/>
+									</Gradient>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnVerticalScroll>
+								FauxScrollFrame_OnVerticalScroll(18, TrinketMenu.ProfileTrinketScrollFrameUpdate)
+							</OnVerticalScroll>
+							<OnShow>
+								TrinketMenu.ProfileTrinketScrollFrameUpdate()
+							</OnShow>
+						</Scripts>
+					</ScrollFrame>
+				</Frames>
+			</Frame>
+
+			<Button name="TrinketMenu_ProfileCreateSave" inherits="UIPanelButtonGrayTemplate" text="Save">
+				<Size>
+					<AbsDimension x="90" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-16" y="16"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						TrinketMenu.ProfileCreateSave_OnClick()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="TrinketMenu_ProfileCreateCancel" inherits="UIPanelButtonGrayTemplate" text="Cancel">
+				<Size>
+					<AbsDimension x="90" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="RIGHT" relativeTo="TrinketMenu_ProfileCreateSave" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="-6" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						TrinketMenu.ProfileCreateCancel_OnClick()
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnShow>
+				TrinketMenu.ProfileCreateFrame_OnShow()
+			</OnShow>
+			<OnHide>
+				TrinketMenu.ProfileCreateFrame_OnHide()
+			</OnHide>
+			<OnMouseDown>
+				this:StartMoving()
+			</OnMouseDown>
+			<OnMouseUp>
+				this:StopMovingOrSizing()
+			</OnMouseUp>
 		</Scripts>
 	</Frame>
 </Ui>

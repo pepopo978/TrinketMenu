@@ -3,9 +3,18 @@
 		TrinketMenu.ToggleFrame(TrinketMenuOptions.DisableToggle=="ON" and TrinketMenu_OptFrame or TrinketMenu_MainFrame)
 	</Binding>
 	<Binding name="Use Top Trinket" description="Use Top Trinket">
-		UseInventoryItem(13)
+		UseTrinket(13)
 	</Binding>
 	<Binding name="Use Bottom Trinket" description="Use Bottom Trinket">
-		UseInventoryItem(14)
+		UseTrinket(14)
+	</Binding>
+	<Binding name="Deactivate Current Profile" description="Deactivate Current Profile">
+		TrinketMenu.ClearActivePackProfile()
+	</Binding>
+	<Binding name="Reactivate Last Profile" description="Reactivate Last Profile">
+		TrinketMenu.ReactivateLastPackProfile()
+	</Binding>
+	<Binding name="Edit Active Profile" description="Edit Active Profile">
+		TrinketMenu.EditActivePackProfile()
 	</Binding>
 </Bindings>

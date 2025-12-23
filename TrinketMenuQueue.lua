@@ -8,6 +8,7 @@ function TrinketMenu.QueueInit()
 		Sort = {}, -- indexed by number, ids in order of use
 		Enabled = {} -- 0 or 1 whether auto queue is on for the slot
 	}
+	TrinketMenu.NormalizeQueueIds()
 	TrinketMenuQueue.Sort[0] = TrinketMenuQueue.Sort[0] or {}
 	TrinketMenuQueue.Sort[1] = TrinketMenuQueue.Sort[1] or {}
 	TrinketMenu_SubQueueFrame:SetBackdropBorderColor(.3,.3,.3,1)
@@ -21,11 +22,98 @@ function TrinketMenu.QueueInit()
 	TrinketMenu.ReflectQueueEnabled()
 	TrinketMenu.UpdateCombatQueue()
 	TrinketMenu.BagsNeedUpdating = {}
-	TrinketMenu.CreateTimer("UpdateBaggedTrinkets",TrinketMenu.UpdateBaggedTrinkets,.2)
+	TrinketMenu.CreateTimer("UpdateBaggedTrinkets",TrinketMenu.UpdateBaggedTrinkets,.25)
 	TrinketMenu_MainFrame:RegisterEvent("BAG_UPDATE")
 
 	TrinketMenuQueue.Profiles = TrinketMenuQueue.Profiles or {}
+	TrinketMenuQueue.PackProfiles = TrinketMenuQueue.PackProfiles or {}
+	if TrinketMenuQueue.PackProfileActive ~= nil and TrinketMenuQueue.PackProfiles[TrinketMenuQueue.PackProfileActive] == nil then
+		TrinketMenuQueue.PackProfileActive = nil
+	end
+	if TrinketMenuQueue.PackProfileLast ~= nil and TrinketMenuQueue.PackProfiles[TrinketMenuQueue.PackProfileLast] == nil then
+		TrinketMenuQueue.PackProfileLast = nil
+	end
 	TrinketMenu.ValidateProfile()
+	if TrinketMenu.UpdateActiveProfileText then
+		TrinketMenu.UpdateActiveProfileText()
+	end
+end
+
+function TrinketMenu.NormalizeQueueIds()
+	if not TrinketMenuQueue then
+		return
+	end
+	if TrinketMenuQueue.Stats then
+		for id, stats in pairs(TrinketMenuQueue.Stats) do
+			if type(id) == "string" then
+				local numeric = tonumber(id)
+				if numeric then
+					if TrinketMenuQueue.Stats[numeric] then
+						for key, value in pairs(stats) do
+							if TrinketMenuQueue.Stats[numeric][key] == nil then
+								TrinketMenuQueue.Stats[numeric][key] = value
+							end
+						end
+					else
+						TrinketMenuQueue.Stats[numeric] = stats
+					end
+					TrinketMenuQueue.Stats[id] = nil
+				end
+			end
+		end
+	end
+	if TrinketMenuQueue.Sort then
+		for _, list in pairs(TrinketMenuQueue.Sort) do
+			local deduped = {}
+			local seen = {}
+			for i=1,table.getn(list) do
+				local value = list[i]
+				if type(list[i]) == "string" then
+					local numeric = tonumber(value)
+					if numeric then
+						value = numeric
+					end
+				end
+				local key = value
+				if seen[key] == nil then
+					table.insert(deduped, value)
+					seen[key] = true
+				end
+			end
+			for i=1,table.getn(deduped) do
+				list[i] = deduped[i]
+			end
+			for i=table.getn(deduped)+1,table.getn(list) do
+				list[i] = nil
+			end
+		end
+	end
+	if TrinketMenuQueue.Profiles then
+		for _, profile in ipairs(TrinketMenuQueue.Profiles) do
+			local deduped = {}
+			local seen = {}
+			for i=2,table.getn(profile) do
+				local value = profile[i]
+				if type(profile[i]) == "string" then
+					local numeric = tonumber(value)
+					if numeric then
+						value = numeric
+					end
+				end
+				local key = value
+				if seen[key] == nil then
+					table.insert(deduped, value)
+					seen[key] = true
+				end
+			end
+			for i=1,table.getn(deduped) do
+				profile[i+1] = deduped[i]
+			end
+			for i=table.getn(deduped)+2,table.getn(profile) do
+				profile[i] = nil
+			end
+		end
+	end
 end
 
 function TrinketMenu.ReflectQueueEnabled()
@@ -43,13 +131,18 @@ function TrinketMenu.OpenSort(which)
 end
 
 function TrinketMenu.GetID(bag,slot)
-	local id
 	if slot then
-		_,_,id = string.find(GetContainerItemLink(bag,slot) or "","item:(%d+)")
+		for _, trinket in ipairs(TrinketMenu.GetTrinketList()) do
+			if trinket.bagIndex == bag and trinket.slotIndex == slot then
+				return trinket.itemId
+			end
+		end
 	else
-		_,_,id = string.find(GetInventoryItemLink("player",bag) or "","item:(%d+)")
+		local equipped = TrinketMenu.GetEquippedTrinket(bag)
+		if equipped then
+			return equipped.itemId
+		end
 	end
-	return id
 end
 
 function TrinketMenu.GetNameByID(id)
@@ -57,7 +150,15 @@ function TrinketMenu.GetNameByID(id)
 		return "-- stop queue here --","Interface\\Buttons\\UI-GroupLoot-Pass-Up",1
 	else
 		local name,_,quality,_,_,_,_,_,texture = GetItemInfo(id or "")
-		return name,texture,quality
+		local icon
+		for _, trinket in ipairs(TrinketMenu.GetTrinketList()) do
+			if trinket.itemId == id then
+				name = name or trinket.trinketName
+				icon = trinket.icon
+				break
+			end
+		end
+		return name, icon or texture, quality
 	end
 end
 
@@ -83,14 +184,9 @@ function TrinketMenu.PopulateSort(which)
 	TrinketMenuQueue.Sort[which] = TrinketMenuQueue.Sort[which] or {}
 	TrinketMenu.AddToSort(which,TrinketMenu.GetID(which+13))
 	TrinketMenu.AddToSort(which,TrinketMenu.GetID((1-which)+13))
-	local equipLoc,id
-	for i=0,4 do
-		for j=1,GetContainerNumSlots(i) do
-			id = TrinketMenu.GetID(i,j)
-			_,_,_,_,_,_,_,equipLoc = GetItemInfo(id or "")
-			if equipLoc=="INVTYPE_TRINKET" then
-				TrinketMenu.AddToSort(which,id)
-			end
+	for _, trinket in ipairs(TrinketMenu.GetTrinketList()) do
+		if trinket.bagIndex then
+			TrinketMenu.AddToSort(which, trinket.itemId)
 		end
 	end
 	TrinketMenu.AddToSort(which,0) -- id 0 is Stop
@@ -282,13 +378,11 @@ end
 --[[ Auto queue processing ]]
 
 function TrinketMenu.UpdateBaggedTrinkets()
-	local id,name,equipLoc
+	local trinkets = TrinketMenu.GetTrinketList()
 	for i in TrinketMenu.BagsNeedUpdating do
-		for j=1,GetContainerNumSlots(i) do
-			_,_,id = string.find(GetContainerItemLink(i,j) or "","item:(%d+)")
-			name,_,_,_,_,_,_,equipLoc = GetItemInfo(id or "")
-			if equipLoc=="INVTYPE_TRINKET" then
-				TrinketMenu.AddWatchItem(name,nil,i,j)
+		for _, trinket in ipairs(trinkets) do
+			if trinket.bagIndex == i then
+				TrinketMenu.AddWatchItem(trinket.trinketName, nil, trinket.bagIndex, trinket.slotIndex)
 			end
 		end
 		TrinketMenu.BagsNeedUpdating[i] = nil
@@ -296,20 +390,13 @@ function TrinketMenu.UpdateBaggedTrinkets()
 end
 
 function TrinketMenu.TrinketNearReady(bag,slot)
-	local start,duration
-	if slot then
-		start,duration = GetContainerItemCooldown(bag,slot)
-	else
-		start,duration = GetInventoryItemCooldown("player",bag)
+	local start, duration, _ = TrinketMenu.GetTrinketCooldownForSlot(bag, slot)
+	if not start or not duration then
+		return
 	end
 	if start==0 or duration-(GetTime()-start)<=30 then
 		return 1
 	end
-end
-
-function TrinketMenu.CanCooldown(inv)
-	local _,_,enable = GetInventoryItemCooldown("player",inv)
-	return enable==1
 end
 
 -- this function quickly checks if conditions are right for a possible ProcessAutoQueue
@@ -323,9 +410,13 @@ end
 
 -- which = 0 or 1, decides if a trinket should be equipped and equips if so
 function TrinketMenu.ProcessAutoQueue(which)
-
-	local start,duration,enable = GetInventoryItemCooldown("player",13+which)
-	local _,_,id,name = string.find(GetInventoryItemLink("player",13+which) or "","item:(%d+).+%[(.+)%]")
+	local start, duration, enable = TrinketMenu.GetTrinketCooldownForSlot(nil, 13 + which)
+	local equipped = TrinketMenu.GetEquippedTrinket(13 + which)
+	local id, name
+	if equipped then
+		id = equipped.itemId
+		name = equipped.trinketName
+	end
 	local icon = getglobal("TrinketMenu_Trinket"..which.."Queue") 
 
 	if not id then return end -- leave if no trinket equipped
@@ -352,8 +443,7 @@ function TrinketMenu.ProcessAutoQueue(which)
 	icon:SetDesaturated(0) -- normal queue operation, reflect that in queue inset
 	icon:SetVertexColor(1,1,1)
 
---	local name = TrinketMenu.GetNameByID(id)
-	local ready = TrinketMenu.TrinketNearReady(13+which)
+	local ready = TrinketMenu.TrinketNearReady(nil,13+which)
 	if ready and TrinketMenu.CombatQueue[which] then
 		TrinketMenu.CombatQueue[which] = nil
 		TrinketMenu.UpdateCombatQueue()
@@ -378,6 +468,8 @@ function TrinketMenu.ProcessAutoQueue(which)
 								end
 								break
 							end
+						else
+							print("TrinketMenu: Item "..name.." not found in bag "..tostring(bag).." slot "..tostring(slot)..". Removing from watch list.")
 						end
 					end
 				end
@@ -431,7 +523,13 @@ function TrinketMenu.SetQueue(which,...)
 			end
 		else
 			for i=2,table.getn(arg) do
-				inv,bag,slot = TrinketMenu.FindItem(arg[i],1) -- include inventory
+				bag,slot = TrinketMenu.FindItem(arg[i],1) -- include inventory
+				if not bag and slot then
+					inv = slot
+					slot = nil
+				else
+					inv = nil
+				end
 				if inv then
 					table.insert(TrinketMenuQueue.Sort[which],TrinketMenu.GetID(inv))
 				elseif bag then
