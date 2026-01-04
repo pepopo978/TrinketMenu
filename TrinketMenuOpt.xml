@@ -65,14 +65,62 @@
 				</Texture>
 			</Layer>
 			<Layer level="ARTWORK">
-				<FontString name="$parentText" font="GameFontHighlightSmall" justifyH="LEFT">
+				<FontString name="$parentAbsoluteTime" font="GameFontHighlightSmall" justifyH="RIGHT">
 					<Size>
-						<AbsDimension x="400" y="18"/>
+						<AbsDimension x="32" y="18"/>
 					</Size>
 					<Anchors>
 						<Anchor point="LEFT">
 							<Offset>
-								<AbsDimension x="6" y="0"/>
+								<AbsDimension x="2" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentTiming" font="GameFontHighlightSmall" justifyH="RIGHT">
+					<Size>
+						<AbsDimension x="28" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="36" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<Texture name="$parentTrinket1Icon" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="66" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTrinket2Icon" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentTrinket1Icon" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="2" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<FontString name="$parentText" font="GameFontHighlightSmall" justifyH="LEFT">
+					<Size>
+						<AbsDimension x="310" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="96" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -894,11 +942,29 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="TrinketMenu_ProfilePacksLabel" inherits="GameFontDisableSmall" text="Pack Descriptions">
+				<FontString name="TrinketMenu_ProfileAbsoluteTimeLabel" inherits="GameFontDisableSmall" text="Time(m)">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
 								<AbsDimension x="16" y="-114"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="TrinketMenu_ProfileTimingLabel" inherits="GameFontDisableSmall" text="Time OOC(s)">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="58" y="-114"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="TrinketMenu_ProfilePacksLabel" inherits="GameFontDisableSmall" text="Pack Descriptions">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="120" y="-114"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -914,9 +980,9 @@
 				</FontString>
 				<FontString name="TrinketMenu_ProfilePackHelp" inherits="GameFontHighlightSmall" text="Select a pack, then left-click a trinket for Trinket1 or right-click for Trinket2. When any mob in that pack dies, the requested trinket will get queued for when combat drops.">
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePacksLabel" relativePoint="TOPLEFT">
+						<Anchor point="TOPLEFT">
 							<Offset>
-								<AbsDimension x="0" y="16"/>
+								<AbsDimension x="10" y="-98"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -925,6 +991,46 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<Frame name="TrinketMenu_ProfileAbsoluteTimeTooltip" enableMouse="true">
+				<Size>
+					<AbsDimension x="42" y="12"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="16" y="-114"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						TrinketMenu.OnTooltip("Time(m)", "Time since the first combat in minutes")
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+			</Frame>
+			<Frame name="TrinketMenu_ProfileTimingTooltip" enableMouse="true">
+				<Size>
+					<AbsDimension x="62" y="12"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="58" y="-114"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						TrinketMenu.OnTooltip("Time OOC(s)", "Time out of combat before this pack")
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+			</Frame>
 			<Button name="TrinketMenu_ProfileCreateClose" inherits="TrinketMenu_SmallButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPRIGHT">
@@ -1169,7 +1275,7 @@
 			</Frame>
 			<Frame name="TrinketMenu_PackTrinketDisplay" parent="TrinketMenu_ProfileCreateFrame">
 				<Size>
-					<AbsDimension x="460" y="44"/>
+					<AbsDimension x="460" y="74"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePackFrame" relativePoint="BOTTOMLEFT">
@@ -1180,6 +1286,32 @@
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
+						<FontString name="TrinketMenu_PackDescriptionText" inherits="GameFontHighlightSmall" justifyH="LEFT" text="">
+							<Size>
+								<AbsDimension x="450" y="14"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="6" y="-2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Color r="1" g="1" b="0.5"/>
+						</FontString>
+						<FontString name="TrinketMenu_PackInstructionText" inherits="GameFontHighlightSmall" justifyH="LEFT" text="When a mob in this pack dies, equip:">
+							<Size>
+								<AbsDimension x="450" y="14"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackDescriptionText" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Color r="0.8" g="0.8" b="0.8"/>
+						</FontString>
 						<Texture name="TrinketMenu_PackTrinket1Icon" file="Interface\\Icons\\INV_Misc_QuestionMark">
 							<Size>
 								<AbsDimension x="40" y="40"/>
@@ -1187,7 +1319,7 @@
 							<Anchors>
 								<Anchor point="TOPLEFT">
 									<Offset>
-										<AbsDimension x="6" y="-10"/>
+										<AbsDimension x="6" y="-40"/>
 									</Offset>
 								</Anchor>
 							</Anchors>
@@ -1399,6 +1531,23 @@
 				<Scripts>
 					<OnClick>
 						TrinketMenu.ProfileCreateCancel_OnClick()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="TrinketMenu_ProfileImportTimings" inherits="UIPanelButtonGrayTemplate" text="Import Timings">
+				<Size>
+					<AbsDimension x="120" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="TrinketMenu_ProfileRaidDropDown" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="10" y="2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						TrinketMenu.ProfileImportTimings_OnClick()
 					</OnClick>
 				</Scripts>
 			</Button>

@@ -4,9 +4,14 @@
 ## Notes: Modified version of TrinketMenu with new features.  AddOn to manage trinkets, fix by Ogrisch
 ## SavedVariables: TrinketMenuOptions
 ## SavedVariablesPerCharacter: TrinketMenuPerOptions, TrinketMenuQueue
+Locale\Localization.xml
 TrinketMenuLoad.lua
-BossList.lua
-NPCDescriptions.lua
+RaidPacks\AQ40.lua
+RaidPacks\BWL.lua
+RaidPacks\Kara40.lua
+RaidPacks\MC.lua
+RaidPacks\Naxx.lua
+RaidPacks\ZG.lua
 TrinketMenu.lua
 TrinketMenu.xml
 TrinketMenuOpt.lua

@@ -344,6 +344,7 @@ function TrinketMenu.ProfileCreateFrame_OnShow()
 		selectedPack = nil,
 		selectedTrinket = nil,
 		packTrinkets = {},
+		timings = {},
 	}
 	TrinketMenu.ProfileCreateBuildRaidList()
 	if TrinketMenu.ProfileEditIndex and TrinketMenuQueue and TrinketMenuQueue.PackProfiles then
@@ -359,6 +360,9 @@ function TrinketMenu.ProfileCreateFrame_OnShow()
 				for _, pack in ipairs(profile.packs) do
 					TrinketMenu.ProfileBuilder.packTrinkets[pack] = {}
 				end
+			end
+			if profile.timings then
+				TrinketMenu.ProfileBuilder.timings = profile.timings
 			end
 		else
 			TrinketMenu_ProfileNameEdit:SetText("")
@@ -501,10 +505,6 @@ function TrinketMenu.ProfileCreateSelectRaid(raid)
 end
 
 function TrinketMenu.BuildProfilePackList(raid)
-	if not defaultNpcsToMark and not TrinketMenu.AutomarkerWarned then
-		DEFAULT_CHAT_FRAME:AddMessage("Automarker is required for TrinketMenu V2 Profiles")
-		TrinketMenu.AutomarkerWarned = true
-	end
 	local packs = TrinketMenu.packDescriptions and raid and TrinketMenu.packDescriptions[raid]
 	TrinketMenu.ProfilePackList = packs or {}
 end
@@ -543,20 +543,127 @@ function TrinketMenu.ProfilePackScrollFrameUpdate()
 	local offset = FauxScrollFrame_GetOffset(TrinketMenu_ProfilePackScroll)
 	local list = TrinketMenu.ProfilePackList or {}
 	FauxScrollFrame_Update(TrinketMenu_ProfilePackScroll, table.getn(list), 12, 18)
+
+	-- Build trinket lookup table
+	local trinketIndex = {}
+	for _, trinket in ipairs(TrinketMenu.GetTrinketList()) do
+		if trinket.itemId then
+			trinketIndex[trinket.itemId] = trinket
+		end
+	end
+
+	-- Calculate timings from imported data
+	local timings = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.timings or {}
+	local timingGaps = {}
+	local absoluteTimes = {}
+
+	-- Find first engage time
+	local firstEngageTime = nil
+	for i = 1, table.getn(list) do
+		local pack = list[i]
+		if pack and timings[pack.packName] and timings[pack.packName].engageTime then
+			firstEngageTime = timings[pack.packName].engageTime
+			break
+		end
+	end
+
+	-- Calculate times for each pack
+	for i = 1, table.getn(list) do
+		local pack = list[i]
+		if pack and timings[pack.packName] then
+			-- Time out of combat
+			if timings[pack.packName].timeSinceLastCombat then
+				timingGaps[i] = math.floor(timings[pack.packName].timeSinceLastCombat + 0.5)
+			end
+
+			-- Absolute time (minutes since first combat)
+			if firstEngageTime and timings[pack.packName].engageTime then
+				local firstSec = TrinketMenu.ParseTimeToSeconds(firstEngageTime)
+				local currSec = TrinketMenu.ParseTimeToSeconds(timings[pack.packName].engageTime)
+				if firstSec and currSec then
+					local minutes = (currSec - firstSec) / 60
+					absoluteTimes[i] = math.floor(minutes * 10 + 0.5) / 10  -- Round to nearest tenth
+				end
+			end
+		end
+	end
+
 	for i = 1, 12 do
 		local button = getglobal("TrinketMenu_ProfilePack" .. i)
 		local text = getglobal("TrinketMenu_ProfilePack" .. i .. "Text")
+		local absoluteTimeText = getglobal("TrinketMenu_ProfilePack" .. i .. "AbsoluteTime")
+		local timingText = getglobal("TrinketMenu_ProfilePack" .. i .. "Timing")
 		local highlight = getglobal("TrinketMenu_ProfilePack" .. i .. "Highlight")
+		local trinket1Icon = getglobal("TrinketMenu_ProfilePack" .. i .. "Trinket1Icon")
+		local trinket2Icon = getglobal("TrinketMenu_ProfilePack" .. i .. "Trinket2Icon")
 		local idx = offset + i
 		local row = list[idx]
 		if row then
 			button:Show()
 			text:SetText(row.desc)
+
+			-- Display absolute time
+			if absoluteTimeText then
+				local absTime = absoluteTimes[idx]
+				if absTime then
+					absoluteTimeText:SetText(string.format("%.1f", absTime))
+					absoluteTimeText:SetTextColor(0.7, 0.7, 0.7)
+				else
+					absoluteTimeText:SetText("")
+				end
+			end
+
+			-- Display timing gap
+			if timingText then
+				local gap = timingGaps[idx]
+				if gap then
+					timingText:SetText(string.format("%d", gap))
+					timingText:SetTextColor(0.7, 0.7, 0.7)
+				else
+					timingText:SetText("")
+				end
+			end
 			local selected = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.selectedPack == row.packName
 			if selected then
 				highlight:Show()
 			else
 				highlight:Hide()
+			end
+
+			-- Display trinket icons if assigned
+			local packTrinkets = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.packTrinkets and TrinketMenu.ProfileBuilder.packTrinkets[row.packName]
+			if packTrinkets and packTrinkets.trinket1 then
+				if packTrinkets.trinket1 == "autoswap" then
+					trinket1Icon:SetTexture("Interface\\AddOns\\TrinketMenu\\TrinketMenu-Gear")
+					trinket1Icon:Show()
+				else
+					local trinket = trinketIndex[packTrinkets.trinket1]
+					if trinket and trinket.icon then
+						trinket1Icon:SetTexture(trinket.icon)
+						trinket1Icon:Show()
+					else
+						trinket1Icon:Hide()
+					end
+				end
+			else
+				trinket1Icon:Hide()
+			end
+
+			if packTrinkets and packTrinkets.trinket2 then
+				if packTrinkets.trinket2 == "autoswap" then
+					trinket2Icon:SetTexture("Interface\\AddOns\\TrinketMenu\\TrinketMenu-Gear")
+					trinket2Icon:Show()
+				else
+					local trinket = trinketIndex[packTrinkets.trinket2]
+					if trinket and trinket.icon then
+						trinket2Icon:SetTexture(trinket.icon)
+						trinket2Icon:Show()
+					else
+						trinket2Icon:Hide()
+					end
+				end
+			else
+				trinket2Icon:Hide()
 			end
 		else
 			button:Hide()
@@ -628,6 +735,21 @@ end
 function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 	local pack = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.selectedPack
 	local info = pack and TrinketMenu.ProfileBuilder.packTrinkets and TrinketMenu.ProfileBuilder.packTrinkets[pack] or nil
+
+	-- Update pack description text
+	local packDesc = ""
+	if pack and TrinketMenu.ProfilePackList then
+		for _, packInfo in ipairs(TrinketMenu.ProfilePackList) do
+			if packInfo.packName == pack then
+				packDesc = packInfo.desc or ""
+				break
+			end
+		end
+	end
+	if TrinketMenu_PackDescriptionText then
+		TrinketMenu_PackDescriptionText:SetText(packDesc)
+	end
+
 	local trinketIndex = {}
 	for _, trinket in ipairs(TrinketMenu.GetTrinketList()) do
 		if trinket.itemId then
@@ -676,6 +798,7 @@ function TrinketMenu.ProfileCreateSave_OnClick()
 		packs = {},
 		trinkets = {},
 		packTrinkets = {},
+		timings = TrinketMenu.ProfileBuilder.timings or {},
 	}
 	for pack, info in pairs(TrinketMenu.ProfileBuilder.packTrinkets or {}) do
 		table.insert(profile.packs, pack)
@@ -819,53 +942,37 @@ end
 
 function TrinketMenu.BuildPackProfileGuidTrinkets(profile)
 	local map = {}
-	if not profile or not profile.packTrinkets or not defaultNpcsToMark then
+	if not profile or not profile.packTrinkets then
 		TrinketMenu.PackProfileGuidTrinkets = map
 		if profile then
 			print("|cff00ff00TrinketMenu:|r Error activating profile " .. (profile.name or "Unknown"))
 		end
 		return
 	end
-	local numPacksFound = 0
-	local raidPacks = profile.raid and defaultNpcsToMark[profile.raid] or nil
 
-	local function findBossPack(packName)
-		if not TrinketMenu.bossList then
-			return nil
-		end
-		local raidBosses = profile.raid and TrinketMenu.bossList[profile.raid] or nil
-		if raidBosses and raidBosses[packName] then
-			return raidBosses[packName]
-		end
-		for _, packs in pairs(TrinketMenu.bossList) do
-			if type(packs) == "table" and packs[packName] then
-				return packs[packName]
+	local numPacksFound = 0
+	local raidPacks = profile.raid and TrinketMenu.packDescriptions and TrinketMenu.packDescriptions[profile.raid] or nil
+
+	-- Build a lookup table for pack name -> pack data
+	local packLookup = {}
+	if raidPacks then
+		for _, pack in ipairs(raidPacks) do
+			if pack.packName then
+				packLookup[pack.packName] = pack
 			end
 		end
-		return nil
 	end
 
 	for packName, trinkets in pairs(profile.packTrinkets) do
-		-- use BossList for boss name -> guid
-		if string.find(packName, "^boss_") then
-			local bossGuids = findBossPack(packName)
-
-			if bossGuids then
-				numPacksFound = numPacksFound + 1
-				for index, bossGuid in pairs(bossGuids) do
-					map[bossGuid] = { trinket1 = trinkets.trinket1, trinket2 = trinkets.trinket2, packName=packName }
-				end
-			end
-		else
-			local npcs = raidPacks and raidPacks[packName]
-			if npcs then
-				numPacksFound = numPacksFound + 1
-				for npcGuid, mark in pairs(npcs) do
-					map[npcGuid] = { trinket1 = trinkets.trinket1, trinket2 = trinkets.trinket2, packName=packName }
-				end
+		local pack = packLookup[packName]
+		if pack and pack.mob_guids then
+			numPacksFound = numPacksFound + 1
+			for _, guid in ipairs(pack.mob_guids) do
+				map[guid] = { trinket1 = trinkets.trinket1, trinket2 = trinkets.trinket2, packName = packName }
 			end
 		end
 	end
+
 	print("|cff00ff00TrinketMenu:|r Activated profile " .. profile.name .. " with swaps on " .. tostring(numPacksFound) .. " packs.")
 	TrinketMenu.PackProfileGuidTrinkets = map
 end
@@ -890,4 +997,109 @@ function TrinketMenu.ApplyPackProfileActivation(profile)
 	end
 	TrinketMenu.BuildPackProfileGuidTrinkets(profile)
 	TrinketMenu.UpdateActiveProfileText()
+end
+
+-- Parse time string "M/D HH:MM:SS.mmm" to seconds
+function TrinketMenu.ParseTimeToSeconds(timeStr)
+	if not timeStr then return nil end
+	local monthDay, timepart = string.match(timeStr, "(%d+/%d+)%s+(.+)")
+	if not timepart then return nil end
+	local hour, min, sec = string.match(timepart, "(%d+):(%d+):([%d%.]+)")
+	if not hour then return nil end
+	return tonumber(hour) * 3600 + tonumber(min) * 60 + tonumber(sec)
+end
+
+function TrinketMenu.ProfileImportTimings_OnClick()
+	if not TrinketMenu.ProfileBuilder then
+		return
+	end
+
+	StaticPopupDialogs["TRINKETMENU_IMPORT_TIMINGS"] = {
+		text = "Use generate_pack_timings.py and paste the contents of PackTimings.lua here:",
+		button1 = "Import",
+		button2 = "Cancel",
+		hasEditBox = 1,
+		hasWideEditBox = 1,
+		editBoxWidth = 350,
+		maxLetters = 0,
+		OnShow = function()
+			getglobal(this:GetName().."WideEditBox"):SetText("")
+			getglobal(this:GetName().."WideEditBox"):SetFocus()
+		end,
+		OnAccept = function()
+			local text = getglobal(this:GetParent():GetName().."WideEditBox"):GetText()
+			TrinketMenu.ImportPackTimings(text)
+		end,
+		timeout = 0,
+		whileDead = 1,
+		hideOnEscape = 1,
+	}
+	StaticPopup_Show("TRINKETMENU_IMPORT_TIMINGS")
+end
+
+function TrinketMenu.ImportPackTimings(luaCode)
+	if not luaCode or luaCode == "" then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r No timing data provided.")
+		return
+	end
+
+	-- Parse the Lua table
+	local timings = {}
+	local success, err = pcall(function()
+		-- Extract the table content
+		local tableContent = string.match(luaCode, "local%s+packTimings%s*=%s*(%b{})")
+		if not tableContent then
+			tableContent = string.match(luaCode, "^%s*(%b{})%s*$")
+		end
+		if not tableContent then
+			error("Could not find valid Lua table in input")
+		end
+
+		-- Parse each pack entry
+		for packBlock in string.gmatch(tableContent, '%[%"([^%"]+)%"%]%s*=%s*(%b{})') do end
+
+		for packName, packData in string.gmatch(tableContent, '%[%"([^%"]+)%"%]%s*=%s*(%b{})') do
+			local engageTime = string.match(packData, 'engageTime%s*=%s*%"([^%"]+)%"')
+			local deathTimesStr = string.match(packData, 'deathTimes%s*=%s*(%b{})')
+			local timeSinceLastCombat = string.match(packData, 'timeSinceLastCombat%s*=%s*([%d%.]+)')
+
+			if engageTime then
+				local deathTimes = {}
+				if deathTimesStr then
+					for deathTime in string.gmatch(deathTimesStr, '%"([^%"]+)%"') do
+						table.insert(deathTimes, deathTime)
+					end
+				end
+
+				timings[packName] = {
+					engageTime = engageTime,
+					deathTimes = deathTimes,
+					timeSinceLastCombat = timeSinceLastCombat and tonumber(timeSinceLastCombat) or nil
+				}
+			end
+		end
+	end)
+
+	if not success then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r Failed to parse timing data: " .. tostring(err))
+		return
+	end
+
+	if not next(timings) then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r No valid pack timings found in input.")
+		return
+	end
+
+	-- Store timings in ProfileBuilder
+	TrinketMenu.ProfileBuilder.timings = timings
+	DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Imported timing data for " .. tostring(TrinketMenu.TableCount(timings)) .. " packs.")
+
+	-- Refresh the pack list display
+	TrinketMenu.ProfilePackScrollFrameUpdate()
+end
+
+function TrinketMenu.TableCount(t)
+	local count = 0
+	for _ in pairs(t) do count = count + 1 end
+	return count
 end

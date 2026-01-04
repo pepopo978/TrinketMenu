@@ -19,4 +19,11 @@ if not HasMinimumNampowerVersion(2, 20, 0) then
 	return
 end
 
-TrinketMenu = {}
+TrinketMenu = {
+  packDescriptions = {}
+}
+
+TrinketMenu.AddRaid = function(raidName, raidPackData)
+  TrinketMenu.packDescriptions[raidName] = raidPackData
+  TrinketMenu.addPackGuids(raidPackData)
+end
