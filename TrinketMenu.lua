@@ -549,6 +549,7 @@ function TrinketMenu.CheckZoneProfile()
 	if currentActiveProfile and TrinketMenuQueue.PackProfiles[currentActiveProfile] then
 		local activeProfile = TrinketMenuQueue.PackProfiles[currentActiveProfile]
 		if activeProfile.raid == currentZone then
+			TrinketMenu.ApplyOnEnterPack(activeProfile, currentZone)
 			-- Current active profile matches zone, no need to suggest anything
 			return
 		end
@@ -566,6 +567,31 @@ function TrinketMenu.CheckZoneProfile()
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Your current profile does not match this raid.  Found profile '" .. profile.name .. "' for " .. currentZone .. ". Type |cffff8800/trinket activate " .. profile.name .. "|r to activate it.")
 			return
 		end
+	end
+end
+
+function TrinketMenu.ApplyOnEnterPack(profile, zone)
+	if not profile or not profile.packTrinkets then
+		return
+	end
+	local onEnter = profile.packTrinkets["on_enter"]
+	if not onEnter or (not onEnter.trinket1 and not onEnter.trinket2) then
+		return
+	end
+	TrinketMenu.OnEnterUsed = TrinketMenu.OnEnterUsed or {}
+	if TrinketMenu.OnEnterUsed[zone] then
+		return
+	end
+	TrinketMenu.OnEnterUsed[zone] = true
+	if onEnter.trinket1 == "autoswap" then
+		TrinketMenu.EnableAutoSwapQueue(0)
+	elseif onEnter.trinket1 then
+		TrinketMenu.EquipTrinketByName(onEnter.trinket1, 13)
+	end
+	if onEnter.trinket2 == "autoswap" then
+		TrinketMenu.EnableAutoSwapQueue(1)
+	elseif onEnter.trinket2 then
+		TrinketMenu.EquipTrinketByName(onEnter.trinket2, 14)
 	end
 end
 

@@ -21,6 +21,13 @@ local packTimings = {
         mob_guids = {"0xF13000F1F0276B28", "0xF13000F1F1276B27", "0xF13000F1F1276B29", "0xF13000F1F1276B2B", "0xF13000F1F1276B57", "0xF13000F1F2276B26"},
         timeSinceLastCombat = 0.454,
     },
+    ["kara_entrance_worker_1"] = {
+        engageTime = "1/2 20:00:18.580",
+        deathTimes = {"1/2 20:00:22.767"},
+        mob_names = {"Spectral Worker"},
+        mob_guids = {"0xF13000F1EE276B35"},
+        timeSinceLastCombat = 4.623,
+    },
     ["kara_entrance_worgen_2"] = {
         engageTime = "1/2 20:00:25.418",
         deathTimes = {"1/2 20:00:34.968", "1/2 20:00:40.084", "1/2 20:00:41.439", "1/2 20:00:44.331", "1/2 20:00:44.536", "1/2 20:00:45.848", "1/2 20:00:46.672"},
@@ -56,6 +63,13 @@ local packTimings = {
         mob_guids = {"0xF13000F1F0276B40", "0xF13000F1F1276B3D", "0xF13000F1F1276B3E", "0xF13000F1F2276B41", "0xF13000F1F2276B42"},
         timeSinceLastCombat = 4.252,
     },
+    ["kara_entrance_solo_worgen"] = {
+        engageTime = "1/2 20:01:39.493",
+        deathTimes = {"1/2 20:01:41.375"},
+        mob_names = {"Shadowclaw Worgen"},
+        mob_guids = {"0xF13000F1F1276B4B"},
+        timeSinceLastCombat = 3.875,
+    },
     ["kara_entrance_patrols"] = {
         engageTime = "1/2 20:01:45.718",
         deathTimes = {"1/2 19:59:27.343", "1/2 19:59:58.096", "1/2 20:02:08.347"},
@@ -69,6 +83,20 @@ local packTimings = {
         mob_names = {"Vampiric Gloomwing", "Shadowclaw Darkbringer", "Shadowclaw Darkbringer", "Shadowclaw Worgen"},
         mob_guids = {"0xF13000F1EC276B44", "0xF13000F1F0276B48", "0xF13000F1F0276B4A", "0xF13000F1F1276B46"},
         timeSinceLastCombat = 4.061,
+    },
+    ["kara_entrance_solo_dark"] = {
+        engageTime = "1/2 20:02:12.231",
+        deathTimes = {"1/2 20:02:17.390"},
+        mob_names = {"Shadowclaw Darkbringer"},
+        mob_guids = {"0xF13000F1F0276B4D"},
+        timeSinceLastCombat = 2.931,
+    },
+    ["kara_entrance_solo_worgen_2"] = {
+        engageTime = "1/2 20:02:25.734",
+        deathTimes = {"1/2 20:02:27.189"},
+        mob_names = {"Shadowclaw Worgen"},
+        mob_guids = {"0xF13000F1F1276B56"},
+        timeSinceLastCombat = 7.981,
     },
     ["kara_entrance_gnarlmoon"] = {
         engageTime = "1/2 20:02:30.346",
@@ -153,6 +181,13 @@ local packTimings = {
         mob_names = {"Manascale Dragon Guard", "Arcane Anomaly"},
         mob_guids = {"0xF13000F1F6276BC1", "0xF13000F1FE276BD6"},
         timeSinceLastCombat = 44.831,
+    },
+    ["kara_library_solo_overflow"] = {
+        engageTime = "1/2 20:17:41.064",
+        deathTimes = {"1/2 20:17:46.886"},
+        mob_names = {"Arcane Overflow"},
+        mob_guids = {"0xF13000F1FB276BD7"},
+        timeSinceLastCombat = 5.498,
     },
     ["kara_library_anomalus"] = {
         engageTime = "1/2 20:17:54.449",
@@ -273,6 +308,13 @@ local packTimings = {
         mob_guids = {"0xF13000F48C278724", "0xF13000F48C278725", "0xF13000F48D278726"},
         timeSinceLastCombat = 1.022,
     },
+    ["kara_upper_solo_destroyer"] = {
+        engageTime = "1/2 20:39:33.488",
+        deathTimes = {"1/2 20:39:46.604"},
+        mob_names = {"Desolate Destroyer"},
+        mob_guids = {"0xF13000F48D278716"},
+        timeSinceLastCombat = 0.433,
+    },
     ["kara_upper_demon_2"] = {
         engageTime = "1/2 20:39:56.485",
         deathTimes = {"1/2 20:40:10.211", "1/2 20:40:19.361", "1/2 20:40:30.267"},
@@ -294,7 +336,21 @@ local packTimings = {
         mob_guids = {"0xF13000F48C27870F", "0xF13000F48D27870C", "0xF13000F48D27870D", "0xF13000F48E27870B"},
         timeSinceLastCombat = 8.671,
     },
-    ["darkbinders1"] = {
+    ["kara_outland_portal_worshippers"] = {
+        engageTime = "1/2 20:42:41.846",
+        deathTimes = {"1/2 20:42:44.753", "1/2 20:42:48.784"},
+        mob_names = {"Draenei Worshipper", "Draenei Worshipper"},
+        mob_guids = {"0xF13000F246276CE8", "0xF13000F246276CE9"},
+        timeSinceLastCombat = 8.503,
+    },
+    ["kara_outland_solo_destroyer"] = {
+        engageTime = "1/2 20:42:51.281",
+        deathTimes = {"1/2 20:42:56.126"},
+        mob_names = {"Infernal Destroyer"},
+        mob_guids = {"0xF13000F241276CF3"},
+        timeSinceLastCombat = 1.696,
+    },
+    ["kara_outland_darkbinders1"] = {
         engageTime = "1/2 20:43:23.907",
         deathTimes = {"1/2 20:43:16.547", "1/2 20:43:16.976", "1/2 20:43:19.550", "1/2 20:43:26.365"},
         mob_names = {"Warbringer Overseer", "Outcast Souleater", "Draenei Darkbinder", "Draenei Darkbinder"},
@@ -322,7 +378,7 @@ local packTimings = {
         mob_guids = {"0xF13000F241276CBE", "0xF13000F242276CC3", "0xF13000F242276CC4", "0xF13000F242276CC5", "0xF13000F242276CC6", "0xF13000F242276CC7"},
         timeSinceLastCombat = 7.747,
     },
-    ["rupturan_exile"] = {
+    ["boss_rupturan"] = {
         engageTime = "1/2 20:45:58.397",
         deathTimes = {"1/2 20:46:18.359", "1/2 20:46:25.117", "1/2 20:46:26.495", "1/2 20:46:32.691", "1/2 20:48:27.180"},
         mob_names = {"Crumbling Exile", "Crumbling Exile", "Crumbling Exile", "Crumbling Exile", "Rupturan the Broken"},
@@ -398,6 +454,13 @@ local packTimings = {
         mob_names = {"Kruul"},
         mob_guids = {"0xF13000EA57276C04"},
         timeSinceLastCombat = 101.420,
+    },
+    ["boss_mephistroth"] = {
+        engageTime = "1/2 21:03:58.627",
+        deathTimes = {"1/2 21:06:44.359"},
+        mob_names = {"Mephistroth"},
+        mob_guids = {"0xF130016C95276DAF"},
+        timeSinceLastCombat = 133.517,
     },
 }
 

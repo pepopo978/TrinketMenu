@@ -20,10 +20,19 @@ if not HasMinimumNampowerVersion(2, 20, 0) then
 end
 
 TrinketMenu = {
-  packDescriptions = {}
+  packDescriptions = {},
+  OnEnterUsed = {}
 }
 
 TrinketMenu.AddRaid = function(raidName, raidPackData)
+  if raidPackData and (not raidPackData[1] or raidPackData[1].packName ~= "on_enter") then
+    table.insert(raidPackData, 1, {
+      packName = "on_enter",
+      desc = "On Enter",
+      mob_names = {},
+      mob_guids = {}
+    })
+  end
   TrinketMenu.packDescriptions[raidName] = raidPackData
   TrinketMenu.addPackGuids(raidPackData)
 end

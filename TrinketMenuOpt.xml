@@ -1324,7 +1324,7 @@
 								</Anchor>
 							</Anchors>
 						</Texture>
-						<FontString name="TrinketMenu_PackTrinket1Text" inherits="GameFontHighlight" text="Trinket1 (TOP): None">
+						<FontString name="TrinketMenu_PackTrinket1Text" inherits="GameFontHighlight" text="Trinket1 (TOP): None" justifyH="LEFT">
 							<Anchors>
 								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTrinket1Icon" relativePoint="RIGHT">
 									<Offset>
@@ -1345,7 +1345,7 @@
 								</Anchor>
 							</Anchors>
 						</Texture>
-						<FontString name="TrinketMenu_PackTrinket2Text" inherits="GameFontHighlight" text="Trinket2 (BOTTOM): None">
+						<FontString name="TrinketMenu_PackTrinket2Text" inherits="GameFontHighlight" text="Trinket2 (BOTTOM): None" justifyH="LEFT">
 							<Anchors>
 								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTrinket2Icon" relativePoint="RIGHT">
 									<Offset>

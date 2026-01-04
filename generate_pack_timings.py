@@ -23,15 +23,10 @@ def parse_raid_packs(raid_packs_dir):
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        # Pattern to match pack entries:
-        # [1] = {
-        #   packName = "giants1",
-        #   desc = "Giants1",
-        #   mob_names = { ... },  -- optional field
-        #   mob_guids = { "0xF130002D8A00DD81", "0xF130002D8A00DD80" }
-        # },
-        # Use non-greedy matching to handle optional fields like mob_names
-        pack_pattern = r'\[\d+\]\s*=\s*\{[^}]*?packName\s*=\s*"([^"]+)".*?mob_guids\s*=\s*\{([^}]+)\}\s*\}'
+        # Pattern to match pack entries in inline array format:
+        # { packName = "...", mob_guids = { ... } },
+        # Use non-greedy matching to handle optional fields like mob_names.
+        pack_pattern = r'(?<!\[)\{\s*[^}]*?packName\s*=\s*"([^"]+)".*?mob_guids\s*=\s*\{([^}]+)\}\s*\}'
 
         for match in re.finditer(pack_pattern, content, re.DOTALL):
             pack_name = match.group(1)
@@ -65,6 +60,8 @@ def parse_time_to_seconds(timestamp):
 
 def should_ignore_guid(guid):
     """Check if GUID should be ignored (players or summoned mobs)."""
+    if guid == "0xF130016C95276DAF":
+        return False
     # Ignore player GUIDs (0x00...) and summoned/temporary mobs
     ignored_prefixes = ['0x00', '0xF130016', '0xF14', '0xF130003', '0xF13000EA9E27', '0xF130001', '0xF130000FEB', '0xF13000EA54276', '0xF13000F48B278']
     for prefix in ignored_prefixes:

@@ -570,19 +570,20 @@ function TrinketMenu.ProfilePackScrollFrameUpdate()
 	-- Calculate times for each pack
 	for i = 1, table.getn(list) do
 		local pack = list[i]
-		if pack and timings[pack.packName] then
+		local timing = pack and timings[pack.packName]
+		if pack and timing then
 			-- Time out of combat
-			if timings[pack.packName].timeSinceLastCombat then
-				timingGaps[i] = math.floor(timings[pack.packName].timeSinceLastCombat + 0.5)
+			if timing.timeSinceLastCombat ~= nil then
+				timingGaps[pack.packName] = math.floor(timing.timeSinceLastCombat + 0.5)
 			end
 
 			-- Absolute time (minutes since first combat)
-			if firstEngageTime and timings[pack.packName].engageTime then
+			if firstEngageTime and timing.engageTime then
 				local firstSec = TrinketMenu.ParseTimeToSeconds(firstEngageTime)
-				local currSec = TrinketMenu.ParseTimeToSeconds(timings[pack.packName].engageTime)
+				local currSec = TrinketMenu.ParseTimeToSeconds(timing.engageTime)
 				if firstSec and currSec then
 					local minutes = (currSec - firstSec) / 60
-					absoluteTimes[i] = math.floor(minutes * 10 + 0.5) / 10  -- Round to nearest tenth
+					absoluteTimes[pack.packName] = math.floor(minutes * 10 + 0.5) / 10  -- Round to nearest tenth
 				end
 			end
 		end
@@ -604,7 +605,7 @@ function TrinketMenu.ProfilePackScrollFrameUpdate()
 
 			-- Display absolute time
 			if absoluteTimeText then
-				local absTime = absoluteTimes[idx]
+				local absTime = absoluteTimes[row.packName]
 				if absTime then
 					absoluteTimeText:SetText(string.format("%.1f", absTime))
 					absoluteTimeText:SetTextColor(0.7, 0.7, 0.7)
@@ -615,7 +616,7 @@ function TrinketMenu.ProfilePackScrollFrameUpdate()
 
 			-- Display timing gap
 			if timingText then
-				local gap = timingGaps[idx]
+				local gap = timingGaps[row.packName]
 				if gap then
 					timingText:SetText(string.format("%d", gap))
 					timingText:SetTextColor(0.7, 0.7, 0.7)
@@ -756,6 +757,74 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 			trinketIndex[trinket.itemId] = trinket
 		end
 	end
+	local timingList = TrinketMenu.ProfilePackList or {}
+	local packTrinkets = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.packTrinkets or {}
+	local packTimings = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.timings or {}
+	local currentIndex = nil
+	if pack then
+		for i, packInfo in ipairs(timingList) do
+			if packInfo.packName == pack then
+				currentIndex = i
+				break
+			end
+		end
+	end
+	local function formatCooldown(durationMs)
+		if not durationMs or durationMs <= 0 then
+			return nil
+		end
+		local cooldown = durationMs / 1000
+		if cooldown > 7200 then
+			return nil
+		end
+		if cooldown < 60 then
+			return string.format("%.1f sec cd", cooldown)
+		elseif cooldown < 3600 then
+			return string.format("%.1f min cd", cooldown / 60)
+		end
+		return string.format("%.1f hr cd", cooldown / 3600)
+	end
+	local function formatElapsed(seconds)
+		if not seconds or seconds < 0 then
+			return nil
+		end
+		if seconds < 60 then
+			return string.format("~%.1fs", seconds)
+		elseif seconds < 3600 then
+			return string.format("~%.1fm", seconds / 60)
+		end
+		return string.format("~%.1fh", seconds / 3600)
+	end
+	local function getSinceLastUseLine(itemId)
+		if not itemId or itemId == "autoswap" then
+			return nil
+		end
+		local currentTiming = pack and packTimings[pack]
+		if not currentIndex or not currentTiming or not currentTiming.engageTime then
+			return "Since last use: --"
+		end
+		local currentSec = TrinketMenu.ParseTimeToSeconds(currentTiming.engageTime)
+		if not currentSec then
+			return "Since last use: --"
+		end
+		for i = currentIndex - 1, 1, -1 do
+			local packInfo = timingList[i]
+			local info = packInfo and packTrinkets[packInfo.packName]
+			if info and (info.trinket1 == itemId or info.trinket2 == itemId) then
+				local timing = packTimings[packInfo.packName]
+				if timing and timing.engageTime then
+					local prevSec = TrinketMenu.ParseTimeToSeconds(timing.engageTime)
+					if prevSec then
+						local elapsed = formatElapsed(math.max(0, currentSec - prevSec - 30))
+						if elapsed then
+							return "Since last use: " .. elapsed
+						end
+					end
+				end
+			end
+		end
+		return "Since last use: --"
+	end
 	local function setDisplay(slot, itemId)
 		local iconFrame = getglobal("TrinketMenu_PackTrinket" .. slot .. "Icon")
 		local textFrame = getglobal("TrinketMenu_PackTrinket" .. slot .. "Text")
@@ -771,8 +840,33 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 			local trinket = trinketIndex[itemId]
 			local name = (trinket and trinket.trinketName) or itemId
 			local texture = trinket and trinket.icon
+			local cooldownSuffix = ""
+			local sinceLine = nil
+			if trinket and trinket.trinketName and GetTrinketCooldown then
+				local cooldownData = GetTrinketCooldown(trinket.trinketName)
+				if cooldownData then
+					local individual = cooldownData.individualDurationMs or 0
+					local category = cooldownData.categoryDurationMs or 0
+					if individual > 7200000 then
+						individual = 0
+					end
+					if category > 7200000 then
+						category = 0
+					end
+					local maxDuration = math.max(individual, category)
+					local cooldownText = formatCooldown(maxDuration)
+					if cooldownText then
+						cooldownSuffix = " (" .. cooldownText .. ")"
+						sinceLine = getSinceLastUseLine(itemId)
+					end
+				end
+			end
 			texture = texture or "Interface\\Icons\\INV_Misc_QuestionMark"
-			textFrame:SetText("Trinket" .. slot .. ": " .. name)
+			if sinceLine then
+				textFrame:SetText("Trinket" .. slot .. ": " .. name .. cooldownSuffix .. "\n" .. sinceLine)
+			else
+				textFrame:SetText("Trinket" .. slot .. ": " .. name .. cooldownSuffix)
+			end
 			iconFrame:SetTexture(texture)
 		else
 			textFrame:SetText("Trinket" .. slot .. ": None")
