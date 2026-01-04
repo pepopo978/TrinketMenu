@@ -28,7 +28,7 @@ TrinketMenu.AddRaid = function(raidName, raidPackData)
   if raidPackData and (not raidPackData[1] or raidPackData[1].packName ~= "on_enter") then
     table.insert(raidPackData, 1, {
       packName = "on_enter",
-      desc = "On Enter",
+      desc = "On First Enter",
       mob_names = {},
       mob_guids = {}
     })
