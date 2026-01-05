@@ -485,8 +485,32 @@ function TrinketMenu.OnEvent()
 		this:RegisterEvent("SPELL_CAST_EVENT")
 		this:RegisterEvent("UNIT_DIED")
 		this:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		this:RegisterEvent("PLAYER_TARGET_CHANGED")
 	elseif event=="ZONE_CHANGED_NEW_AREA" then
 		TrinketMenu.CheckZoneProfile()
+  elseif event=="PLAYER_TARGET_CHANGED" then
+		if not TrinketMenuQueue or not TrinketMenuQueue.PackProfileActive then
+			return
+		end
+		local trinketData = nil
+		if UnitGUID then
+			local guid = UnitGUID("target")
+			if guid and TrinketMenu.PackProfileTargetGuidTrinkets then
+				trinketData = TrinketMenu.PackProfileTargetGuidTrinkets[guid]
+			end
+		end
+		if trinketData then
+			if trinketData.trinket1 == "autoswap" then
+				TrinketMenu.EnableAutoSwapQueue(0)
+			elseif trinketData.trinket1 then
+				TrinketMenu.EquipTrinketByName(trinketData.trinket1, 13)
+			end
+			if trinketData.trinket2 == "autoswap" then
+				TrinketMenu.EnableAutoSwapQueue(1)
+			elseif trinketData.trinket2 then
+				TrinketMenu.EquipTrinketByName(trinketData.trinket2, 14)
+			end
+		end
 	end
 end
 
@@ -571,10 +595,10 @@ function TrinketMenu.CheckZoneProfile()
 end
 
 function TrinketMenu.ApplyOnEnterPack(profile, zone)
-	if not profile or not profile.packTrinkets then
+	if not profile or not profile.packDeathTrinkets then
 		return
 	end
-	local onEnter = profile.packTrinkets["on_enter"]
+	local onEnter = profile.packDeathTrinkets["on_enter"]
 	if not onEnter or (not onEnter.trinket1 and not onEnter.trinket2) then
 		return
 	end
@@ -625,6 +649,7 @@ function TrinketMenu.ClearActivePackProfile()
 	TrinketMenuQueue.PackProfileLast = TrinketMenuQueue.PackProfileActive
 	TrinketMenuQueue.PackProfileActive = nil
 	TrinketMenu.PackProfileGuidTrinkets = {}
+	TrinketMenu.PackProfileTargetGuidTrinkets = {}
 	TrinketMenu.UpdateActiveProfileText()
 	TrinketMenu.UpdatePackProfileUI()
 end

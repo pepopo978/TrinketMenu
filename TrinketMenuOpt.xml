@@ -31,6 +31,16 @@
 			</OnLeave>
 		</Scripts>
 	</Button>
+	<Frame name="TrinketMenu_SinceTooltipTemplate" virtual="true" enableMouse="true" hidden="true">
+		<Scripts>
+			<OnEnter>
+				TrinketMenu.OnTooltip("Since last use", "Since last use assumes target equips are used at the current pack engage time and death equips at the next pack engage time. Often times you'll use trinkets slightly after combat starts so make sure you factor that in accordingly.")
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+	</Frame>
 
 	<CheckButton name="TrinketMenu_CheckButtonTemplate" inherits="UICheckButtonTemplate" virtual="true">
 		<Size>
@@ -51,13 +61,13 @@
 
 	<Button name="TrinketMenu_ProfilePackTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="420" y="18"/>
+			<AbsDimension x="470" y="18"/>
 		</Size>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestLogTitleHighlight" hidden="true" alphaMode="ADD">
 					<Size>
-						<AbsDimension x="420" y="18"/>
+						<AbsDimension x="470" y="18"/>
 					</Size>
 					<Anchors>
 						<Anchor point="TOPLEFT"/>
@@ -89,14 +99,38 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<Texture name="$parentTrinket1Icon" hidden="true">
+				<Texture name="$parentTargetTrinket1Icon" hidden="true">
 					<Size>
 						<AbsDimension x="12" y="12"/>
 					</Size>
 					<Anchors>
 						<Anchor point="LEFT">
 							<Offset>
-								<AbsDimension x="66" y="0"/>
+								<AbsDimension x="69" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTargetTrinket2Icon" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentTargetTrinket1Icon" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="2" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTrinket1Icon" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentTargetTrinket2Icon" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="4" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -115,12 +149,12 @@
 				</Texture>
 				<FontString name="$parentText" font="GameFontHighlightSmall" justifyH="LEFT">
 					<Size>
-						<AbsDimension x="310" y="18"/>
+						<AbsDimension x="360" y="18"/>
 					</Size>
 					<Anchors>
 						<Anchor point="LEFT">
 							<Offset>
-								<AbsDimension x="96" y="0"/>
+								<AbsDimension x="129" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -882,7 +916,7 @@
 
 	<Frame name="TrinketMenu_ProfileCreateFrame" parent="UIParent" movable="true" toplevel="true" clampedToScreen="true" hidden="true">
 		<Size>
-			<AbsDimension x="750" y="480"/>
+			<AbsDimension x="800" y="540"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER"/>
@@ -942,16 +976,16 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="TrinketMenu_ProfileAbsoluteTimeLabel" inherits="GameFontDisableSmall" text="Time(m)">
+				<FontString name="TrinketMenu_ProfileAbsoluteTimeLabel" inherits="GameFontDisableSmall" text="T(m)">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
-								<AbsDimension x="16" y="-114"/>
+								<AbsDimension x="32" y="-114"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="TrinketMenu_ProfileTimingLabel" inherits="GameFontDisableSmall" text="Time OOC(s)">
+				<FontString name="TrinketMenu_ProfileTimingLabel" inherits="GameFontDisableSmall" text="OOC(s)">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
@@ -960,11 +994,35 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
+				<Texture name="TrinketMenu_ProfileTargetTrinketLabel" file="Interface\Icons\Ability_Hunter_SniperShot">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="99" y="-114"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="TrinketMenu_ProfileDeathTrinketLabel" file="Interface\Icons\Ability_Rogue_FeignDeath">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="126" y="-114"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
 				<FontString name="TrinketMenu_ProfilePacksLabel" inherits="GameFontDisableSmall" text="Pack Descriptions">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
-								<AbsDimension x="120" y="-114"/>
+								<AbsDimension x="149" y="-114"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -973,12 +1031,12 @@
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
-								<AbsDimension x="500" y="-114"/>
+								<AbsDimension x="550" y="-114"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="TrinketMenu_ProfilePackHelp" inherits="GameFontHighlightSmall" text="Select a pack, then left-click a trinket for Trinket1 or right-click for Trinket2. When any mob in that pack dies, the requested trinket will get queued for when combat drops.">
+				<FontString name="TrinketMenu_ProfilePackHelp" inherits="GameFontHighlightSmall" text="Select a pack, then left-click a trinket for Trinket1 or right-click for Trinket2. Shift-left/right click sets the trinkets used when targeting a mob in that pack.">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
@@ -1013,7 +1071,7 @@
 			</Frame>
 			<Frame name="TrinketMenu_ProfileTimingTooltip" enableMouse="true">
 				<Size>
-					<AbsDimension x="62" y="12"/>
+					<AbsDimension x="32" y="12"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -1025,6 +1083,46 @@
 				<Scripts>
 					<OnEnter>
 						TrinketMenu.OnTooltip("Time OOC(s)", "Time out of combat before this pack")
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+			</Frame>
+			<Frame name="TrinketMenu_ProfileTargetTrinketTooltip" enableMouse="true">
+				<Size>
+					<AbsDimension x="22" y="12"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="94" y="-114"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						TrinketMenu.OnTooltip("On Target", "Trinket(s) that will be equipped when a mob in this pack is targeted")
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+			</Frame>
+			<Frame name="TrinketMenu_ProfileDeathTrinketTooltip" enableMouse="true">
+				<Size>
+					<AbsDimension x="22" y="12"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="121" y="-114"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						TrinketMenu.OnTooltip("On Death", "Trinket(s) that will be equipped when a mob in this pack dies")
 					</OnEnter>
 					<OnLeave>
 						GameTooltip:Hide()
@@ -1134,7 +1232,7 @@
 
 			<Frame name="TrinketMenu_ProfilePackFrame">
 				<Size>
-					<AbsDimension x="480" y="230"/>
+					<AbsDimension x="530" y="230"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -1238,7 +1336,11 @@
 					<ScrollFrame name="TrinketMenu_ProfilePackScroll" inherits="FauxScrollFrameTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePack1" relativePoint="TOPLEFT"/>
-							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_ProfilePack12" relativePoint="BOTTOMRIGHT"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_ProfilePack12" relativePoint="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="25" y="0"/>
+							</Offset>
+						</Anchor>
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
@@ -1275,7 +1377,7 @@
 			</Frame>
 			<Frame name="TrinketMenu_PackTrinketDisplay" parent="TrinketMenu_ProfileCreateFrame">
 				<Size>
-					<AbsDimension x="460" y="74"/>
+					<AbsDimension x="460" y="160"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfilePackFrame" relativePoint="BOTTOMLEFT">
@@ -1299,7 +1401,7 @@
 							</Anchors>
 							<Color r="1" g="1" b="0.5"/>
 						</FontString>
-						<FontString name="TrinketMenu_PackInstructionText" inherits="GameFontHighlightSmall" justifyH="LEFT" text="When a mob in this pack dies, equip:">
+						<FontString name="TrinketMenu_PackTargetInstructionText" inherits="GameFontHighlightSmall" justifyH="LEFT" text="(Shift left/right click in list) When a mob in this pack is targeted, equip:">
 							<Size>
 								<AbsDimension x="450" y="14"/>
 							</Size>
@@ -1312,14 +1414,69 @@
 							</Anchors>
 							<Color r="0.8" g="0.8" b="0.8"/>
 						</FontString>
+						<Texture name="TrinketMenu_PackTargetTrinket1Icon" file="Interface\\Icons\\INV_Misc_QuestionMark">
+							<Size>
+								<AbsDimension x="40" y="40"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackTargetInstructionText" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="6" y="-6"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+						<FontString name="TrinketMenu_PackTargetTrinket1Text" inherits="GameFontHighlight" text="Trinket1 (TOP): None" justifyH="LEFT">
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTargetTrinket1Icon" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="6" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<Texture name="TrinketMenu_PackTargetTrinket2Icon" file="Interface\\Icons\\INV_Misc_QuestionMark">
+							<Size>
+								<AbsDimension x="40" y="40"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackTargetInstructionText" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="305" y="-6"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+						<FontString name="TrinketMenu_PackTargetTrinket2Text" inherits="GameFontHighlight" text="Trinket2 (BOTTOM): None" justifyH="LEFT">
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTargetTrinket2Icon" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="6" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString name="TrinketMenu_PackInstructionText" inherits="GameFontHighlightSmall" justifyH="LEFT" text="(Left/right click in list) When a mob in this pack dies, equip:">
+							<Size>
+								<AbsDimension x="450" y="14"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackTargetTrinket1Icon" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="-6" y="-6"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Color r="0.8" g="0.8" b="0.8"/>
+						</FontString>
 						<Texture name="TrinketMenu_PackTrinket1Icon" file="Interface\\Icons\\INV_Misc_QuestionMark">
 							<Size>
 								<AbsDimension x="40" y="40"/>
 							</Size>
 							<Anchors>
-								<Anchor point="TOPLEFT">
+								<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackInstructionText" relativePoint="BOTTOMLEFT">
 									<Offset>
-										<AbsDimension x="6" y="-40"/>
+										<AbsDimension x="6" y="-6"/>
 									</Offset>
 								</Anchor>
 							</Anchors>
@@ -1338,9 +1495,9 @@
 								<AbsDimension x="40" y="40"/>
 							</Size>
 							<Anchors>
-								<Anchor point="LEFT" relativeTo="TrinketMenu_PackTrinket1Text" relativePoint="RIGHT">
+								<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackInstructionText" relativePoint="BOTTOMLEFT">
 									<Offset>
-										<AbsDimension x="24" y="0"/>
+										<AbsDimension x="305" y="-6"/>
 									</Offset>
 								</Anchor>
 							</Anchors>
@@ -1356,6 +1513,112 @@
 						</FontString>
 					</Layer>
 				</Layers>
+				<Frames>
+					<Button name="TrinketMenu_PackTargetTrinket1ClearButton" inherits="TrinketMenu_SmallButtonTemplate">
+						<Size>
+							<AbsDimension x="12" y="12"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_PackTargetTrinket1Icon" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="-2" y="2"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<NormalTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".375" right=".5" top=".25" bottom=".375"/>
+						</NormalTexture>
+						<PushedTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".5" right=".625" top=".25" bottom=".375"/>
+						</PushedTexture>
+						<DisabledTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".625" right=".75" top=".25" bottom=".375"/>
+						</DisabledTexture>
+					</Button>
+					<Button name="TrinketMenu_PackTargetTrinket2ClearButton" inherits="TrinketMenu_SmallButtonTemplate">
+						<Size>
+							<AbsDimension x="12" y="12"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_PackTargetTrinket2Icon" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="-2" y="2"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<NormalTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".375" right=".5" top=".25" bottom=".375"/>
+						</NormalTexture>
+						<PushedTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".5" right=".625" top=".25" bottom=".375"/>
+						</PushedTexture>
+						<DisabledTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".625" right=".75" top=".25" bottom=".375"/>
+						</DisabledTexture>
+					</Button>
+					<Button name="TrinketMenu_PackTrinket1ClearButton" inherits="TrinketMenu_SmallButtonTemplate">
+						<Size>
+							<AbsDimension x="12" y="12"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_PackTrinket1Icon" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="-2" y="2"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<NormalTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".375" right=".5" top=".25" bottom=".375"/>
+						</NormalTexture>
+						<PushedTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".5" right=".625" top=".25" bottom=".375"/>
+						</PushedTexture>
+						<DisabledTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".625" right=".75" top=".25" bottom=".375"/>
+						</DisabledTexture>
+					</Button>
+					<Button name="TrinketMenu_PackTrinket2ClearButton" inherits="TrinketMenu_SmallButtonTemplate">
+						<Size>
+							<AbsDimension x="12" y="12"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_PackTrinket2Icon" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="-2" y="2"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<NormalTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".375" right=".5" top=".25" bottom=".375"/>
+						</NormalTexture>
+						<PushedTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".5" right=".625" top=".25" bottom=".375"/>
+						</PushedTexture>
+						<DisabledTexture file="Interface\AddOns\TrinketMenu\Buttons">
+							<TexCoords left=".625" right=".75" top=".25" bottom=".375"/>
+						</DisabledTexture>
+					</Button>
+					<Frame name="TrinketMenu_PackTargetTrinket1SinceTooltip" inherits="TrinketMenu_SinceTooltipTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackTargetTrinket1Text" relativePoint="TOPLEFT"/>
+						</Anchors>
+					</Frame>
+					<Frame name="TrinketMenu_PackTargetTrinket2SinceTooltip" inherits="TrinketMenu_SinceTooltipTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackTargetTrinket2Text" relativePoint="TOPLEFT"/>
+						</Anchors>
+					</Frame>
+					<Frame name="TrinketMenu_PackTrinket1SinceTooltip" inherits="TrinketMenu_SinceTooltipTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackTrinket1Text" relativePoint="TOPLEFT"/>
+						</Anchors>
+					</Frame>
+					<Frame name="TrinketMenu_PackTrinket2SinceTooltip" inherits="TrinketMenu_SinceTooltipTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_PackTrinket2Text" relativePoint="TOPLEFT"/>
+						</Anchors>
+					</Frame>
+				</Frames>
 			</Frame>
 
 			<Frame name="TrinketMenu_ProfileTrinketFrame">
@@ -1365,7 +1628,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="500" y="-126"/>
+							<AbsDimension x="550" y="-126"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -1464,7 +1727,11 @@
 					<ScrollFrame name="TrinketMenu_ProfileTrinketScroll" inherits="FauxScrollFrameTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_ProfileTrinket1" relativePoint="TOPLEFT"/>
-							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_ProfileTrinket12" relativePoint="BOTTOMRIGHT"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="TrinketMenu_ProfileTrinket12" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="3" y="0"/>
+								</Offset>
+							</Anchor>
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">

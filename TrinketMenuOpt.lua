@@ -41,6 +41,10 @@ TrinketMenu.TooltipInfo = {
 {"TrinketMenu_ProfilesLoad","Load Profile","Load a queue order for the selected trinket slot.  You can double-click a profile to load it also."},
 {"TrinketMenu_ProfilesSave","Save Profile","Save the queue order from the selected trinket slot.  Either trinket slot can use saved profiles."},
 {"TrinketMenu_ProfileName","Profile Name","Enter a name to call the profile.  When saved, you can load this profile to either trinket slot."},
+{ "TrinketMenu_PackTargetTrinket1ClearButton", "Clear Slot", "Clear the selected target trinket slot for this pack." },
+{ "TrinketMenu_PackTargetTrinket2ClearButton", "Clear Slot", "Clear the selected target trinket slot for this pack." },
+{ "TrinketMenu_PackTrinket1ClearButton", "Clear Slot", "Clear the selected trinket slot for this pack." },
+{ "TrinketMenu_PackTrinket2ClearButton", "Clear Slot", "Clear the selected trinket slot for this pack." },
 }
 
 function TrinketMenu.InitOptions()
@@ -263,6 +267,24 @@ function TrinketMenu.SmallButton_OnClick()
 		TrinketMenuOptions.Locked = (TrinketMenuOptions.Locked=="ON") and "OFF" or "ON"
 		TrinketMenu.DockWindows()
 		TrinketMenu.ReflectLock()
+  else
+    local name = this and this.GetName and this:GetName()
+    local clearMap = {
+      TrinketMenu_PackTargetTrinket1ClearButton = { target = true, slot = "trinket1" },
+      TrinketMenu_PackTargetTrinket2ClearButton = { target = true, slot = "trinket2" },
+      TrinketMenu_PackTrinket1ClearButton = { target = false, slot = "trinket1" },
+      TrinketMenu_PackTrinket2ClearButton = { target = false, slot = "trinket2" },
+    }
+    local clearInfo = name and clearMap[name]
+    if clearInfo and TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.selectedPack then
+      local packName = TrinketMenu.ProfileBuilder.selectedPack
+      local trinketMap = clearInfo.target and TrinketMenu.ProfileBuilder.packTargetTrinkets or TrinketMenu.ProfileBuilder.packDeathTrinkets
+      trinketMap[packName] = trinketMap[packName] or {}
+      trinketMap[packName][clearInfo.slot] = nil
+      TrinketMenu.ProfilePackScrollFrameUpdate()
+      TrinketMenu.ProfileTrinketScrollFrameUpdate()
+      TrinketMenu.ProfileUpdatePackTrinketDisplay()
+    end
 	end
 end
 
@@ -343,7 +365,8 @@ function TrinketMenu.ProfileCreateFrame_OnShow()
 		raid = nil,
 		selectedPack = nil,
 		selectedTrinket = nil,
-		packTrinkets = {},
+    packDeathTrinkets = {},
+    packTargetTrinkets = {},
 		timings = {},
 	}
 	TrinketMenu.ProfileCreateBuildRaidList()
@@ -352,13 +375,18 @@ function TrinketMenu.ProfileCreateFrame_OnShow()
 		if profile then
 			TrinketMenu_ProfileNameEdit:SetText(profile.name or "")
 			TrinketMenu.ProfileCreateSelectRaid(profile.raid)
-			if profile.packTrinkets then
-				for pack, info in pairs(profile.packTrinkets) do
-					TrinketMenu.ProfileBuilder.packTrinkets[pack] = { trinket1 = info.trinket1, trinket2 = info.trinket2 }
+      if profile.packDeathTrinkets then
+        for pack, info in pairs(profile.packDeathTrinkets) do
+          TrinketMenu.ProfileBuilder.packDeathTrinkets[pack] = { trinket1 = info.trinket1, trinket2 = info.trinket2 }
 				end
 			elseif profile.packs then
 				for _, pack in ipairs(profile.packs) do
-					TrinketMenu.ProfileBuilder.packTrinkets[pack] = {}
+          TrinketMenu.ProfileBuilder.packDeathTrinkets[pack] = {}
+        end
+      end
+      if profile.packTargetTrinkets then
+        for pack, info in pairs(profile.packTargetTrinkets) do
+          TrinketMenu.ProfileBuilder.packTargetTrinkets[pack] = { trinket1 = info.trinket1, trinket2 = info.trinket2 }
 				end
 			end
 			if profile.timings then
@@ -496,7 +524,8 @@ function TrinketMenu.ProfileCreateSelectRaid(raid)
 		TrinketMenu.ProfileBuilder.raid = raid
 		TrinketMenu.ProfileBuilder.selectedPack = nil
 		TrinketMenu.ProfileBuilder.selectedTrinket = nil
-		TrinketMenu.ProfileBuilder.packTrinkets = {}
+    TrinketMenu.ProfileBuilder.packDeathTrinkets = {}
+    TrinketMenu.ProfileBuilder.packTargetTrinkets = {}
 	end
 	TrinketMenu.BuildProfilePackList(raid)
 	TrinketMenu.ProfilePackScrollFrameUpdate()
@@ -595,6 +624,8 @@ function TrinketMenu.ProfilePackScrollFrameUpdate()
 		local absoluteTimeText = getglobal("TrinketMenu_ProfilePack" .. i .. "AbsoluteTime")
 		local timingText = getglobal("TrinketMenu_ProfilePack" .. i .. "Timing")
 		local highlight = getglobal("TrinketMenu_ProfilePack" .. i .. "Highlight")
+    local targetTrinket1Icon = getglobal("TrinketMenu_ProfilePack" .. i .. "TargetTrinket1Icon")
+    local targetTrinket2Icon = getglobal("TrinketMenu_ProfilePack" .. i .. "TargetTrinket2Icon")
 		local trinket1Icon = getglobal("TrinketMenu_ProfilePack" .. i .. "Trinket1Icon")
 		local trinket2Icon = getglobal("TrinketMenu_ProfilePack" .. i .. "Trinket2Icon")
 		local idx = offset + i
@@ -631,14 +662,50 @@ function TrinketMenu.ProfilePackScrollFrameUpdate()
 				highlight:Hide()
 			end
 
-			-- Display trinket icons if assigned
-			local packTrinkets = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.packTrinkets and TrinketMenu.ProfileBuilder.packTrinkets[row.packName]
-			if packTrinkets and packTrinkets.trinket1 then
-				if packTrinkets.trinket1 == "autoswap" then
+      -- Display target trinket icons if assigned
+      local packTargetTrinkets = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.packTargetTrinkets and TrinketMenu.ProfileBuilder.packTargetTrinkets[row.packName]
+      if packTargetTrinkets and packTargetTrinkets.trinket1 then
+        if packTargetTrinkets.trinket1 == "autoswap" then
+          targetTrinket1Icon:SetTexture("Interface\\AddOns\\TrinketMenu\\TrinketMenu-Gear")
+          targetTrinket1Icon:Show()
+        else
+          local trinket = trinketIndex[packTargetTrinkets.trinket1]
+          if trinket and trinket.icon then
+            targetTrinket1Icon:SetTexture(trinket.icon)
+            targetTrinket1Icon:Show()
+          else
+            targetTrinket1Icon:Hide()
+          end
+        end
+      else
+        targetTrinket1Icon:Hide()
+      end
+
+      if packTargetTrinkets and packTargetTrinkets.trinket2 then
+        if packTargetTrinkets.trinket2 == "autoswap" then
+          targetTrinket2Icon:SetTexture("Interface\\AddOns\\TrinketMenu\\TrinketMenu-Gear")
+          targetTrinket2Icon:Show()
+        else
+          local trinket = trinketIndex[packTargetTrinkets.trinket2]
+          if trinket and trinket.icon then
+            targetTrinket2Icon:SetTexture(trinket.icon)
+            targetTrinket2Icon:Show()
+          else
+            targetTrinket2Icon:Hide()
+          end
+        end
+      else
+        targetTrinket2Icon:Hide()
+      end
+
+      -- Display on-death trinket icons if assigned
+      local packDeathTrinkets = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.packDeathTrinkets and TrinketMenu.ProfileBuilder.packDeathTrinkets[row.packName]
+      if packDeathTrinkets and packDeathTrinkets.trinket1 then
+        if packDeathTrinkets.trinket1 == "autoswap" then
 					trinket1Icon:SetTexture("Interface\\AddOns\\TrinketMenu\\TrinketMenu-Gear")
 					trinket1Icon:Show()
 				else
-					local trinket = trinketIndex[packTrinkets.trinket1]
+          local trinket = trinketIndex[packDeathTrinkets.trinket1]
 					if trinket and trinket.icon then
 						trinket1Icon:SetTexture(trinket.icon)
 						trinket1Icon:Show()
@@ -650,12 +717,12 @@ function TrinketMenu.ProfilePackScrollFrameUpdate()
 				trinket1Icon:Hide()
 			end
 
-			if packTrinkets and packTrinkets.trinket2 then
-				if packTrinkets.trinket2 == "autoswap" then
+      if packDeathTrinkets and packDeathTrinkets.trinket2 then
+        if packDeathTrinkets.trinket2 == "autoswap" then
 					trinket2Icon:SetTexture("Interface\\AddOns\\TrinketMenu\\TrinketMenu-Gear")
 					trinket2Icon:Show()
 				else
-					local trinket = trinketIndex[packTrinkets.trinket2]
+          local trinket = trinketIndex[packDeathTrinkets.trinket2]
 					if trinket and trinket.icon then
 						trinket2Icon:SetTexture(trinket.icon)
 						trinket2Icon:Show()
@@ -667,6 +734,12 @@ function TrinketMenu.ProfilePackScrollFrameUpdate()
 				trinket2Icon:Hide()
 			end
 		else
+      if targetTrinket1Icon then
+        targetTrinket1Icon:Hide()
+      end
+      if targetTrinket2Icon then
+        targetTrinket2Icon:Hide()
+      end
 			button:Hide()
 		end
 	end
@@ -707,7 +780,8 @@ function TrinketMenu.ProfilePack_OnClick()
 	end
 	TrinketMenu.ProfileBuilder.selectedPack = row.packName
 	TrinketMenu.ProfileBuilder.selectedTrinket = nil
-	TrinketMenu.ProfileBuilder.packTrinkets[row.packName] = TrinketMenu.ProfileBuilder.packTrinkets[row.packName] or {}
+  TrinketMenu.ProfileBuilder.packDeathTrinkets[row.packName] = TrinketMenu.ProfileBuilder.packDeathTrinkets[row.packName] or {}
+  TrinketMenu.ProfileBuilder.packTargetTrinkets[row.packName] = TrinketMenu.ProfileBuilder.packTargetTrinkets[row.packName] or {}
 	TrinketMenu.ProfilePackScrollFrameUpdate()
 	TrinketMenu.ProfileTrinketScrollFrameUpdate()
 	TrinketMenu.ProfileUpdatePackTrinketDisplay()
@@ -723,19 +797,24 @@ function TrinketMenu.ProfileTrinket_OnClick()
 		return
 	end
 	TrinketMenu.ProfileBuilder.selectedTrinket = row.itemId
-	TrinketMenu.ProfileBuilder.packTrinkets[TrinketMenu.ProfileBuilder.selectedPack] = TrinketMenu.ProfileBuilder.packTrinkets[TrinketMenu.ProfileBuilder.selectedPack] or {}
+  local targetOnSelect = IsShiftKeyDown and IsShiftKeyDown()
+  local packName = TrinketMenu.ProfileBuilder.selectedPack
+  local trinketMap = targetOnSelect and TrinketMenu.ProfileBuilder.packTargetTrinkets or TrinketMenu.ProfileBuilder.packDeathTrinkets
+  trinketMap[packName] = trinketMap[packName] or {}
 	if arg1 == "RightButton" then
-		TrinketMenu.ProfileBuilder.packTrinkets[TrinketMenu.ProfileBuilder.selectedPack].trinket2 = row.itemId ~= "clear" and row.itemId or nil
+    trinketMap[packName].trinket2 = row.itemId ~= "clear" and row.itemId or nil
 	else
-		TrinketMenu.ProfileBuilder.packTrinkets[TrinketMenu.ProfileBuilder.selectedPack].trinket1 = row.itemId ~= "clear" and row.itemId or nil
+    trinketMap[packName].trinket1 = row.itemId ~= "clear" and row.itemId or nil
 	end
+  TrinketMenu.ProfilePackScrollFrameUpdate()
 	TrinketMenu.ProfileTrinketScrollFrameUpdate()
 	TrinketMenu.ProfileUpdatePackTrinketDisplay()
 end
 
 function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 	local pack = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.selectedPack
-	local info = pack and TrinketMenu.ProfileBuilder.packTrinkets and TrinketMenu.ProfileBuilder.packTrinkets[pack] or nil
+  local info = pack and TrinketMenu.ProfileBuilder.packDeathTrinkets and TrinketMenu.ProfileBuilder.packDeathTrinkets[pack] or nil
+  local targetInfo = pack and TrinketMenu.ProfileBuilder.packTargetTrinkets and TrinketMenu.ProfileBuilder.packTargetTrinkets[pack] or nil
 
 	-- Update pack description text
 	local packDesc = ""
@@ -750,6 +829,48 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 	if TrinketMenu_PackDescriptionText then
 		TrinketMenu_PackDescriptionText:SetText(packDesc)
 	end
+  local isOnEnterPack = pack == "on_enter"
+  if TrinketMenu_PackTargetInstructionText then
+    if isOnEnterPack then
+      TrinketMenu_PackTargetInstructionText:Hide()
+    else
+      TrinketMenu_PackTargetInstructionText:Show()
+    end
+  end
+  if TrinketMenu_PackInstructionText then
+    TrinketMenu_PackInstructionText:ClearAllPoints()
+    if isOnEnterPack then
+      TrinketMenu_PackInstructionText:SetText("The first time you enter the instance, equip:")
+      if TrinketMenu_PackDescriptionText then
+        TrinketMenu_PackInstructionText:SetPoint("TOPLEFT", TrinketMenu_PackDescriptionText, "BOTTOMLEFT", 0, -2)
+      end
+    else
+      TrinketMenu_PackInstructionText:SetText("(Left/right click in list) When a mob in this pack dies, equip:")
+      if TrinketMenu_PackTargetTrinket1Icon then
+        TrinketMenu_PackInstructionText:SetPoint("TOPLEFT", TrinketMenu_PackTargetTrinket1Icon, "BOTTOMLEFT", -6, -6)
+      end
+    end
+  end
+  local targetFrames = {
+    "TrinketMenu_PackTargetTrinket1Icon",
+    "TrinketMenu_PackTargetTrinket1Text",
+    "TrinketMenu_PackTargetTrinket2Icon",
+    "TrinketMenu_PackTargetTrinket2Text",
+    "TrinketMenu_PackTargetTrinket1ClearButton",
+    "TrinketMenu_PackTargetTrinket2ClearButton",
+    "TrinketMenu_PackTargetTrinket1SinceTooltip",
+    "TrinketMenu_PackTargetTrinket2SinceTooltip",
+  }
+  for _, frameName in ipairs(targetFrames) do
+    local frame = getglobal(frameName)
+    if frame then
+      if isOnEnterPack then
+        frame:Hide()
+      else
+        frame:Show()
+      end
+    end
+  end
 
 	local trinketIndex = {}
 	for _, trinket in ipairs(TrinketMenu.GetTrinketList()) do
@@ -758,7 +879,8 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 		end
 	end
 	local timingList = TrinketMenu.ProfilePackList or {}
-	local packTrinkets = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.packTrinkets or {}
+  local packDeathTrinkets = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.packDeathTrinkets or {}
+  local packTargetTrinkets = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.packTargetTrinkets or {}
 	local packTimings = TrinketMenu.ProfileBuilder and TrinketMenu.ProfileBuilder.timings or {}
 	local currentIndex = nil
 	if pack then
@@ -766,9 +888,20 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 			if packInfo.packName == pack then
 				currentIndex = i
 				break
+      end
+    end
+  end
+  local firstEngageSec = nil
+  for i, packInfo in ipairs(timingList) do
+    local timing = packInfo and packTimings[packInfo.packName]
+    if timing and timing.engageTime then
+      firstEngageSec = TrinketMenu.ParseTimeToSeconds(timing.engageTime)
+      if firstEngageSec then
+        break
 			end
 		end
 	end
+
 	local function formatCooldown(durationMs)
 		if not durationMs or durationMs <= 0 then
 			return nil
@@ -784,6 +917,7 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 		end
 		return string.format("%.1f hr cd", cooldown / 3600)
 	end
+
 	local function formatElapsed(seconds)
 		if not seconds or seconds < 0 then
 			return nil
@@ -795,42 +929,84 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 		end
 		return string.format("~%.1fh", seconds / 3600)
 	end
-	local function getSinceLastUseLine(itemId)
+
+  local function getUseTimeForTarget(packName)
+    if packName == "on_enter" then
+      return firstEngageSec
+    end
+    local timing = packName and packTimings[packName]
+    return timing and timing.engageTime and TrinketMenu.ParseTimeToSeconds(timing.engageTime) or nil
+  end
+
+  local function getUseTimeForDeath(packIndex)
+    local packInfo = packIndex and timingList[packIndex]
+    if packInfo and packInfo.packName == "on_enter" then
+      return firstEngageSec
+    end
+    local nextPack = packIndex and timingList[packIndex + 1]
+    local timing = nextPack and packTimings[nextPack.packName]
+    return timing and timing.engageTime and TrinketMenu.ParseTimeToSeconds(timing.engageTime) or nil
+  end
+
+  local function getSinceLastUseLine(itemId, useMode)
 		if not itemId or itemId == "autoswap" then
 			return nil
 		end
-		local currentTiming = pack and packTimings[pack]
-		if not currentIndex or not currentTiming or not currentTiming.engageTime then
+    if not currentIndex then
 			return "Since last use: --"
 		end
-		local currentSec = TrinketMenu.ParseTimeToSeconds(currentTiming.engageTime)
+    local currentSec
+    if useMode == "target" then
+      currentSec = getUseTimeForTarget(pack)
+    else
+      currentSec = getUseTimeForDeath(currentIndex)
+    end
 		if not currentSec then
 			return "Since last use: --"
 		end
 		for i = currentIndex - 1, 1, -1 do
 			local packInfo = timingList[i]
-			local info = packInfo and packTrinkets[packInfo.packName]
-			if info and (info.trinket1 == itemId or info.trinket2 == itemId) then
-				local timing = packTimings[packInfo.packName]
-				if timing and timing.engageTime then
-					local prevSec = TrinketMenu.ParseTimeToSeconds(timing.engageTime)
-					if prevSec then
-						local elapsed = formatElapsed(math.max(0, currentSec - prevSec - 30))
-						if elapsed then
-							return "Since last use: " .. elapsed
-						end
-					end
+      local packName = packInfo and packInfo.packName
+      local targetInfo = packName and packTargetTrinkets[packName]
+      local deathInfo = packName and packDeathTrinkets[packName]
+      local candidateSec = nil
+      if targetInfo and (targetInfo.trinket1 == itemId or targetInfo.trinket2 == itemId) then
+        candidateSec = getUseTimeForTarget(packName)
+      end
+      if deathInfo and (deathInfo.trinket1 == itemId or deathInfo.trinket2 == itemId) then
+        local deathSec = getUseTimeForDeath(i)
+        if deathSec and (not candidateSec or deathSec > candidateSec) then
+          candidateSec = deathSec
+        end
+      end
+      if candidateSec and candidateSec <= currentSec then
+        local elapsed = formatElapsed(math.max(0, currentSec - candidateSec))
+        if elapsed then
+          return "Since last use: " .. elapsed
 				end
 			end
 		end
 		return "Since last use: --"
 	end
-	local function setDisplay(slot, itemId)
-		local iconFrame = getglobal("TrinketMenu_PackTrinket" .. slot .. "Icon")
-		local textFrame = getglobal("TrinketMenu_PackTrinket" .. slot .. "Text")
+
+  local function setDisplay(slot, itemId, iconFrameName, textFrameName, showSince, clearButtonName, sinceTooltipFrameName)
+    local iconFrame = getglobal(iconFrameName)
+    local textFrame = getglobal(textFrameName)
 		if not iconFrame or not textFrame then
 			return
 		end
+    local clearButton = clearButtonName and getglobal(clearButtonName)
+    if clearButton then
+      if itemId then
+        clearButton:Enable()
+      else
+        clearButton:Disable()
+      end
+    end
+    local sinceTooltip = sinceTooltipFrameName and getglobal(sinceTooltipFrameName)
+    if sinceTooltip then
+      sinceTooltip:Hide()
+    end
 		if itemId == "autoswap" then
 			textFrame:SetText("Trinket" .. slot .. ": Trigger Autoswap")
 			iconFrame:SetTexture("Interface\\AddOns\\TrinketMenu\\TrinketMenu-Gear")
@@ -857,15 +1033,31 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 					local cooldownText = formatCooldown(maxDuration)
 					if cooldownText then
 						cooldownSuffix = " (" .. cooldownText .. ")"
-						sinceLine = getSinceLastUseLine(itemId)
+            if showSince then
+              sinceLine = getSinceLastUseLine(itemId, showSince)
+            end
 					end
 				end
 			end
 			texture = texture or "Interface\\Icons\\INV_Misc_QuestionMark"
+      local displayText
 			if sinceLine then
-				textFrame:SetText("Trinket" .. slot .. ": " .. name .. cooldownSuffix .. "\n" .. sinceLine)
+        displayText = "Trinket" .. slot .. ": " .. name .. cooldownSuffix .. "\n" .. sinceLine
 			else
-				textFrame:SetText("Trinket" .. slot .. ": " .. name .. cooldownSuffix)
+        displayText = "Trinket" .. slot .. ": " .. name .. cooldownSuffix
+      end
+      textFrame:SetText(displayText)
+      if sinceLine and sinceTooltip then
+        local width = textFrame.GetStringWidth and textFrame:GetStringWidth() or (textFrame:GetWidth() or 0)
+        local height = textFrame:GetHeight() or 0
+        if height <= 0 then
+          height = 24
+        end
+        sinceTooltip:ClearAllPoints()
+        sinceTooltip:SetPoint("TOPLEFT", textFrame, "TOPLEFT", 0, 0)
+        sinceTooltip:SetWidth(math.max(1, width))
+        sinceTooltip:SetHeight(math.max(1, height))
+        sinceTooltip:Show()
 			end
 			iconFrame:SetTexture(texture)
 		else
@@ -873,8 +1065,10 @@ function TrinketMenu.ProfileUpdatePackTrinketDisplay()
 			iconFrame:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
 		end
 	end
-	setDisplay(1, info and info.trinket1)
-	setDisplay(2, info and info.trinket2)
+  setDisplay(1, targetInfo and targetInfo.trinket1, "TrinketMenu_PackTargetTrinket1Icon", "TrinketMenu_PackTargetTrinket1Text", "target", "TrinketMenu_PackTargetTrinket1ClearButton", "TrinketMenu_PackTargetTrinket1SinceTooltip")
+  setDisplay(2, targetInfo and targetInfo.trinket2, "TrinketMenu_PackTargetTrinket2Icon", "TrinketMenu_PackTargetTrinket2Text", "target", "TrinketMenu_PackTargetTrinket2ClearButton", "TrinketMenu_PackTargetTrinket2SinceTooltip")
+  setDisplay(1, info and info.trinket1, "TrinketMenu_PackTrinket1Icon", "TrinketMenu_PackTrinket1Text", "death", "TrinketMenu_PackTrinket1ClearButton", "TrinketMenu_PackTrinket1SinceTooltip")
+  setDisplay(2, info and info.trinket2, "TrinketMenu_PackTrinket2Icon", "TrinketMenu_PackTrinket2Text", "death", "TrinketMenu_PackTrinket2ClearButton", "TrinketMenu_PackTrinket2SinceTooltip")
 end
 
 function TrinketMenu.ProfileCreateSave_OnClick()
@@ -891,13 +1085,20 @@ function TrinketMenu.ProfileCreateSave_OnClick()
 		raid = raid,
 		packs = {},
 		trinkets = {},
-		packTrinkets = {},
+    packDeathTrinkets = {},
+    packTargetTrinkets = {},
 		timings = TrinketMenu.ProfileBuilder.timings or {},
 	}
-	for pack, info in pairs(TrinketMenu.ProfileBuilder.packTrinkets or {}) do
+  for pack, info in pairs(TrinketMenu.ProfileBuilder.packDeathTrinkets or {}) do
 		table.insert(profile.packs, pack)
-		profile.packTrinkets[pack] = { trinket1 = info.trinket1, trinket2 = info.trinket2 }
+    profile.packDeathTrinkets[pack] = { trinket1 = info.trinket1, trinket2 = info.trinket2 }
 	end
+  for pack, info in pairs(TrinketMenu.ProfileBuilder.packTargetTrinkets or {}) do
+    if not profile.packDeathTrinkets[pack] then
+      table.insert(profile.packs, pack)
+    end
+    profile.packTargetTrinkets[pack] = { trinket1 = info.trinket1, trinket2 = info.trinket2 }
+  end
 	if table.getn(profile.packs) == 0 and TrinketMenu.ProfileBuilder.selectedPack then
 		table.insert(profile.packs, TrinketMenu.ProfileBuilder.selectedPack)
 	end
@@ -1036,8 +1237,9 @@ end
 
 function TrinketMenu.BuildPackProfileGuidTrinkets(profile)
 	local map = {}
-	if not profile or not profile.packTrinkets then
+  if not profile or not profile.packDeathTrinkets then
 		TrinketMenu.PackProfileGuidTrinkets = map
+    TrinketMenu.PackProfileTargetGuidTrinkets = {}
 		if profile then
 			print("|cff00ff00TrinketMenu:|r Error activating profile " .. (profile.name or "Unknown"))
 		end
@@ -1057,7 +1259,7 @@ function TrinketMenu.BuildPackProfileGuidTrinkets(profile)
 		end
 	end
 
-	for packName, trinkets in pairs(profile.packTrinkets) do
+  for packName, trinkets in pairs(profile.packDeathTrinkets) do
 		local pack = packLookup[packName]
 		if pack and pack.mob_guids then
 			numPacksFound = numPacksFound + 1
@@ -1069,6 +1271,18 @@ function TrinketMenu.BuildPackProfileGuidTrinkets(profile)
 
 	print("|cff00ff00TrinketMenu:|r Activated profile " .. profile.name .. " with swaps on " .. tostring(numPacksFound) .. " packs.")
 	TrinketMenu.PackProfileGuidTrinkets = map
+  local targetGuidMap = {}
+  for packName, trinkets in pairs(profile.packTargetTrinkets or {}) do
+    local pack = packLookup[packName]
+    if pack then
+      if pack.mob_guids then
+        for _, guid in ipairs(pack.mob_guids) do
+          targetGuidMap[guid] = { trinket1 = trinkets.trinket1, trinket2 = trinkets.trinket2, packName = packName }
+        end
+      end
+    end
+  end
+  TrinketMenu.PackProfileTargetGuidTrinkets = targetGuidMap
 end
 
 function TrinketMenu.PackProfileActivate_OnClick()
