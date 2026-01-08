@@ -61,7 +61,7 @@ TrinketMenu.IconPath = "Interface\\Icons\\"
 --[[ Helpers for new API ]]--
 
 function TrinketMenu.UpdateTrinketList()
-	local trinkets = GetTrinkets()
+	local trinkets = GetTrinkets and GetTrinkets() or {}
 	local equipped = TrinketMenu.EquippedTrinkets or {}
 
 	if type(trinkets) ~= "table" then
@@ -406,7 +406,7 @@ function TrinketMenu.OnLoad()
 	SLASH_TrinketMenuCOMMAND1 = "/trinketmenu";
 	SLASH_TrinketMenuCOMMAND2 = "/trinket";
 	
-	this:RegisterEvent("PLAYER_LOGIN")
+	this:RegisterEvent("ADDON_LOADED")
 end
 
 function TrinketMenu.OnEvent()
@@ -465,7 +465,7 @@ function TrinketMenu.OnEvent()
 				end
 			end
 		end
-	elseif event=="PLAYER_LOGIN" then
+	elseif event=="ADDON_LOADED" then
 		TrinketMenu.LoadDefaults()
 		TrinketMenu.UpdateTrinketList()
 

@@ -1300,7 +1300,7 @@ function TrinketMenu.PackProfileActivate_OnClick()
 end
 
 function TrinketMenu.ApplyPackProfileActivation(profile)
-	if not profile then
+	if not profile or not TrinketMenu.hasNampower then
 		return
 	end
 	TrinketMenu.BuildPackProfileGuidTrinkets(profile)

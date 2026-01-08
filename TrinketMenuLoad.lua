@@ -1,3 +1,13 @@
+TrinketMenu = {
+  packDescriptions = {},
+  OnEnterUsed = {},
+  hasNampower = false,
+}
+
+-- dummy function until we verify Nampower exists
+TrinketMenu.AddRaid = function(raidName, raidPackData)
+end
+
 local function HasMinimumNampowerVersion(major, minor, patch)
 	if GetNampowerVersion then
 		local installedMajor, installedMinor, installedPatch = GetNampowerVersion()
@@ -19,10 +29,7 @@ if not HasMinimumNampowerVersion(2, 20, 0) then
 	return
 end
 
-TrinketMenu = {
-  packDescriptions = {},
-  OnEnterUsed = {}
-}
+TrinketMenu.hasNampower = true
 
 TrinketMenu.AddRaid = function(raidName, raidPackData)
   if raidPackData and (not raidPackData[1] or raidPackData[1].packName ~= "on_enter") then
@@ -34,5 +41,4 @@ TrinketMenu.AddRaid = function(raidName, raidPackData)
     })
   end
   TrinketMenu.packDescriptions[raidName] = raidPackData
-  TrinketMenu.addPackGuids(raidPackData)
 end
