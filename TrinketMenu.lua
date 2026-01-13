@@ -798,6 +798,11 @@ function TrinketMenu.UpdateWornTrinkets()
 		local texture13 = trinket13.icon or GetInventoryItemTexture("player", 13)
 		TrinketMenu_Trinket0Icon:SetTexture(texture13 or "Interface\\Icons\\INV_Misc_QuestionMark")
 		TrinketMenu.AddWatchItem(trinket13.trinketName, trinket13.slotIndex)
+
+    local cdData1 = GetTrinketCooldown(1)
+    if cdData1 and cdData1.cooldownRemainingMs and cdData1.itemActiveSpellId > 0 then
+      TrinketMenuPerOptions.ItemsUsed[trinket13.trinketName] = cdData1.cooldownRemainingMs
+    end
 	else
 		texture13 = nil
 	end
@@ -806,6 +811,11 @@ function TrinketMenu.UpdateWornTrinkets()
 		local texture14 = trinket14.icon or GetInventoryItemTexture("player", 14)
 		TrinketMenu_Trinket1Icon:SetTexture(texture14 or "Interface\\Icons\\INV_Misc_QuestionMark")
 		TrinketMenu.AddWatchItem(trinket14.trinketName, trinket14.slotIndex)
+
+    local cdData2 = GetTrinketCooldown(2)
+    if cdData2 and cdData2.cooldownRemainingMs and cdData2.itemActiveSpellId > 0 then
+      TrinketMenuPerOptions.ItemsUsed[trinket14.trinketName] = cdData2.cooldownRemainingMs
+    end
 	else
 		texture14 = nil
 	end
@@ -1447,7 +1457,6 @@ end
 --[[ Notify ]]
 
 function TrinketMenu.Notify(msg)
-	PlaySound("GnomeExploration")
 	if SCT_Display then -- send via SCT if it exists
 		SCT_Display(msg,{r=.2,g=.7,b=.9})
 	elseif SHOW_COMBAT_TEXT=="1" then
@@ -1481,62 +1490,59 @@ function TrinketMenu.AddWatchItem(name,inv,bag,slot)
 end
 
 function TrinketMenu.CooldownUpdate()
-	local inv,bag,slot,start,duration,name,remain
+  local inv, bag, slot, name, remain
 	local watch = TrinketMenu.WatchItem
-	for i in TrinketMenuPerOptions.ItemsUsed do
-		start,name = nil
-		if not watch[i] then TrinketMenu.AddWatchItem(i) end -- if not on watch table, add it
-		inv,bag,slot = watch[i].inv,watch[i].bag,watch[i].slot
+  for usedName in TrinketMenuPerOptions.ItemsUsed do
+    name = nil
+    if not watch[usedName] then
+      TrinketMenu.AddWatchItem(usedName)
+    end -- if not on watch table, add it
+    inv, bag, slot = watch[usedName].inv, watch[usedName].bag, watch[usedName].slot
 		if inv then -- if it was last seen in an inv slot, get name in that slot
 			_,_,name = string.find(GetInventoryItemLink("player",inv) or "","%[(.+)%]")
 		end
 		if bag then -- if it was last seen in a container slot, get name in that slot
 			_,_,name = string.find(GetContainerItemLink(bag,slot) or "","%[(.+)%]")
 		end
-		if name~=i then -- item has moved
-			bag,slot = TrinketMenu.FindItem(i,1)
+    if name ~= usedName then
+      -- item has moved
+      bag, slot = TrinketMenu.FindItem(usedName, 1)
 			if not bag and slot then
 				inv = slot
 				slot = nil
 			else
 				inv = nil
 			end
-			watch[i].inv,watch[i].bag,watch[i].slot = inv,bag,slot
+      watch[usedName].inv, watch[usedName].bag, watch[usedName].slot = inv, bag, slot
 		end
-		if inv then
-			start,duration = GetInventoryItemCooldown("player",inv)
-		elseif bag then
-			start,duration = GetContainerItemCooldown(bag,slot)
-		else
-			TrinketMenuPerOptions.ItemsUsed[i] = nil
-		end
-		if start and TrinketMenuPerOptions.ItemsUsed[i]<3 then
-			TrinketMenuPerOptions.ItemsUsed[i] = TrinketMenuPerOptions.ItemsUsed[i] + 1 -- count for 3 seconds before seeing if this is a real cooldown
-		elseif start then
-			if start>0 then
-				remain = duration - (GetTime()-start)
-				if TrinketMenuPerOptions.ItemsUsed[i]<5 then
-					if remain>29 then
-						TrinketMenuPerOptions.ItemsUsed[i] = 30 -- first actual cooldown greater than 30 seconds, tag it for 30+0 notify
-					elseif remain>5 then
-						TrinketMenuPerOptions.ItemsUsed[i] = 5 -- first actual cooldown less than 30 but greater than 5, tag for 0 notify
-					end
-				end
-			end
-			if TrinketMenuPerOptions.ItemsUsed[i]==30 and start>0 and remain<30 then
-				if TrinketMenuOptions.NotifyThirty=="ON" then
-					TrinketMenu.Notify(i.." ready soon!")
-				end
-				TrinketMenuPerOptions.ItemsUsed[i]=5 -- tag for just 0 notify now
-			elseif TrinketMenuPerOptions.ItemsUsed[i]==5 and start==0 then
-				if TrinketMenuOptions.Notify=="ON" then
-					TrinketMenu.Notify(i.." ready!")
-				end
-			end
-			if start==0 then
-				TrinketMenuPerOptions.ItemsUsed[i] = nil
-			end
-		end
+
+    if TrinketMenuPerOptions.ItemsUsed[usedName] > 35000 then
+      -- subtract 1 and continue
+      TrinketMenuPerOptions.ItemsUsed[usedName] = TrinketMenuPerOptions.ItemsUsed[usedName] - 1000
+    else
+      local cdData = GetTrinketCooldown(usedName)
+
+      if cdData and cdData.itemActiveSpellId > 0 then
+        local cd = cdData.cooldownRemainingMs
+        TrinketMenuPerOptions.ItemsUsed[usedName] = cd
+        if cd > 30000 and cd < 31000 then
+          if TrinketMenuOptions.NotifyThirty == "ON" then
+            PlaySound("GnomeExploration")
+            TrinketMenu.Notify(usedName .. " ready soon!")
+          end
+        elseif cd > 0 and cd < 1000 then
+          if TrinketMenuOptions.Notify == "ON" then
+            if inv then
+              PlaySoundFile("Interface\\AddOns\\TrinketMenu\\trinket.mp3")
+            end
+            TrinketMenu.Notify(usedName .. " ready!")
+          end
+        end
+        if cdData.cooldownRemainingMs == 0 then
+          TrinketMenuPerOptions.ItemsUsed[usedName] = nil
+        end
+      end
+    end
 	end
 
 	-- update cooldown numbers
