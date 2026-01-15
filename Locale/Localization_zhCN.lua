@@ -14,7 +14,7 @@ if GetLocale() == "zhCN" then
         ["Blackrock Spire"] = "黑石塔",
             ["Blackwing Lair"] = "黑翼之巢",
         -- locations: naxx
-        ["Naxxramas"] = "纳克萨玛斯",
+        ["Naxxramas - S->C->M->P"] = "纳克萨玛斯 - S->C->M->P",
             ["The Upper Necropolis"] = "上层大墓地",  -- 未知副本
         -- locations: misc
         ["Zul'Gurub"] = "祖尔格拉布",

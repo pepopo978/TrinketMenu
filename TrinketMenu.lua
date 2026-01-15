@@ -1527,13 +1527,12 @@ function TrinketMenu.CooldownUpdate()
         TrinketMenuPerOptions.ItemsUsed[usedName] = cd
         if cd > 30000 and cd < 31000 then
           if TrinketMenuOptions.NotifyThirty == "ON" then
-            PlaySound("GnomeExploration")
             TrinketMenu.Notify(usedName .. " ready soon!")
           end
         elseif cd > 0 and cd < 1000 then
           if TrinketMenuOptions.Notify == "ON" then
             if inv then
-              PlaySoundFile("Interface\\AddOns\\TrinketMenu\\trinket.mp3")
+              TrinketMenu.PlayNotifySound()
             end
             TrinketMenu.Notify(usedName .. " ready!")
           end

@@ -524,9 +524,40 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
+					<Frame name="TrinketMenu_NotifySoundDropDown" inherits="UIDropDownMenuTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptNotify" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="-16" y="-18"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="TrinketMenu_NotifySoundLabel" inherits="GameFontHighlightSmall" text="Notify Sound">
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+											<Offset>
+												<AbsDimension x="16" y="2"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								TrinketMenu.NotifySoundDropDown_OnLoad()
+							</OnLoad>
+						</Scripts>
+					</Frame>
 					<CheckButton name="TrinketMenu_OptNotifyThirty" inherits="TrinketMenu_CheckButtonTemplate">
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_OptNotify" relativePoint="BOTTOMLEFT"/>
+							<Anchor point="TOPLEFT" relativeTo="TrinketMenu_NotifySoundDropDown" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="16" y="0"/>
+								</Offset>
+							</Anchor>
 						</Anchors>
 					</CheckButton>
 					<CheckButton name="TrinketMenu_OptNotifyChatAlso" inherits="TrinketMenu_CheckButtonTemplate">

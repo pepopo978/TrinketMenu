@@ -497,6 +497,43 @@ function TrinketMenu.MenuSortingDropDown_OnClick()
 	end
 end
 
+-- Notify Sound Dropdown
+function TrinketMenu.NotifySoundDropDown_OnLoad()
+	UIDropDownMenu_SetWidth(100, TrinketMenu_NotifySoundDropDown)
+	UIDropDownMenu_Initialize(TrinketMenu_NotifySoundDropDown, TrinketMenu.NotifySoundDropDown_Initialize)
+	local currentSound = (TrinketMenuOptions and TrinketMenuOptions.NotifySound) or "Trinket"
+	UIDropDownMenu_SetSelectedValue(TrinketMenu_NotifySoundDropDown, currentSound)
+	UIDropDownMenu_SetText(currentSound, TrinketMenu_NotifySoundDropDown)
+end
+
+function TrinketMenu.NotifySoundDropDown_Initialize()
+	local soundOptions = {"Trinket", "AuctionWindowOpen", "AuctionWindowClose", "DwarfExploration", "MapPing"}
+	for _, option in ipairs(soundOptions) do
+		local info = UIDropDownMenu_CreateInfo()
+		info.text = option
+		info.value = option
+		info.func = TrinketMenu.NotifySoundDropDown_OnClick
+		UIDropDownMenu_AddButton(info)
+	end
+end
+
+function TrinketMenu.NotifySoundDropDown_OnClick()
+	TrinketMenuOptions.NotifySound = this.value
+	UIDropDownMenu_SetSelectedValue(TrinketMenu_NotifySoundDropDown, this.value)
+	UIDropDownMenu_SetText(this.value, TrinketMenu_NotifySoundDropDown)
+	-- Play preview sound
+	TrinketMenu.PlayNotifySound()
+end
+
+function TrinketMenu.PlayNotifySound()
+	local sound = TrinketMenuOptions and TrinketMenuOptions.NotifySound or "Trinket"
+	if sound == "Trinket" then
+		PlaySoundFile("Interface\\AddOns\\TrinketMenu\\trinket.mp3")
+	else
+		PlaySound(sound)
+	end
+end
+
 function TrinketMenu.ProfileRaidDropDown_Initialize()
 	local list = TrinketMenu.ProfileRaidList or {}
 	for _, raid in ipairs(list) do

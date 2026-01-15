@@ -14,7 +14,7 @@ if GetLocale() == "enUS" then
         ["Blackrock Spire"] = "Blackrock Spire",
             ["Blackwing Lair"] = "Blackwing Lair",
         -- locations: naxx
-        ["Naxxramas"] = "Naxxramas",
+        ["Naxxramas - S->C->M->P"] = "Naxxramas - S->C->M->P",
             ["The Upper Necropolis"] = "The Upper Necropolis",
         -- locations: misc
         ["Zul'Gurub"] = "Zul'Gurub",

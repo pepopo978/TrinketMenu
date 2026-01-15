@@ -63,7 +63,7 @@ def should_ignore_guid(guid):
     if guid == "0xF130016C95276DAF":
         return False
     # Ignore player GUIDs (0x00...) and summoned/temporary mobs
-    ignored_prefixes = ['0x00', '0xF130016', '0xF14', '0xF130003', '0xF13000EA9E27', '0xF130001', '0xF130000FEB', '0xF13000EA54276', '0xF13000F48B278']
+    ignored_prefixes = ['0x00', '0xF130016', '0xF14', '0xF13000EA9E27', '0xF130001', '0xF130000FEB', '0xF13000EA54276', '0xF13000F48B278']
     for prefix in ignored_prefixes:
         if guid.startswith(prefix):
             return True
