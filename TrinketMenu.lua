@@ -566,13 +566,19 @@ function TrinketMenu.CheckZoneProfile()
 		currentZone = "Tower of Karazhan"
 	end
 
+	-- Helper to strip " -.*" suffix from profile raid names for comparison
+	local function stripRaidSuffix(name)
+		if not name then return name end
+		return name:gsub(" %-.*", "")
+	end
+
 	-- Check if we already have an active profile
 	local currentActiveProfile = TrinketMenuQueue.PackProfileActive
 
 	-- First check if the current active profile matches the zone
 	if currentActiveProfile and TrinketMenuQueue.PackProfiles[currentActiveProfile] then
 		local activeProfile = TrinketMenuQueue.PackProfiles[currentActiveProfile]
-		if activeProfile.raid == currentZone then
+		if stripRaidSuffix(activeProfile.raid) == currentZone then
 			TrinketMenu.ApplyOnEnterPack(activeProfile, currentZone)
 			-- Current active profile matches zone, no need to suggest anything
 			return
@@ -586,7 +592,7 @@ function TrinketMenu.CheckZoneProfile()
 
 	-- Look for a profile matching the current zone
 	for i, profile in ipairs(TrinketMenuQueue.PackProfiles) do
-		if profile and profile.raid and profile.raid == currentZone then
+		if profile and profile.raid and stripRaidSuffix(profile.raid) == currentZone then
 			-- Found a matching profile that's not currently active
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Your current profile does not match this raid.  Found profile '" .. profile.name .. "' for " .. currentZone .. ". Type |cffff8800/trinket activate " .. profile.name .. "|r to activate it.")
 			return
