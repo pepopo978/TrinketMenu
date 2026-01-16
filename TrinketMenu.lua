@@ -569,7 +569,7 @@ function TrinketMenu.CheckZoneProfile()
 	-- Helper to strip " -.*" suffix from profile raid names for comparison
 	local function stripRaidSuffix(name)
 		if not name then return name end
-		return name:gsub(" %-.*", "")
+		return string.gsub(name, " %-.*", "")
 	end
 
 	-- Check if we already have an active profile
