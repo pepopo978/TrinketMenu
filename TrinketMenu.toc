@@ -1,5 +1,5 @@
 ## Interface: 11200
-## Title: TrinketMenu 4.0
+## Title: TrinketMenu 4.1
 ## Author: Gello, Pepopo
 ## Notes: Modified version of TrinketMenu with new features.  AddOn to manage trinkets, fix by Ogrisch
 ## SavedVariables: TrinketMenuOptions

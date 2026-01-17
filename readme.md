@@ -47,12 +47,21 @@ Sort your trinket menu by:
 ### Hide Trinkets from Menu
 - Mark specific trinkets as "Hide in Menu" to declutter your menu
 - Hidden trinkets can still be used in auto queue and Raid profiles
-- Hold Shift to temporarily show hidden trinkets (configurable)
+- Click the "Show all" button in the menu to toggle showing hidden trinkets
 
 ### New Options
 - **Hide Profile Text**: Hide the current Raid profile name displayed above the trinket frame
 - **Profile Zone Warnings**: Toggle automatic Raid profile suggestions when entering raid zones
-- **Menu Show Hidden On Shift**: Show trinkets marked "Hide in Menu" when Shift is held
+
+### Shift-Click Queue for After Combat
+- Shift+left-click a trinket in the menu to queue it for the top slot after combat ends
+- Shift+right-click a trinket in the menu to queue it for the bottom slot after combat ends
+- The trinket will be equipped when you leave combat or when these summoning trinkets are cast:
+  - Arcanite Dragonling
+  - Gnomish Battle Chicken
+  - Goblin Bomb Dispenser
+  - Remains of Overwhelming Power
+- Requires Nampower >= 2.25.0 for summoning trinket detection
 
 ### Zone Change Detection
 - Automatically detects when you enter a raid zone
@@ -78,6 +87,8 @@ Sort your trinket menu by:
 
 Left click a trinket in the menu to equip it to the top trinket slot.
 Right click a trinket in the menu to equip it to the bottom trinket slot.
+Shift+left click to queue a trinket to the top slot for after combat ends.
+Shift+right click to queue a trinket to the bottom slot for after combat ends.
 
 Left or Right click either equipped trinket to use them. Or make a key binding for either trinket.
 
@@ -126,7 +137,7 @@ The main and menu windows are independently scalable and rotatable. While the wi
 - Rotate either window by right-clicking its edge.
 - Scale/resize either window by dragging the lower-right corner to the desired size.
 
-If you're having problems grabbing the edge of the menu window to move/rotate/resize it, hold Shift down while it's open and the menu won't go away when the mouse leaves the menu's edge.
+If you're having problems grabbing the edge of the menu window to move/rotate/resize it, enable 'Keep Menu Open' in options to prevent the menu from disappearing when the mouse leaves.
 
 If you right-click the gear icon around the minimap (or /trinket options) a small options window will appear under the minimap. Here you can customize the display further by showing cooldowns as numbers and keeping the menu always open.
 
@@ -143,7 +154,7 @@ ie: /trinket scale menu 0.85
 
 While 'Keep Menu Docked' is checked (default), the menu will always be docked to one corner of the main window. To change the corner where it's docked, drag the menu window so that a corner of the main and menu windows meet. White brackets will appear at the corners that will dock as you drag.
 
-If you uncheck 'Keep Menu Docked', remember the menu goes away when the mouse leaves your trinkets. Feel free to experiment if you'd like. Remember that /trinket reset will restore positions/docking, or you can hold Shift down to keep the menu open. Or you can turn on 'Keep Menu Open' in options.
+If you uncheck 'Keep Menu Docked', remember the menu goes away when the mouse leaves your trinkets. Feel free to experiment if you'd like. Remember that /trinket reset will restore positions/docking, or you can turn on 'Keep Menu Open' in options.
 
 ## Combat/Death Queued Trinkets
 
@@ -159,9 +170,8 @@ We can't swap trinkets during combat or when we're dead. If you attempt to swap 
 
 - If you hold shift while you move trinkets up/down the sort list, the list will stay in place.
 - You can drag the minimap icon around the minimap directly.
-- You can Shift+click the trinkets to link them to chats just as you would from your bags or inventory.
+- You can Shift+click the equipped trinkets (with chat open) to link them to chats just as you would from your bags or inventory.
 - If you log in to a character with no trinkets in bags or on their person, the trinket window will not be displayed.
-- You can hold Shift while swapping trinkets or manipulating the windows to prevent the menu from disappearing.
 - You can set up key bindings to use whatever trinket is in the top or bottom slot.
 - If you have Scrolling Combat Text installed, and 'Notify When Ready' checked, it will send a message via SCT when a trinket is ready.
 

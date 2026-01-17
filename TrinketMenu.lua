@@ -54,6 +54,15 @@ TrinketMenu.MaxTrinkets = 30 -- add more to TrinketMenu_MenuFrame if this change
 TrinketMenu.BaggedTrinkets = {} -- indexed by number, 1-30 of trinkets in the menu
 TrinketMenu.NumberOfTrinkets = 0 -- number of trinkets in the menu
 TrinketMenu.CombatQueue = {} -- [0] or [1] = name of trinket queued for slot 0 or 1
+TrinketMenu.ShowHiddenTrinkets = false -- whether to show hidden trinkets in menu
+
+-- Spell IDs that trigger queued trinket swaps (like leaving combat)
+TrinketMenu.SwapTriggerSpells = {
+	[51143] = true, -- Remains of Overwhelming Power
+	[23074] = true, -- Arcanite Dragonling
+	[23133] = true, -- Gnomish Battle Chicken
+	[23134] = true, -- Goblin Bomb Dispenser
+}
 TrinketMenu.Corners = { "TOPLEFT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT" }
 TrinketMenu.WatchItem = {} -- table of items being watched for cooldowns
 TrinketMenu.IconPath = "Interface\\Icons\\"
@@ -196,7 +205,7 @@ function TrinketMenu.BuildMenu()
 			-- Check if trinket is hidden
 			local stats = TrinketMenuQueue and TrinketMenuQueue.Stats and TrinketMenuQueue.Stats[trinket.itemId]
 			local isHidden = stats and stats.hide
-			local showHidden = IsShiftKeyDown() and TrinketMenuOptions.MenuShowHiddenOnShift == "ON"
+			local showHidden = TrinketMenu.ShowHiddenTrinkets
 
 			if not isHidden or showHidden then
 				local entry = {}
@@ -245,6 +254,10 @@ function TrinketMenu.BuildMenu()
 	else
 		-- display trinkets outward from docking point
 		local col,row,xpos,ypos = 0,0,TrinketMenu.DockInfo("xstart"),TrinketMenu.DockInfo("ystart")
+		-- Add extra offset at top for show/hide button
+		if ypos < 0 then
+			ypos = ypos - 14
+		end
 		local max_cols = 1
 
 		if TrinketMenu.NumberOfTrinkets>24 then
@@ -296,12 +309,18 @@ function TrinketMenu.BuildMenu()
 
 		if TrinketMenuPerOptions.MenuOrient=="VERTICAL" then
 			TrinketMenu_MenuFrame:SetWidth(12+(max_cols*40))
-			TrinketMenu_MenuFrame:SetHeight(12+((row+1)*40))
+			TrinketMenu_MenuFrame:SetHeight(26+((row+1)*40))
 		else
 			TrinketMenu_MenuFrame:SetWidth(12+((row+1)*40))
-			TrinketMenu_MenuFrame:SetHeight(12+(max_cols*40))
+			TrinketMenu_MenuFrame:SetHeight(26+(max_cols*40))
 		end
 		TrinketMenu.UpdateMenuCooldowns()
+		-- Update show hidden button text
+		if TrinketMenu.ShowHiddenTrinkets then
+			TrinketMenu_ShowHiddenButtonText:SetText("Hide")
+		else
+			TrinketMenu_ShowHiddenButtonText:SetText("Show all")
+		end
 		TrinketMenu_MenuFrame:Show()
 		TrinketMenu.StartTimer("MenuMouseover")
 	end
@@ -433,6 +452,16 @@ function TrinketMenu.OnEvent()
 		if event == "PLAYER_REGEN_ENABLED" then
 			TrinketMenu.AutoSwapQueueScheduleOff()
 		end
+	elseif event == "SPELL_GO_SELF" then
+		-- arg1=itemId, arg2=spellId, arg3=casterGuid, arg4=targetGuid, arg5=castFlags, arg6=numTargetsHit, arg7=numTargetsMissed
+		local spellId = arg2
+		if TrinketMenu.SwapTriggerSpells[spellId] and (TrinketMenu.CombatQueue[0] or TrinketMenu.CombatQueue[1]) then
+			TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[0],13)
+			TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[1],14)
+			TrinketMenu.CombatQueue[0] = nil
+			TrinketMenu.CombatQueue[1] = nil
+			TrinketMenu.UpdateCombatQueue()
+		end
 	elseif event=="UPDATE_BINDINGS" then
 		TrinketMenu.ReflectKeyBindings()
 	elseif event == "SPELL_CAST_EVENT" then
@@ -486,6 +515,11 @@ function TrinketMenu.OnEvent()
 		this:RegisterEvent("UNIT_DIED")
 		this:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 		this:RegisterEvent("PLAYER_TARGET_CHANGED")
+		-- Register SPELL_GO_SELF for nampower >= 2.25.0
+		if TrinketMenu.hasSpellGoEvents then
+			SetCVar("NP_EnableSpellGoEvents", 1)
+			this:RegisterEvent("SPELL_GO_SELF")
+		end
 	elseif event=="ZONE_CHANGED_NEW_AREA" then
 		TrinketMenu.CheckZoneProfile()
   elseif event=="PLAYER_TARGET_CHANGED" then
@@ -1090,6 +1124,22 @@ function TrinketMenu.MenuTrinket_OnClick()
 	this:SetChecked(0)
 	if IsShiftKeyDown() and ChatFrameEditBox:IsVisible() then
 		ChatFrameEditBox:Insert(GetContainerItemLink(TrinketMenu.BaggedTrinkets[this:GetID()].bag,TrinketMenu.BaggedTrinkets[this:GetID()].slot))
+	elseif IsShiftKeyDown() then
+		-- Queue trinket for after next combat ends (PLAYER_REGEN_ENABLED)
+		local slot = (arg1=="LeftButton") and 13 or 14
+		local which = slot - 13 -- 0 or 1
+		local nameOrId = TrinketMenu.BaggedTrinkets[this:GetID()].name
+		local queue = TrinketMenu.CombatQueue
+		if queue[1-which] == nameOrId then
+			queue[1-which] = nil
+			queue[which] = nameOrId
+		else
+			queue[which] = nameOrId
+		end
+		TrinketMenu.UpdateCombatQueue()
+		if TrinketMenuOptions.KeepOpen=="OFF" then
+			TrinketMenu_MenuFrame:Hide()
+		end
 	else
 		local slot = (arg1=="LeftButton") and 13 or 14
 		if TrinketMenu.QueueInit then
@@ -1100,7 +1150,7 @@ function TrinketMenu.MenuTrinket_OnClick()
 			end
 		end
 		TrinketMenu.EquipTrinketByName(TrinketMenu.BaggedTrinkets[this:GetID()].name,slot)
-		if not IsShiftKeyDown() and TrinketMenuOptions.KeepOpen=="OFF" then
+		if TrinketMenuOptions.KeepOpen=="OFF" then
 			TrinketMenu_MenuFrame:Hide()
 		end
 	end
@@ -1314,6 +1364,32 @@ function TrinketMenu.ClearTooltip()
 	GameTooltip:Hide()
 	TrinketMenu.StopTimer("TooltipUpdate")
 	TrinketMenu.TooltipType = nil
+end
+
+function TrinketMenu.ToggleShowHidden()
+	TrinketMenu.ShowHiddenTrinkets = not TrinketMenu.ShowHiddenTrinkets
+	-- Update button text
+	if TrinketMenu.ShowHiddenTrinkets then
+		TrinketMenu_ShowHiddenButtonText:SetText("Hide")
+	else
+		TrinketMenu_ShowHiddenButtonText:SetText("Show all")
+	end
+	-- Refresh the menu
+	TrinketMenu.BuildMenu()
+end
+
+function TrinketMenu.ShowHiddenButton_OnEnter()
+	if TrinketMenuOptions.ShowTooltips=="ON" then
+		TrinketMenu.AnchorTooltip(TrinketMenu_ShowHiddenButton)
+		if TrinketMenu.ShowHiddenTrinkets then
+			GameTooltip:AddLine("Hide Hidden Trinkets")
+			GameTooltip:AddLine("Click to hide trinkets marked as hidden", .8, .8, .8, 1)
+		else
+			GameTooltip:AddLine("Show Hidden Trinkets")
+			GameTooltip:AddLine("Click to show trinkets marked as hidden", .8, .8, .8, 1)
+		end
+		GameTooltip:Show()
+	end
 end
 
 function TrinketMenu.AnchorTooltip(owner)

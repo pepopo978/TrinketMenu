@@ -30,6 +30,7 @@ if not HasMinimumNampowerVersion(2, 20, 0) then
 end
 
 TrinketMenu.hasNampower = true
+TrinketMenu.hasSpellGoEvents = HasMinimumNampowerVersion(2, 25, 0)
 
 TrinketMenu.AddRaid = function(raidName, raidPackData)
   if raidPackData and (not raidPackData[1] or raidPackData[1].packName ~= "on_enter") then

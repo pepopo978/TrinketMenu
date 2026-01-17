@@ -322,6 +322,39 @@
 				</Anchors>
 			</Button>
 
+			<Button name="TrinketMenu_ShowHiddenButton">
+				<Size>
+					<AbsDimension x="45" y="14"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="4" y="-4"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="TrinketMenu_ShowHiddenButtonText" inherits="GameFontNormalSmall" text="Show all">
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						TrinketMenu.ToggleShowHidden()
+					</OnClick>
+					<OnEnter>
+						TrinketMenu.ShowHiddenButton_OnEnter()
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+			</Button>
+
 			<CheckButton name="TrinketMenu_Menu1" inherits="TrinketMenuMenuTrinketTemplate" id="1"/>
 			<CheckButton name="TrinketMenu_Menu2" inherits="TrinketMenuMenuTrinketTemplate" id="2"/>
 			<CheckButton name="TrinketMenu_Menu3" inherits="TrinketMenuMenuTrinketTemplate" id="3"/>
