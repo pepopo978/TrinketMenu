@@ -55,6 +55,7 @@ TrinketMenu.BaggedTrinkets = {} -- indexed by number, 1-30 of trinkets in the me
 TrinketMenu.NumberOfTrinkets = 0 -- number of trinkets in the menu
 TrinketMenu.CombatQueue = {} -- [0] or [1] = name of trinket queued for slot 0 or 1
 TrinketMenu.ShowHiddenTrinkets = false -- whether to show hidden trinkets in menu
+TrinketMenu.CombatStartTime = nil -- time when combat started, for ignoring short combat
 
 -- Spell IDs that trigger queued trinket swaps (like leaving combat)
 TrinketMenu.SwapTriggerSpells = {
@@ -440,7 +441,17 @@ function TrinketMenu.OnEvent()
 		TrinketMenu.StartTimer("DebouncedInventoryChanged")
 	elseif event=="ACTIONBAR_UPDATE_COOLDOWN" then
 		TrinketMenu.UpdateWornCooldowns(1)
+	elseif event == "PLAYER_REGEN_DISABLED" then
+		TrinketMenu.CombatStartTime = GetTime()
 	elseif (event=="PLAYER_REGEN_ENABLED" or event=="PLAYER_UNGHOST" or event=="PLAYER_ALIVE") and not TrinketMenu.IsPlayerReallyDead() then
+		-- Ignore PLAYER_REGEN_ENABLED if combat was less than 2 seconds (but allow UNGHOST/ALIVE)
+		if event == "PLAYER_REGEN_ENABLED" and TrinketMenu.CombatStartTime then
+			local combatDuration = GetTime() - TrinketMenu.CombatStartTime
+			TrinketMenu.CombatStartTime = nil
+			if combatDuration < 3 then
+				return
+			end
+		end
 		-- trinkets can now be swapped after combat/death
 		if TrinketMenu.CombatQueue[0] or TrinketMenu.CombatQueue[1] then
 			TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[0],13)
@@ -506,6 +517,7 @@ function TrinketMenu.OnEvent()
 			end
 		end
 		this:RegisterEvent("PLAYER_REGEN_ENABLED")
+		this:RegisterEvent("PLAYER_REGEN_DISABLED")
 		this:RegisterEvent("PLAYER_UNGHOST")
 		this:RegisterEvent("PLAYER_ALIVE")
 		this:RegisterEvent("UNIT_INVENTORY_CHANGED")
