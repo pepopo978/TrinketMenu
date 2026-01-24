@@ -1142,7 +1142,10 @@ function TrinketMenu.MenuTrinket_OnClick()
 		local which = slot - 13 -- 0 or 1
 		local nameOrId = TrinketMenu.BaggedTrinkets[this:GetID()].name
 		local queue = TrinketMenu.CombatQueue
-		if queue[1-which] == nameOrId then
+		if queue[which] == nameOrId then
+			-- Same trinket already queued for this slot, cancel it
+			queue[which] = nil
+		elseif queue[1-which] == nameOrId then
 			queue[1-which] = nil
 			queue[which] = nameOrId
 		else
@@ -1404,6 +1407,21 @@ function TrinketMenu.ShowHiddenButton_OnEnter()
 	end
 end
 
+function TrinketMenu.CancelCombatQueue()
+	TrinketMenu.CombatQueue[0] = nil
+	TrinketMenu.CombatQueue[1] = nil
+	TrinketMenu.UpdateCombatQueue()
+end
+
+function TrinketMenu.CancelQueueButton_OnEnter()
+	if TrinketMenuOptions.ShowTooltips=="ON" then
+		TrinketMenu.AnchorTooltip(TrinketMenu_CancelQueueButton)
+		GameTooltip:AddLine("Cancel Queue")
+		GameTooltip:AddLine("Click to cancel queued trinkets", .8, .8, .8, 1)
+		GameTooltip:Show()
+	end
+end
+
 function TrinketMenu.AnchorTooltip(owner)
 	owner = owner or this
 	if TrinketMenuOptions.TooltipFollow=="ON" then
@@ -1545,6 +1563,12 @@ function TrinketMenu.UpdateCombatQueue()
 			icon:SetTexture("Interface\\AddOns\\TrinketMenu\\TrinketMenu-Gear")
 			icon:Show()
 		end
+	end
+	-- Show/hide Cancel Q button based on whether anything is queued
+	if TrinketMenu.CombatQueue[0] or TrinketMenu.CombatQueue[1] then
+		TrinketMenu_CancelQueueButton:Show()
+	else
+		TrinketMenu_CancelQueueButton:Hide()
 	end
 end
 

@@ -377,6 +377,7 @@ function TrinketMenu.SortHideInMenu_OnClick()
 	local check = this:GetChecked()
 	local id = TrinketMenuQueue.Sort[TrinketMenu.CurrentlySorting][TrinketMenu.SortSelected]
 	TrinketMenuQueue.Stats[id] = TrinketMenuQueue.Stats[id] or {}
+  print("Setting hide for id "..tostring(id).." to "..tostring(check))
 	TrinketMenuQueue.Stats[id].hide = check
 	if TrinketMenu_MenuFrame:IsVisible() then
 		TrinketMenu.BuildMenu()
