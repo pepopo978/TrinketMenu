@@ -4,6 +4,12 @@ local L = TrinketMenuLocale
 
 TrinketMenu.AddRaid(L["Tower of Karazhan"], {
   {
+    packName = "kara_bat_patrol_1",
+    desc = "Bat patrol [1x Greater Gloomwing]",
+    mob_names = { "Greater Gloomwing" },
+    mob_guids = { "0xF13000F1ED276B19" }
+  },
+  {
     packName = "kara_entrance_1",
     desc = "Entrance workers [3x S Worker]",
     mob_names = { "Spectral Worker", "Spectral Worker", "Spectral Worker" },
@@ -348,8 +354,8 @@ TrinketMenu.AddRaid(L["Tower of Karazhan"], {
   {
     packName = "sanv_2",
     desc = "Big packs pre Sanv [7x D Worshipper, 1x D Darkbinder, 1x O Souleater]",
-    mob_names = { "Outcast Souleater", "Draenei Darkbinder", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper" },
-    mob_guids = { "0xF13000F244276C94", "0xF13000F245276C92", "0xF13000F246276C7D", "0xF13000F246276C7F", "0xF13000F246276C80", "0xF13000F246276C81", "0xF13000F246276C82", "0xF13000F246276C83", "0xF13000F246276C85" }
+    mob_names = { "Outcast Souleater", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper", "Draenei Worshipper" },
+    mob_guids = { "0xF13000F244276C94", "0xF13000F246276C7D", "0xF13000F246276C7F", "0xF13000F246276C80", "0xF13000F246276C81", "0xF13000F246276C82", "0xF13000F246276C83", "0xF13000F246276C85" }
   },
   {
     packName = "sanv_3",

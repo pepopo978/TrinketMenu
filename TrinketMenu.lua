@@ -87,6 +87,10 @@ function TrinketMenu.UpdateTrinketList()
 
 	TrinketMenu.TrinketListSize = table.getn(trinkets)
 	TrinketMenu.TrinketList = trinkets
+	-- Clear old equipped entries so stale data doesn't persist through swaps
+	for k in pairs(equipped) do
+		equipped[k] = nil
+	end
 	for _, trinket in ipairs(trinkets) do
 		trinket.icon = "Interface\\Icons\\" .. trinket.texture
 		if trinket.bagIndex == nil then
@@ -374,7 +378,7 @@ function TrinketMenu.Initialize()
 	TrinketMenu.CreateTimer("AutoSwapQueueOff1",TrinketMenu.AutoSwapQueueOff1,1)
 
 	TrinketMenu.CreateTimer("UpdateTrinketList", TrinketMenu.UpdateTrinketList, .2)
-	TrinketMenu.CreateTimer("DebouncedInventoryChanged", TrinketMenu.DebouncedInventoryChanged, .25)
+	TrinketMenu.CreateTimer("DebouncedInventoryChanged", TrinketMenu.DebouncedInventoryChanged, .35)
 
 	TrinketMenu.AutoSwapQueuePending = TrinketMenu.AutoSwapQueuePending or {}
 
@@ -539,11 +543,9 @@ function TrinketMenu.OnEvent()
 			return
 		end
 		local trinketData = nil
-		if UnitGUID then
-			local guid = UnitGUID("target")
-			if guid and TrinketMenu.PackProfileTargetGuidTrinkets then
-				trinketData = TrinketMenu.PackProfileTargetGuidTrinkets[guid]
-			end
+    local _, guid = UnitExists("target")
+    if guid and TrinketMenu.PackProfileTargetGuidTrinkets then
+      trinketData = TrinketMenu.PackProfileTargetGuidTrinkets[guid]
 		end
 		if trinketData then
 			if trinketData.trinket1 == "autoswap" then
