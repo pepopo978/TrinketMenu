@@ -1347,9 +1347,9 @@ end
 -- Parse time string "M/D HH:MM:SS.mmm" to seconds
 function TrinketMenu.ParseTimeToSeconds(timeStr)
 	if not timeStr then return nil end
-	local monthDay, timepart = string.match(timeStr, "(%d+/%d+)%s+(.+)")
+	local _, _, monthDay, timepart = string.find(timeStr, "(%d+/%d+)%s+(.+)")
 	if not timepart then return nil end
-	local hour, min, sec = string.match(timepart, "(%d+):(%d+):([%d%.]+)")
+	local _, _, hour, min, sec = string.find(timepart, "(%d+):(%d+):([%d%.]+)")
 	if not hour then return nil end
 	return tonumber(hour) * 3600 + tonumber(min) * 60 + tonumber(sec)
 end
@@ -1392,26 +1392,26 @@ function TrinketMenu.ImportPackTimings(luaCode)
 	local timings = {}
 	local success, err = pcall(function()
 		-- Extract the table content
-		local tableContent = string.match(luaCode, "local%s+packTimings%s*=%s*(%b{})")
+		local _, _, tableContent = string.find(luaCode, "local%s+packTimings%s*=%s*(%b{})")
 		if not tableContent then
-			tableContent = string.match(luaCode, "^%s*(%b{})%s*$")
+			_, _, tableContent = string.find(luaCode, "^%s*(%b{})%s*$")
 		end
 		if not tableContent then
 			error("Could not find valid Lua table in input")
 		end
 
 		-- Parse each pack entry
-		for packBlock in string.gmatch(tableContent, '%[%"([^%"]+)%"%]%s*=%s*(%b{})') do end
+		for packBlock in string.gfind(tableContent, '%[%"([^%"]+)%"%]%s*=%s*(%b{})') do end
 
-		for packName, packData in string.gmatch(tableContent, '%[%"([^%"]+)%"%]%s*=%s*(%b{})') do
-			local engageTime = string.match(packData, 'engageTime%s*=%s*%"([^%"]+)%"')
-			local deathTimesStr = string.match(packData, 'deathTimes%s*=%s*(%b{})')
-			local timeSinceLastCombat = string.match(packData, 'timeSinceLastCombat%s*=%s*([%d%.]+)')
+		for packName, packData in string.gfind(tableContent, '%[%"([^%"]+)%"%]%s*=%s*(%b{})') do
+			local _, _, engageTime = string.find(packData, 'engageTime%s*=%s*%"([^%"]+)%"')
+			local _, _, deathTimesStr = string.find(packData, 'deathTimes%s*=%s*(%b{})')
+			local _, _, timeSinceLastCombat = string.find(packData, 'timeSinceLastCombat%s*=%s*([%d%.]+)')
 
 			if engageTime then
 				local deathTimes = {}
 				if deathTimesStr then
-					for deathTime in string.gmatch(deathTimesStr, '%"([^%"]+)%"') do
+					for deathTime in string.gfind(deathTimesStr, '%"([^%"]+)%"') do
 						table.insert(deathTimes, deathTime)
 					end
 				end
