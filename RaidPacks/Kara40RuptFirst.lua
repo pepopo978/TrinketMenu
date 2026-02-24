@@ -2,7 +2,7 @@
 -- This file maps pack names to descriptions and mob data
 local L = TrinketMenuLocale
 
-TrinketMenu.AddRaid(L["Tower of Karazhan"], {
+TrinketMenu.AddRaid(L["Tower of Karazhan - Rupturan -> Sanv"], {
   {
     packName = "kara_bat_patrol_1",
     desc = "Bat patrol [1x Greater Gloomwing]",
@@ -71,9 +71,9 @@ TrinketMenu.AddRaid(L["Tower of Karazhan"], {
   },
   {
     packName = "kara_entrance_patrols",
-    desc = "Patrol order can vary [1x G Gloomwing, 1x S Darkbringer, 1x S Rager]",
-    mob_names = { "Greater Gloomwing", "Shadowclaw Darkbringer", "Shadowclaw Rager" },
-    mob_guids = { "0xF13000F1ED276B19", "0xF13000F1F0276B43", "0xF13000F1F2276B2C" }
+    desc = "Patrol order can vary [1x S Darkbringer, 1x S Rager]",
+    mob_names = { "Shadowclaw Darkbringer", "Shadowclaw Rager" },
+    mob_guids = { "0xF13000F1F0276B43", "0xF13000F1F2276B2C" }
   },
   {
     packName = "kara_entrance_inner_1",
@@ -109,13 +109,25 @@ TrinketMenu.AddRaid(L["Tower of Karazhan"], {
     packName = "kara_library_2",
     desc = "Solo mob before ramp down [1x M Mageweaver]",
     mob_names = { "Manascale Mageweaver" },
-    mob_guids = { "0xF13000F1F8276B97" }
+    mob_guids = { "0xF13000F1F8276B9F" }
+  },
+  {
+    packName = "kara_library_whelps_bottom_ramp",
+    desc = "Whelps at bottom of ramp [9x M Whelp]",
+    mob_names = { "Manascale Whelp", "Manascale Whelp", "Manascale Whelp", "Manascale Whelp", "Manascale Whelp", "Manascale Whelp", "Manascale Whelp", "Manascale Whelp", "Manascale Whelp" },
+    mob_guids = { "0xF13000EA54276B69", "0xF13000EA54276B6E", "0xF13000EA54276B6D", "0xF13000EA54276B6F", "0xF13000EA54276B68", "0xF13000EA54276B6A", "0xF13000EA54276B6B", "0xF13000EA54276B67", "0xF13000EA54276B6C" }
+  },
+  {
+    packName = "kara_library_left_corner",
+    desc = "Left corner [3x M Whelp, 1x M Mageweaver]",
+    mob_names = { "Manascale Whelp", "Manascale Whelp", "Manascale Whelp", "Manascale Mageweaver" },
+    mob_guids = { "0xF13000EA54276B99", "0xF13000EA54276B9A", "0xF13000EA54276B98", "0xF13000F1F8276B97" }
   },
   {
     packName = "kara_library_3",
-    desc = "Big pack bottom of ramp [2x M Mageweaver, 1x M Dragon Guard]",
-    mob_names = { "Manascale Dragon Guard", "Manascale Mageweaver", "Manascale Mageweaver" },
-    mob_guids = { "0xF13000F1F6276B60", "0xF13000F1F8276B61", "0xF13000F1F8276B62" }
+    desc = "Big pack bottom of ramp [4x M Whelp, 2x M Mageweaver, 1x M Dragon Guard]",
+    mob_names = { "Manascale Dragon Guard", "Manascale Mageweaver", "Manascale Mageweaver", "Manascale Whelp", "Manascale Whelp", "Manascale Whelp", "Manascale Whelp" },
+    mob_guids = { "0xF13000F1F6276B60", "0xF13000F1F8276B61", "0xF13000F1F8276B62", "0xF13000EA54276B64", "0xF13000EA54276B65", "0xF13000EA54276B63", "0xF13000EA54276B66" }
   },
   {
     packName = "kara_library_4",
@@ -148,6 +160,12 @@ TrinketMenu.AddRaid(L["Tower of Karazhan"], {
     mob_guids = { "0xF13000F1F62783E7", "0xF13000F1F62783E9", "0xF13000F1F72783E5", "0xF13000F1F8276BC0", "0xF13000F1F82783E8" }
   },
   {
+    packName = "kara_library_upper_patrol_dragon_guard",
+    desc = "Library upper patrol dragon guard [1x M Dragon Guard]",
+    mob_names = { "Manascale Dragon Guard" },
+    mob_guids = { "0xF13000F1F6276BC1" }
+  },
+  {
     packName = "kara_library_upper_2",
     desc = "2nd room down ramp [2x M Suppressor, 1x U Arcane Elemental, Whelps]",
     mob_names = { "Manascale Suppressor", "Manascale Suppressor", "Unstable Arcane Elemental" },
@@ -160,10 +178,10 @@ TrinketMenu.AddRaid(L["Tower of Karazhan"], {
     mob_guids = { "0xF13000F1F7276BCB", "0xF13000F1FB276BCC", "0xF13000F1FB276BCD", "0xF13000F1FB276BCF", "0xF13000F1FC276BCE", "0xF13000F1FC2783E3" }
   },
   {
-    packName = "kara_library_upper_patrols",
-    desc = "Library Upper Patrols [1x A Anomaly, 1x M Dragon Guard]",
-    mob_names = { "Manascale Dragon Guard", "Arcane Anomaly" },
-    mob_guids = { "0xF13000F1F6276BC1", "0xF13000F1FE276BD6" }
+    packName = "kara_library_upper_patrol_anomaly",
+    desc = "Library upper patrol anomaly [1x A Anomaly]",
+    mob_names = { "Arcane Anomaly" },
+    mob_guids = { "0xF13000F1FE276BD6" }
   },
   {
     packName = "kara_library_solo_overflow",

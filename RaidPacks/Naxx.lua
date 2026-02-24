@@ -336,12 +336,7 @@ TrinketMenu.AddRaid(L["Naxxramas - S->C->M->P"], {
     desc = "Military Horse 2 [1x Deathknight Cavalier, 2x D.T. Warrior, 1x Doom Touched Warrior]",
     mob_guids = { "0xF130003F23015980", "0xF130003F1C015983", "0xF130003F1C015984", "0xF130003F1D015985" }
   },
-  {
-    packName = "military_horse_trio",
-    desc = "Military Horse Trio [1x Death Lord, 2x Deathknight Cavalier]",
-    mob_guids = { "0xF1300041DD082208", "0xF130003F23015992", "0xF130003F23015991" }
-  },
-  {
+    {
     packName = "military_horse_3",
     desc = "Military Horse 3 [1x Deathknight Cavalier, 1x D.T. Warrior, 2x Risen Deathknight]",
     mob_guids = { "0xF130003F23269C6C", "0xF130003F1C015988", "0xF130003F1A015987", "0xF130003F1A015986" }
@@ -350,6 +345,36 @@ TrinketMenu.AddRaid(L["Naxxramas - S->C->M->P"], {
     packName = "military_horse_4",
     desc = "Military Horse 4 [1x Deathknight Cavalier, 2x D.T. Warrior, 1x Doom Touched Warrior]",
     mob_guids = { "0xF130003F23015993", "0xF130003F1C01598A", "0xF130003F1C01598B", "0xF130003F1D01598C" }
+  },
+  {
+    packName = "military_horse_trio",
+    desc = "Military Horse Trio [1x Death Lord, 2x Deathknight Cavalier]",
+    mob_guids = { "0xF1300041DD082208", "0xF130003F23015992", "0xF130003F23015991" }
+  },
+  {
+    packName = "steeds_left_to_right_1",
+    desc = "Steeds left to right 1 [2x Skeletal Steed]",
+    mob_guids = { "0xF130003EC3269C70", "0xF130003EC3015993" }
+  },
+  {
+    packName = "steeds_left_to_right_2",
+    desc = "Steeds left to right 2 [2x Skeletal Steed]",
+    mob_guids = { "0xF130003EC3015A63", "0xF130003EC3015A64" }
+  },
+  {
+    packName = "steed_3",
+    desc = "Steed 3 [1x Risen Deathknight, 1x Skeletal Steed]",
+    mob_guids = { "0xF130003F1A269C71", "0xF130003EC3269C72" }
+  },
+  {
+    packName = "steed_4",
+    desc = "Steed 4 [1x Skeletal Steed]",
+    mob_guids = { "0xF130003EC3015994" }
+  },
+  {
+    packName = "steed_5_right",
+    desc = "Steed 5 right [2x Skeletal Steed]",
+    mob_guids = { "0xF130003EC3015A62", "0xF130003EC3015995" }
   },
   {
     packName = "boss_razuvious",

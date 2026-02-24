@@ -21,6 +21,8 @@ if GetLocale() == "zhCN" then
         ["Emerald Sanctum"] = "翡翠圣殿",
         -- locations: kara
         ["Tower of Karazhan"] = "卡拉赞",
+        ["Tower of Karazhan - Rupturan -> Sanv"] = "卡拉赞 - Rupturan -> Sanv",
+        ["Tower of Karazhan - Sanv -> Rupturan"] = "卡拉赞 - Sanv -> Rupturan",
         ["The Rock of Desolation"] = "荒芜巨岩",
     }
 end

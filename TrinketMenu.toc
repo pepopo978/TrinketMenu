@@ -1,5 +1,5 @@
 ## Interface: 11200
-## Title: TrinketMenu 4.1
+## Title: TrinketMenu 4.2
 ## Author: Gello, Pepopo
 ## Notes: Modified version of TrinketMenu with new features.  AddOn to manage trinkets, fix by Ogrisch
 ## SavedVariables: TrinketMenuOptions
@@ -8,7 +8,8 @@ Locale\Localization.xml
 TrinketMenuLoad.lua
 RaidPacks\AQ40.lua
 RaidPacks\BWL.lua
-RaidPacks\Kara40.lua
+RaidPacks\Kara40RuptFirst.lua
+RaidPacks\Kara40SanvFirst.lua
 RaidPacks\MC.lua
 RaidPacks\Naxx.lua
 RaidPacks\ZG.lua

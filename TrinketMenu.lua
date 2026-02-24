@@ -376,6 +376,7 @@ function TrinketMenu.Initialize()
 	TrinketMenu.CreateTimer("CooldownUpdate",TrinketMenu.CooldownUpdate,1,1)
 	TrinketMenu.CreateTimer("AutoSwapQueueOff0",TrinketMenu.AutoSwapQueueOff0,1)
 	TrinketMenu.CreateTimer("AutoSwapQueueOff1",TrinketMenu.AutoSwapQueueOff1,1)
+	TrinketMenu.CreateTimer("FlushCombatQueue",TrinketMenu.FlushCombatQueue,.25,1)
 
 	TrinketMenu.CreateTimer("UpdateTrinketList", TrinketMenu.UpdateTrinketList, .2)
 	TrinketMenu.CreateTimer("DebouncedInventoryChanged", TrinketMenu.DebouncedInventoryChanged, .35)
@@ -404,6 +405,25 @@ function TrinketMenu.IsPlayerReallyDead()
 		end
 	end
 	return dead
+end
+
+local UNIT_FLAG_STUNNED   = 262144   -- 0x00040000
+local UNIT_FLAG_IN_COMBAT = 524288   -- 0x00080000
+local UNIT_FLAG_CONFUSED  = 4194304  -- 0x00400000
+local UNIT_FLAG_FLEEING   = 8388608  -- 0x00800000
+local UNIT_FLAG_POSSESSED = 16777216 -- 0x01000000
+local UNIT_FLAGS_BLOCK_TRINKET_SWAP = UNIT_FLAG_STUNNED + UNIT_FLAG_IN_COMBAT + UNIT_FLAG_CONFUSED + UNIT_FLAG_FLEEING + UNIT_FLAG_POSSESSED
+
+-- returns true if the player is able to swap trinkets right now
+function TrinketMenu.PlayerCanChangeTrinkets()
+	if TrinketMenu.IsPlayerReallyDead() then
+		return false
+	end
+	local flags = GetUnitField("player", "flags")
+	if flags and bit.band(flags, UNIT_FLAGS_BLOCK_TRINKET_SWAP) ~= 0 then
+		return false
+	end
+	return true
 end
 
 function TrinketMenu.FindPlayerItemSlot(itemIdOrName, bagsOnly)
@@ -456,13 +476,9 @@ function TrinketMenu.OnEvent()
 				return
 			end
 		end
-		-- trinkets can now be swapped after combat/death
+		-- trinkets can now be swapped after combat/death; delay slightly so unit flags settle
 		if TrinketMenu.CombatQueue[0] or TrinketMenu.CombatQueue[1] then
-			TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[0],13)
-			TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[1],14)
-			TrinketMenu.CombatQueue[0] = nil
-			TrinketMenu.CombatQueue[1] = nil
-			TrinketMenu.UpdateCombatQueue()
+			TrinketMenu.StartTimer("FlushCombatQueue", 0.1)
 		end
 		if event == "PLAYER_REGEN_ENABLED" then
 			TrinketMenu.AutoSwapQueueScheduleOff()
@@ -471,11 +487,15 @@ function TrinketMenu.OnEvent()
 		-- arg1=itemId, arg2=spellId, arg3=casterGuid, arg4=targetGuid, arg5=castFlags, arg6=numTargetsHit, arg7=numTargetsMissed
 		local spellId = arg2
 		if TrinketMenu.SwapTriggerSpells[spellId] and (TrinketMenu.CombatQueue[0] or TrinketMenu.CombatQueue[1]) then
-			TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[0],13)
-			TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[1],14)
-			TrinketMenu.CombatQueue[0] = nil
-			TrinketMenu.CombatQueue[1] = nil
-			TrinketMenu.UpdateCombatQueue()
+			if TrinketMenu.PlayerCanChangeTrinkets() then
+				TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[0],13)
+				TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[1],14)
+				TrinketMenu.CombatQueue[0] = nil
+				TrinketMenu.CombatQueue[1] = nil
+				TrinketMenu.UpdateCombatQueue()
+			else
+				TrinketMenu.StartTimer("FlushCombatQueue")
+			end
 		end
 	elseif event=="UPDATE_BINDINGS" then
 		TrinketMenu.ReflectKeyBindings()
@@ -512,6 +532,7 @@ function TrinketMenu.OnEvent()
 	elseif event=="ADDON_LOADED" then
 		TrinketMenu.LoadDefaults()
 		TrinketMenu.UpdateTrinketList()
+		TrinketMenu.MigrateLegacyKarazhanPackProfiles()
 
 		TrinketMenu.Initialize()
 		if TrinketMenuQueue and TrinketMenuQueue.PackProfileActive and TrinketMenuQueue.PackProfiles then
@@ -540,6 +561,7 @@ function TrinketMenu.OnEvent()
 		TrinketMenu.CheckZoneProfile()
   elseif event=="PLAYER_TARGET_CHANGED" then
 		if not TrinketMenuQueue or not TrinketMenuQueue.PackProfileActive then
+			TrinketMenu.UpdateDebugFrame()
 			return
 		end
 		local trinketData = nil
@@ -559,6 +581,7 @@ function TrinketMenu.OnEvent()
 				TrinketMenu.EquipTrinketByName(trinketData.trinket2, 14)
 			end
 		end
+		TrinketMenu.UpdateDebugFrame()
 	end
 end
 
@@ -585,6 +608,7 @@ function TrinketMenu.UpdateActiveProfileText()
 	if TrinketMenu_ProfileTextButton then
 		TrinketMenu_ProfileTextButton:Show()
 	end
+	TrinketMenu.UpdateDebugFrame()
 end
 
 function TrinketMenu.ProfileText_OnClick()
@@ -610,15 +634,23 @@ function TrinketMenu.CheckZoneProfile()
 		return
 	end
 
-	if currentZone == "Outland" or currentZone =="The Rock of Desolation" then
-		currentZone = "Tower of Karazhan"
+	local localizedKara = (TrinketMenuLocale and TrinketMenuLocale["Tower of Karazhan"]) or "Tower of Karazhan"
+	local localizedRock = (TrinketMenuLocale and TrinketMenuLocale["The Rock of Desolation"]) or "The Rock of Desolation"
+	local function normalizeRaidZoneName(name)
+		if not name then
+			return name
+		end
+		local stripped = string.gsub(name, " %-.*", "")
+		if stripped == "Outland" or stripped == "The Rock of Desolation" or stripped == localizedRock then
+			return localizedKara
+		end
+		if stripped == "Tower of Karazhan" or stripped == localizedKara then
+			return localizedKara
+		end
+		return stripped
 	end
 
-	-- Helper to strip " -.*" suffix from profile raid names for comparison
-	local function stripRaidSuffix(name)
-		if not name then return name end
-		return string.gsub(name, " %-.*", "")
-	end
+	currentZone = normalizeRaidZoneName(currentZone)
 
 	-- Check if we already have an active profile
 	local currentActiveProfile = TrinketMenuQueue.PackProfileActive
@@ -626,7 +658,7 @@ function TrinketMenu.CheckZoneProfile()
 	-- First check if the current active profile matches the zone
 	if currentActiveProfile and TrinketMenuQueue.PackProfiles[currentActiveProfile] then
 		local activeProfile = TrinketMenuQueue.PackProfiles[currentActiveProfile]
-		if stripRaidSuffix(activeProfile.raid) == currentZone then
+		if normalizeRaidZoneName(activeProfile.raid) == currentZone then
 			TrinketMenu.ApplyOnEnterPack(activeProfile, currentZone)
 			-- Current active profile matches zone, no need to suggest anything
 			return
@@ -640,7 +672,7 @@ function TrinketMenu.CheckZoneProfile()
 
 	-- Look for a profile matching the current zone
 	for i, profile in ipairs(TrinketMenuQueue.PackProfiles) do
-		if profile and profile.raid and stripRaidSuffix(profile.raid) == currentZone then
+		if profile and profile.raid and normalizeRaidZoneName(profile.raid) == currentZone then
 			-- Found a matching profile that's not currently active
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Your current profile does not match this raid.  Found profile '" .. profile.name .. "' for " .. currentZone .. ". Type |cffff8800/trinket activate " .. profile.name .. "|r to activate it.")
 			return
@@ -657,10 +689,11 @@ function TrinketMenu.ApplyOnEnterPack(profile, zone)
 		return
 	end
 	TrinketMenu.OnEnterUsed = TrinketMenu.OnEnterUsed or {}
-	if TrinketMenu.OnEnterUsed[zone] then
+	local onEnterKey = (profile.raid or "unknown") .. "|" .. (zone or "unknown")
+	if TrinketMenu.OnEnterUsed[onEnterKey] then
 		return
 	end
-	TrinketMenu.OnEnterUsed[zone] = true
+	TrinketMenu.OnEnterUsed[onEnterKey] = true
 	if onEnter.trinket1 == "autoswap" then
 		TrinketMenu.EnableAutoSwapQueue(0)
 	elseif onEnter.trinket1 then
@@ -670,6 +703,32 @@ function TrinketMenu.ApplyOnEnterPack(profile, zone)
 		TrinketMenu.EnableAutoSwapQueue(1)
 	elseif onEnter.trinket2 then
 		TrinketMenu.EquipTrinketByName(onEnter.trinket2, 14)
+	end
+end
+
+function TrinketMenu.MigrateLegacyKarazhanPackProfiles()
+	if not TrinketMenuQueue or not TrinketMenuQueue.PackProfiles then
+		return
+	end
+
+	local localizedOld = (TrinketMenuLocale and TrinketMenuLocale["Tower of Karazhan"]) or "Tower of Karazhan"
+	local localizedNew = (TrinketMenuLocale and TrinketMenuLocale["Tower of Karazhan - Rupturan -> Sanv"]) or "Tower of Karazhan - Rupturan -> Sanv"
+	local legacyNames = {
+		["Tower of Karazhan"] = true,
+		["卡拉赞"] = true,
+	}
+	legacyNames[localizedOld] = true
+	local changed = false
+
+	for _, profile in ipairs(TrinketMenuQueue.PackProfiles) do
+		if profile and profile.raid and legacyNames[profile.raid] then
+			profile.raid = localizedNew
+			changed = true
+		end
+	end
+
+	if changed then
+		print("|cff00ff00TrinketMenu:|r Migrated legacy Tower of Karazhan profiles to " .. localizedNew .. ".")
 	end
 end
 
@@ -885,6 +944,249 @@ function TrinketMenu.UpdateWornTrinkets()
 	end
 end
 
+function TrinketMenu.GetActivePackProfile()
+	if not TrinketMenuQueue or not TrinketMenuQueue.PackProfiles or not TrinketMenuQueue.PackProfileActive then
+		return nil
+	end
+	return TrinketMenuQueue.PackProfiles[TrinketMenuQueue.PackProfileActive]
+end
+
+function TrinketMenu.GetPackGuidLookup(raidName)
+	if not raidName or not TrinketMenu.packDescriptions then
+		return nil
+	end
+	TrinketMenu.PackGuidLookupCache = TrinketMenu.PackGuidLookupCache or {}
+	if TrinketMenu.PackGuidLookupCache[raidName] then
+		return TrinketMenu.PackGuidLookupCache[raidName]
+	end
+	local raidPacks = TrinketMenu.packDescriptions[raidName]
+	if not raidPacks then
+		return nil
+	end
+	local lookup = {}
+	for _, pack in ipairs(raidPacks) do
+		if pack and pack.mob_guids then
+			for _, guid in ipairs(pack.mob_guids) do
+				lookup[guid] = pack
+			end
+		end
+	end
+	TrinketMenu.PackGuidLookupCache[raidName] = lookup
+	return lookup
+end
+
+function TrinketMenu.FormatPackSwap(info)
+	if not info or (not info.trinket1 and not info.trinket2) then
+		return "none"
+	end
+	local function resolveTrinketLabel(value)
+		if not value then
+			return "-"
+		end
+		if value == "autoswap" then
+			return "autoswap"
+		end
+		local numericId = tonumber(value)
+		if numericId and TrinketMenu.GetNameByID then
+			local name = TrinketMenu.GetNameByID(numericId)
+			if name and name ~= "" then
+				return name
+			end
+		end
+		return tostring(value)
+	end
+	local slot1 = resolveTrinketLabel(info.trinket1)
+	local slot2 = resolveTrinketLabel(info.trinket2)
+	return tostring(slot1) .. " / " .. tostring(slot2)
+end
+
+function TrinketMenu.GetDebugTargetPackData()
+	local exists, guid = UnitExists("target")
+	if not exists or not guid then
+		return nil, nil, nil, nil, nil
+	end
+	local profile = TrinketMenu.GetActivePackProfile()
+	if not profile then
+		return guid, nil, nil, nil, nil
+	end
+	local lookup = TrinketMenu.GetPackGuidLookup(profile.raid)
+	local pack = lookup and lookup[guid] or nil
+	local packName = pack and pack.packName or nil
+	local targetSwap = packName and profile.packTargetTrinkets and profile.packTargetTrinkets[packName] or nil
+	local deathSwap = packName and profile.packDeathTrinkets and profile.packDeathTrinkets[packName] or nil
+	return guid, packName, pack, targetSwap, deathSwap
+end
+
+function TrinketMenu.MarkCurrentTargetPack()
+	local profile = TrinketMenu.GetActivePackProfile()
+	if not profile then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r No active profile for pack marking.")
+		return
+	end
+	local guid, packName, pack = TrinketMenu.GetDebugTargetPackData()
+	if not guid then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r No target selected.")
+		return
+	end
+	if not packName or not pack or not pack.mob_guids or table.getn(pack.mob_guids) == 0 then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r Target is not in a known pack for the active profile.")
+		return
+	end
+
+	local firstGuid = pack.mob_guids[1]
+	if firstGuid then
+		for mark = 1, 8 do
+			SetRaidTarget(firstGuid, mark)
+		end
+	end
+	for i, mobGuid in ipairs(pack.mob_guids) do
+		local mark = 9 - i
+		if mark < 1 then
+			break
+		end
+		SetRaidTarget(mobGuid, mark)
+	end
+
+	DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00TrinketMenu:|r Marked pack '" .. packName .. "'")
+	TrinketMenu.UpdateDebugFrame()
+end
+
+function TrinketMenu.CopyCurrentTargetGuid()
+	if not TrinketMenu_DebugFrame or not TrinketMenu_DebugFrame.CopyEditBox then
+		return
+	end
+	local guid = select(1, TrinketMenu.GetDebugTargetPackData())
+	if not guid then
+		TrinketMenu_DebugFrame.CopyEditBox:SetText("")
+		DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r No target GUID to copy.")
+		return
+	end
+	TrinketMenu_DebugFrame.CopyEditBox:SetText(tostring(guid))
+	TrinketMenu_DebugFrame.CopyEditBox:SetFocus()
+	TrinketMenu_DebugFrame.CopyEditBox:HighlightText()
+end
+
+function TrinketMenu.CreateDebugFrame()
+	if TrinketMenu_DebugFrame then
+		return TrinketMenu_DebugFrame
+	end
+
+	local frame = CreateFrame("Frame", "TrinketMenu_DebugFrame", UIParent)
+	frame:SetWidth(450)
+	frame:SetHeight(180)
+	frame:SetPoint("CENTER", UIParent, "CENTER", 260, 0)
+	frame:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+		tile = true,
+		tileSize = 16,
+		edgeSize = 16,
+		insets = { left = 4, right = 4, top = 4, bottom = 4 },
+	})
+	frame:SetBackdropColor(0, 0, 0, 0.85)
+	frame:SetMovable(true)
+	frame:EnableMouse(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", function() this:StartMoving() end)
+	frame:SetScript("OnDragStop", function() this:StopMovingOrSizing() end)
+	frame:Hide()
+
+	local title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	title:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10)
+	title:SetText("TrinketMenu Debug")
+
+	local closeButton = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
+	closeButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -2)
+
+	local info = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	info:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -30)
+	info:SetWidth(400)
+	info:SetJustifyH("LEFT")
+	info:SetJustifyV("TOP")
+	frame.InfoText = info
+
+	local markButton = CreateFrame("Button", "TrinketMenu_DebugMarkButton", frame, "UIPanelButtonTemplate")
+	markButton:SetWidth(150)
+	markButton:SetHeight(22)
+	markButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 10, 10)
+	markButton:SetText("Mark Current Pack")
+	markButton:SetScript("OnClick", function()
+		TrinketMenu.MarkCurrentTargetPack()
+	end)
+
+	local copyButton = CreateFrame("Button", "TrinketMenu_DebugCopyGuidButton", frame, "UIPanelButtonTemplate")
+	copyButton:SetWidth(85)
+	copyButton:SetHeight(22)
+	copyButton:SetPoint("BOTTOMLEFT", markButton, "BOTTOMRIGHT", 8, 0)
+	copyButton:SetText("Copy GUID")
+	copyButton:SetScript("OnClick", function()
+		TrinketMenu.CopyCurrentTargetGuid()
+	end)
+
+	local copyEditBox = CreateFrame("EditBox", "TrinketMenu_DebugCopyEditBox", frame, "InputBoxTemplate")
+	copyEditBox:SetWidth(155)
+	copyEditBox:SetHeight(22)
+	copyEditBox:SetPoint("BOTTOMLEFT", copyButton, "BOTTOMRIGHT", 8, 0)
+	copyEditBox:SetAutoFocus(false)
+	copyEditBox:SetText("")
+	copyEditBox:SetScript("OnEscapePressed", function()
+		this:ClearFocus()
+	end)
+	copyEditBox:SetScript("OnEditFocusGained", function()
+		this:HighlightText()
+	end)
+	frame.CopyEditBox = copyEditBox
+
+	return frame
+end
+
+function TrinketMenu.UpdateDebugFrame()
+	if not TrinketMenu_DebugFrame or not TrinketMenu_DebugFrame:IsVisible() then
+		return
+	end
+	local profile = TrinketMenu.GetActivePackProfile()
+	local profileName = (profile and profile.name) or "none"
+	local guid, packName, pack, targetSwap, deathSwap = TrinketMenu.GetDebugTargetPackData()
+	local targetName = guid and UnitName("target") or nil
+	local packDesc = (pack and pack.desc) or "none"
+	local targetSwapText = TrinketMenu.FormatPackSwap(targetSwap)
+	local deathSwapText = TrinketMenu.FormatPackSwap(deathSwap)
+	if not guid then
+		packName = "none"
+		packDesc = "none"
+		targetSwapText = "none"
+		deathSwapText = "none"
+	end
+
+	local text = ""
+	text = text .. "Active profile: " .. tostring(profileName)
+	text = text .. "\nCurrent target guid: " .. tostring(guid or "none") .. " (" .. tostring(targetName or "unknown") .. ")"
+	text = text .. "\n\nPack name: " .. tostring(packName or "none")
+	text = text .. "\nPack description: " .. tostring(packDesc or "none")
+	text = text .. "\n\nOn target swap: " .. targetSwapText
+	text = text .. "\nOn death swap: " .. deathSwapText
+	TrinketMenu_DebugFrame.InfoText:SetText(text)
+end
+
+function TrinketMenu.ToggleDebugFrame(show)
+	local frame = TrinketMenu.CreateDebugFrame()
+	if show == nil then
+		if frame:IsVisible() then
+			frame:Hide()
+			return
+		end
+		frame:Show()
+		TrinketMenu.UpdateDebugFrame()
+		return
+	end
+	if show then
+		frame:Show()
+		TrinketMenu.UpdateDebugFrame()
+	else
+		frame:Hide()
+	end
+end
+
 function TrinketMenu.SlashHandler(msg)
 
 	local _,_,which,profile = string.find(msg,"load (.+) (.+)")
@@ -998,6 +1300,12 @@ function TrinketMenu.SlashHandler(msg)
 		else
 			DEFAULT_CHAT_FRAME:AddMessage("|cffff0000TrinketMenu:|r No autoswap profiles found")
 		end
+	elseif msg=="debug" or msg=="debug on" then
+		TrinketMenu.ToggleDebugFrame(true)
+	elseif msg=="debug off" then
+		TrinketMenu.ToggleDebugFrame(false)
+	elseif msg=="debug mark" then
+		TrinketMenu.MarkCurrentTargetPack()
 	else
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFFFFF00TrinketMenu useage:")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket or /trinketmenu : toggle the window")
@@ -1011,6 +1319,7 @@ function TrinketMenu.SlashHandler(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket profiles raid : list all raid profiles")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket profiles autoswap : list all autoswap profiles")
 		DEFAULT_CHAT_FRAME:AddMessage("/trinket load top|bottom profilename : load autoswap profile")
+		DEFAULT_CHAT_FRAME:AddMessage("/trinket debug [on|off|mark] : show debug frame and mark current pack")
 	end
 end
 
@@ -1519,7 +1828,8 @@ end
 
 function TrinketMenu.EquipTrinketByName(nameOrId, slot)
 	if not nameOrId then return end
-	if UnitAffectingCombat("player") or TrinketMenu.IsPlayerReallyDead() then
+
+	if not TrinketMenu.PlayerCanChangeTrinkets() then
 		-- queue trinket
 		local queue = TrinketMenu.CombatQueue
 		local which = slot-13 -- 0 or 1
@@ -1540,10 +1850,13 @@ function TrinketMenu.EquipTrinketByName(nameOrId, slot)
 				getglobal("TrinketMenu_Trinket"..(slot-13).."Icon"):SetDesaturated(1)
 				TrinketMenu.StartTimer("UpdateWornTrinkets") -- in case it's not equipped (stunned, etc)
 			end
-		elseif slotIndex and slotIndex >= 0 then
-			print("|cff00ff00TrinketMenu:|r Trinket " .. nameOrId .. " is already equipped")
 		else
-			print("|cff00ff00TrinketMenu:|r Unable to find trinket " .. nameOrId .. " in your bags")
+			local displayName = GetItemInfo(nameOrId) or nameOrId
+			if slotIndex and slotIndex >= 0 then
+				print("|cff00ff00TrinketMenu:|r Trinket " .. displayName .. " is already equipped")
+			else
+				print("|cff00ff00TrinketMenu:|r Unable to find trinket " .. displayName .. " in your bags")
+			end
 		end
 	end
 	TrinketMenu.UpdateCombatQueue()
@@ -1571,6 +1884,31 @@ function TrinketMenu.UpdateCombatQueue()
 		TrinketMenu_CancelQueueButton:Show()
 	else
 		TrinketMenu_CancelQueueButton:Hide()
+	end
+end
+
+function TrinketMenu.FlushCombatQueue()
+	if not (TrinketMenu.CombatQueue[0] or TrinketMenu.CombatQueue[1]) then
+		TrinketMenu.FlushCombatQueueStartTime = nil
+		TrinketMenu.StopTimer("FlushCombatQueue")
+		return
+	end
+	if not TrinketMenu.FlushCombatQueueStartTime then
+		TrinketMenu.FlushCombatQueueStartTime = GetTime()
+	end
+	if GetTime() - TrinketMenu.FlushCombatQueueStartTime > 60 then
+		TrinketMenu.FlushCombatQueueStartTime = nil
+		TrinketMenu.StopTimer("FlushCombatQueue")
+		return
+	end
+	if TrinketMenu.PlayerCanChangeTrinkets() then
+		TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[0], 13)
+		TrinketMenu.EquipTrinketByName(TrinketMenu.CombatQueue[1], 14)
+		TrinketMenu.CombatQueue[0] = nil
+		TrinketMenu.CombatQueue[1] = nil
+		TrinketMenu.UpdateCombatQueue()
+		TrinketMenu.FlushCombatQueueStartTime = nil
+		TrinketMenu.StopTimer("FlushCombatQueue")
 	end
 end
 

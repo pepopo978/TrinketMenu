@@ -21,6 +21,8 @@ if GetLocale() == "enUS" then
         ["Emerald Sanctum"] = "Emerald Sanctum",
         -- locations: kara
         ["Tower of Karazhan"] = "Tower of Karazhan",
+        ["Tower of Karazhan - Rupturan -> Sanv"] = "Tower of Karazhan - Rupturan -> Sanv",
+        ["Tower of Karazhan - Sanv -> Rupturan"] = "Tower of Karazhan - Sanv -> Rupturan",
         ["The Rock of Desolation"] = "The Rock of Desolation",
     }
 end
