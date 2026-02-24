@@ -407,9 +407,15 @@ TrinketMenu.AddRaid(L["Tower of Karazhan - Sanv -> Rupturan"], {
   },
   {
     packName = "pre_kruul_2",
-    desc = "Doomseeker patrols [6x D Doomseeker]",
-    mob_names = { "Dreadlord Doomseeker", "Dreadlord Doomseeker", "Dreadlord Doomseeker", "Dreadlord Doomseeker", "Dreadlord Doomseeker", "Dreadlord Doomseeker" },
-    mob_guids = { "0xF13000F23F276D12", "0xF13000F23F276D13", "0xF13000F23F276D14", "0xF13000F23F276D15", "0xF13000F23F276D16", "0xF13000F23F276D17" }
+    desc = "First Doomseeker Patrol [1x D Doomseeker]",
+    mob_names = { "Dreadlord Doomseeker" },
+    mob_guids = { "0xF13000F23F276D12" }
+  },
+  {
+    packName = "pre_kruul_3",
+    desc = "Last Doomseeker Patrol [1x D Doomseeker]",
+    mob_names = { "Dreadlord Doomseeker" },
+    mob_guids = { "0xF13000F23F276D16" }
   },
   {
     packName = "boss_kruul",
