@@ -390,7 +390,10 @@ function TrinketMenu.Initialize()
 	TrinketMenu.OrientWindows()
 
 	TrinketMenu.StartTimer("CooldownUpdate")
+	TrinketMenu.RefreshMainFrameVisibility()
+end
 
+function TrinketMenu.RefreshMainFrameVisibility()
 	if TrinketMenuPerOptions.Visible=="ON" and (GetInventoryItemLink("player",13) or GetInventoryItemLink("player",14)) then
 		TrinketMenu_MainFrame:Show()
 	end
@@ -463,6 +466,7 @@ function TrinketMenu.OnEvent()
 	elseif event=="UNIT_INVENTORY_CHANGED" and arg1=="player" then
 		TrinketMenu.StartTimer("UpdateTrinketList")
 		TrinketMenu.StartTimer("DebouncedInventoryChanged")
+		TrinketMenu.RefreshMainFrameVisibility()
 	elseif event=="ACTIONBAR_UPDATE_COOLDOWN" then
 		TrinketMenu.UpdateWornCooldowns(1)
 	elseif event == "PLAYER_REGEN_DISABLED" then
@@ -555,6 +559,7 @@ function TrinketMenu.OnEvent()
 		this:RegisterEvent("SPELL_CAST_EVENT")
 		this:RegisterEvent("UNIT_DIED")
 		this:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		this:RegisterEvent("PLAYER_ENTERING_WORLD")
 		this:RegisterEvent("PLAYER_TARGET_CHANGED")
 		-- Register SPELL_GO_SELF for nampower >= 2.25.0
 		if TrinketMenu.hasSpellGoEvents then
@@ -563,6 +568,10 @@ function TrinketMenu.OnEvent()
 		end
 	elseif event=="ZONE_CHANGED_NEW_AREA" then
 		TrinketMenu.CheckZoneProfile()
+	elseif event=="PLAYER_ENTERING_WORLD" then
+		TrinketMenu.RefreshMainFrameVisibility()
+		TrinketMenu.StartTimer("UpdateTrinketList", 1.0)
+		TrinketMenu.StartTimer("UpdateWornTrinkets", 1.5)
   elseif event=="PLAYER_TARGET_CHANGED" then
 		if not TrinketMenuQueue or not TrinketMenuQueue.PackProfileActive then
 			TrinketMenu.UpdateDebugFrame()
