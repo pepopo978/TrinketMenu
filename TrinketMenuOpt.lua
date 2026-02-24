@@ -1306,7 +1306,12 @@ function TrinketMenu.BuildPackProfileGuidTrinkets(profile)
 		end
 	end
 
-	print("|cff00ff00TrinketMenu:|r Activated profile " .. profile.name .. " with swaps on " .. tostring(numPacksFound) .. " packs.")
+	local now = GetTime and GetTime() or 0
+	local recentlyPrinted = TrinketMenu.LastProfileActivationPrintAt and (now - TrinketMenu.LastProfileActivationPrintAt) < 1
+	if not recentlyPrinted then
+		print("|cff00ff00TrinketMenu:|r Activated profile " .. profile.name .. " with swaps on " .. tostring(numPacksFound) .. " packs.")
+		TrinketMenu.LastProfileActivationPrintAt = now
+	end
 	TrinketMenu.PackProfileGuidTrinkets = map
   local targetGuidMap = {}
   for packName, trinkets in pairs(profile.packTargetTrinkets or {}) do

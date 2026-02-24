@@ -530,6 +530,10 @@ function TrinketMenu.OnEvent()
 			end
 		end
 	elseif event=="ADDON_LOADED" then
+		if arg1 ~= "TrinketMenu" then
+			return
+		end
+		this:UnregisterEvent("ADDON_LOADED")
 		TrinketMenu.LoadDefaults()
 		TrinketMenu.UpdateTrinketList()
 		TrinketMenu.MigrateLegacyKarazhanPackProfiles()
