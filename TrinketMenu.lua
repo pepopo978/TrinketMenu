@@ -476,7 +476,11 @@ function TrinketMenu.OnEvent()
 		if event == "PLAYER_REGEN_ENABLED" and TrinketMenu.CombatStartTime then
 			local combatDuration = GetTime() - TrinketMenu.CombatStartTime
 			TrinketMenu.CombatStartTime = nil
-			if combatDuration < 3 then
+			if combatDuration < 2 then
+				-- Still flush manually queued swaps even for short combats
+				if TrinketMenu.CombatQueue[0] or TrinketMenu.CombatQueue[1] then
+					TrinketMenu.StartTimer("FlushCombatQueue", 0.1)
+				end
 				return
 			end
 		end
