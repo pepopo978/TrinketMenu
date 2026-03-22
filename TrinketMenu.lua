@@ -368,7 +368,7 @@ function TrinketMenu.Initialize()
 	end
 
 	TrinketMenu.InitTimers()
-	TrinketMenu.CreateTimer("UpdateWornTrinkets",TrinketMenu.UpdateWornTrinkets,.75)
+	TrinketMenu.CreateTimer("UpdateWornTrinkets",TrinketMenu.UpdateWornTrinkets,.1)
 	TrinketMenu.CreateTimer("DockingMenu",TrinketMenu.DockingMenu,.2,1)
 	TrinketMenu.CreateTimer("MenuMouseover",TrinketMenu.MenuMouseover,.25,1)
 	TrinketMenu.CreateTimer("Scaling",TrinketMenu.Scaling,.1,1)
@@ -378,8 +378,8 @@ function TrinketMenu.Initialize()
 	TrinketMenu.CreateTimer("AutoSwapQueueOff1",TrinketMenu.AutoSwapQueueOff1,1)
 	TrinketMenu.CreateTimer("FlushCombatQueue",TrinketMenu.FlushCombatQueue,.25,1)
 
-	TrinketMenu.CreateTimer("UpdateTrinketList", TrinketMenu.UpdateTrinketList, .2)
-	TrinketMenu.CreateTimer("DebouncedInventoryChanged", TrinketMenu.DebouncedInventoryChanged, .35)
+	TrinketMenu.CreateTimer("UpdateTrinketList", TrinketMenu.UpdateTrinketList, .05)
+	TrinketMenu.CreateTimer("DebouncedInventoryChanged", TrinketMenu.DebouncedInventoryChanged, .1)
 
 	TrinketMenu.AutoSwapQueuePending = TrinketMenu.AutoSwapQueuePending or {}
 
