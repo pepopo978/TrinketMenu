@@ -71,7 +71,6 @@ TrinketMenu.IconPath = "Interface\\Icons\\"
 --[[ Helpers for new API ]]--
 
 function TrinketMenu.UpdateTrinketList()
-  print("Updating trinket list...")
 	local trinkets = GetTrinkets and GetTrinkets() or {}
 	local equipped = TrinketMenu.EquippedTrinkets or {}
 
@@ -923,7 +922,6 @@ function TrinketMenu.DebouncedUpdate()
 end
 
 function TrinketMenu.UpdateWornTrinkets()
-  print("Updating worn trinkets...")
 	local trinket13 = TrinketMenu.GetEquippedTrinket(13)
 	local trinket14 = TrinketMenu.GetEquippedTrinket(14)
 
