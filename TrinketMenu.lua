@@ -71,6 +71,7 @@ TrinketMenu.IconPath = "Interface\\Icons\\"
 --[[ Helpers for new API ]]--
 
 function TrinketMenu.UpdateTrinketList()
+  print("Updating trinket list...")
 	local trinkets = GetTrinkets and GetTrinkets() or {}
 	local equipped = TrinketMenu.EquippedTrinkets or {}
 
@@ -379,8 +380,7 @@ function TrinketMenu.Initialize()
 	TrinketMenu.CreateTimer("FlushCombatQueue",TrinketMenu.FlushCombatQueue,.25,1)
 
 	TrinketMenu.CreateTimer("UpdateTrinketList", TrinketMenu.UpdateTrinketList, .1)
-	TrinketMenu.CreateTimer("DebouncedBagUpdate", TrinketMenu.DebouncedBagUpdate, .05)
-	TrinketMenu.CreateTimer("DebouncedInventoryChanged", TrinketMenu.DebouncedInventoryChanged, .05)
+	TrinketMenu.CreateTimer("DebouncedUpdate", TrinketMenu.DebouncedUpdate, .05)
 
 	TrinketMenu.AutoSwapQueuePending = TrinketMenu.AutoSwapQueuePending or {}
 
@@ -462,9 +462,9 @@ function TrinketMenu.OnEvent()
 		if arg1>=0 and arg1<=4 then
 			TrinketMenu.BagsNeedUpdating[arg1] = 1
 		end
-		TrinketMenu.StartTimer("DebouncedBagUpdate")
+		TrinketMenu.StartTimer("DebouncedUpdate")
 	elseif event=="UNIT_INVENTORY_CHANGED" and arg1=="player" then
-		TrinketMenu.StartTimer("DebouncedInventoryChanged")
+		TrinketMenu.StartTimer("DebouncedUpdate")
 	elseif event=="ACTIONBAR_UPDATE_COOLDOWN" then
 		TrinketMenu.UpdateWornCooldowns(1)
 	elseif event == "PLAYER_REGEN_DISABLED" then
@@ -914,7 +914,7 @@ function TrinketMenu.AutoSwapQueueScheduleOff()
 	end
 end
 
-function TrinketMenu.DebouncedBagUpdate()
+function TrinketMenu.DebouncedUpdate()
 	TrinketMenu.UpdateTrinketList()
 	if TrinketMenu.UpdateBaggedTrinkets then
 		TrinketMenu.UpdateBaggedTrinkets()
@@ -922,12 +922,8 @@ function TrinketMenu.DebouncedBagUpdate()
 	TrinketMenu.UpdateWornTrinkets()
 end
 
-function TrinketMenu.DebouncedInventoryChanged()
-	TrinketMenu.UpdateWornTrinkets()
-	TrinketMenu.RefreshMainFrameVisibility()
-end
-
 function TrinketMenu.UpdateWornTrinkets()
+  print("Updating worn trinkets...")
 	local trinket13 = TrinketMenu.GetEquippedTrinket(13)
 	local trinket14 = TrinketMenu.GetEquippedTrinket(14)
 
