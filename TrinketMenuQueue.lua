@@ -24,7 +24,6 @@ function TrinketMenu.QueueInit()
 	TrinketMenu.ReflectQueueEnabled()
 	TrinketMenu.UpdateCombatQueue()
 	TrinketMenu.BagsNeedUpdating = {}
-	TrinketMenu.CreateTimer("UpdateBaggedTrinkets",TrinketMenu.UpdateBaggedTrinkets,.25)
 	TrinketMenu_MainFrame:RegisterEvent("BAG_UPDATE")
 
 	TrinketMenuQueue.Profiles = TrinketMenuQueue.Profiles or {}

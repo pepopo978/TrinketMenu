@@ -379,6 +379,7 @@ function TrinketMenu.Initialize()
 	TrinketMenu.CreateTimer("FlushCombatQueue",TrinketMenu.FlushCombatQueue,.25,1)
 
 	TrinketMenu.CreateTimer("UpdateTrinketList", TrinketMenu.UpdateTrinketList, .1)
+	TrinketMenu.CreateTimer("DebouncedBagUpdate", TrinketMenu.DebouncedBagUpdate, .05)
 	TrinketMenu.CreateTimer("DebouncedInventoryChanged", TrinketMenu.DebouncedInventoryChanged, .05)
 
 	TrinketMenu.AutoSwapQueuePending = TrinketMenu.AutoSwapQueuePending or {}
@@ -461,12 +462,9 @@ function TrinketMenu.OnEvent()
 		if arg1>=0 and arg1<=4 then
 			TrinketMenu.BagsNeedUpdating[arg1] = 1
 		end
-		TrinketMenu.StartTimer("UpdateTrinketList")
-		TrinketMenu.StartTimer("UpdateBaggedTrinkets")
+		TrinketMenu.StartTimer("DebouncedBagUpdate")
 	elseif event=="UNIT_INVENTORY_CHANGED" and arg1=="player" then
-		TrinketMenu.StartTimer("UpdateTrinketList")
 		TrinketMenu.StartTimer("DebouncedInventoryChanged")
-		TrinketMenu.RefreshMainFrameVisibility()
 	elseif event=="ACTIONBAR_UPDATE_COOLDOWN" then
 		TrinketMenu.UpdateWornCooldowns(1)
 	elseif event == "PLAYER_REGEN_DISABLED" then
@@ -916,8 +914,17 @@ function TrinketMenu.AutoSwapQueueScheduleOff()
 	end
 end
 
+function TrinketMenu.DebouncedBagUpdate()
+	TrinketMenu.UpdateTrinketList()
+	if TrinketMenu.UpdateBaggedTrinkets then
+		TrinketMenu.UpdateBaggedTrinkets()
+	end
+	TrinketMenu.UpdateWornTrinkets()
+end
+
 function TrinketMenu.DebouncedInventoryChanged()
 	TrinketMenu.UpdateWornTrinkets()
+	TrinketMenu.RefreshMainFrameVisibility()
 end
 
 function TrinketMenu.UpdateWornTrinkets()
